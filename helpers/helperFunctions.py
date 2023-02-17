@@ -68,6 +68,34 @@ def findArea(row):
         s = 0
     return s
 
+def zone(row):
+    s = ""
+    #  id = row['id']
+    # print(row)
+    x = row['x']
+    y = row['y']
+    if (x >= 0 and x <= 33 and y >= 0 and y <= 33):
+        s = "Zone 1 Actions"
+    elif (x >= 0 and x <= 33 and y > 33 and y <= 67):
+        s = "Zone 2 Actions"
+    elif (x >= 0 and x <= 33 and y > 67 and y <= 100):
+        s = "Zone 1 Actions"
+    elif (x > 33 and x <= 67 and y >= 0 and y <= 33):
+        s = "Zone 3 Actions"
+    elif (x > 33 and x <= 67 and y > 33 and y <= 67):
+        s = "Zone 4 Actions"
+    elif (x > 33 and x <= 67 and y > 67 and y <= 100):
+        s = "Zone 3 Actions"
+    elif (x > 67 and x <= 100 and y >= 0 and y <= 33):
+        s = "Zone 5 Actions"
+    elif (x > 67 and x <= 100 and y > 33 and y <= 67):
+        s = "Zone 6 Actions"
+    elif (x >= 67 and x <= 100 and y >= 67 and y <= 100):
+        s = "Zone 5 Actions"
+    else:
+        s = "Zone 0 Actions"
+    return s
+
 
 def pen_shots(x, y):
     return np.where(x > 83,
@@ -248,3 +276,39 @@ def names_clusters(data, cluster):
     dfp = dfp[dfp.ip_cluster == cluster]
     dfp = dfp.iloc[:, np.r_[4, 2, 1, 18, 17, 15, 16, 13, 14]]
     return dfp
+
+def possession_action(row):
+    x = row['subEventName']
+    possession = ["Shot"]
+    if x in possession:
+        return 1
+    else:
+        return 0
+
+
+def defensive_action(row):
+    x = row['subEventName']
+    defensive = ["Penalty"]
+    if x in defensive:
+        return 1
+    else:
+        return 0
+
+
+def opp_space(df, cols):
+    possession = ["goal"]
+    defensive = ["Penalty"]
+    zone = ['Zone 1 Actions', 'Zone 2 Actions', 'Zone 3 Actions', 'Zone 4 Actions', 'Zone 5 Actions', 'Zone 6 Actions']
+    for i in cols:
+        name = i + '_tendency'
+        if i in possession:
+            df[name] = df[i] / df['posAction'] * df[i]
+            df = df.drop([i], axis=1)
+        elif i in defensive:
+            df[name] = df[i] / df['defAction'] * df[i]
+            df = df.drop([i], axis=1)
+        elif i in zone:
+            df[name] = df[i] / (df['posAction'] + df['defAction']) * df[i]
+            df = df.drop([i], axis=1)
+    return df
+
