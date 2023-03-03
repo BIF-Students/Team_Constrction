@@ -51,6 +51,7 @@ gmm_to_df(cluster_assignments, "ip").value_counts()
 x = dr[:, 0]
 y = dr[:, 1]
 
+#push
 colors = plt.cm.viridis(np.linspace(0, 1, 11)).tolist()
 plt.scatter(x, y, c=[colors[l] if l != -1 else 'lightgray' for l in cluster_assignments], cmap='viridis')
 plt.gca().spines['top'].set_visible(False)
