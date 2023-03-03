@@ -58,7 +58,7 @@ plt.gca().spines['right'].set_visible(False)
 plt.title('Cluster Distribution', fontsize=14, fontweight='bold')
 plt.xlabel('umap_x')
 plt.ylabel('umap_y')
-plt.grid(color='lightgray', alpha=0.3, zorder=1)
+plt.grid(color='lightgray', alpha=0.25, zorder=1)
 plt.show()
 
 # merging
