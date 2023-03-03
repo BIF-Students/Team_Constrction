@@ -4,23 +4,23 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import umap
 from helpers.helperFunctions import *
-import plotly.express as px
 from sklearn.mixture import GaussianMixture
-from sklearn.feature_selection import VarianceThreshold
+from helpers.student_bif_code import *
+from matplotlib.lines import Line2D
 
 # loading
-df = pd.read_csv('C:/Users/mall/OneDrive - Implement/Documents/Andet/RP/Data/events_CN_UMAP.csv',
+df = pd.read_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/events_clean.csv',
                  sep=",", encoding='unicode_escape')
 
-# saving IDs
-df_id = df[['playerId', 'seasonId', 'map_group', 'pos_group']]
-df = df.drop(['playerId', 'seasonId', 'map_group', 'pos_group',], axis=1)
+df_posmin = load_db_to_pd(sql_query = "SELECT * FROM Wyscout_Positions_Minutes", db_name='Scouting')
+df_pos = df_posmin.drop(['matchId', 'teamId', 'time'], axis=1)
+df_pos = df_pos.groupby(['playerId', 'seasonId'], as_index=False).agg(gmodeHelp)
+df = pd.merge(df, df_pos, on=['playerId', 'seasonId'])
 
-# variance thresholding
-vt = VarianceThreshold(threshold=0.003)
-_ = vt.fit(df)
-mask = vt.get_support() # getting boolean mask
-test = df.loc[:, mask] # subsetting the data
+# saving IDs
+df_id = df[['playerId', 'seasonId', 'position']]
+df = df.drop(['playerId', 'seasonId', 'position'], axis=1)
+df = df.drop(df.filter(like='_vaep').columns, axis=1)
 
 # applying UMAP - remember to install pynndescent to make it run faster
 dr = umap.UMAP(n_neighbors=50, min_dist=0.0, n_components=2, random_state=42).fit_transform(df)
@@ -28,20 +28,37 @@ dr = umap.UMAP(n_neighbors=50, min_dist=0.0, n_components=2, random_state=42).fi
 # when n_components=2
 dr2 = pd.DataFrame(dr, columns=["x", "y"])
 dr2 = df_id.join(dr2)
-plot = sns.scatterplot(data=dr2, x="x", y="y", hue = "pos_group")
+plot = sns.scatterplot(data=dr2, x="x", y="y", hue = "position")
 plt.show()
 
 # optimal GMM model
 opt_clus(dr)
 
 # clustering
-gmm = GaussianMixture(n_components=11, covariance_type='full', random_state=42).fit(dr).predict(dr)
-plt.scatter(dr[:, 0], dr[:, 1], c=gmm, s=40, cmap='viridis')
+gmm = GaussianMixture(n_components=11, covariance_type='full', random_state=42).fit(dr)
+probs = gmm.predict_proba(dr)
+threshold = 0.7
+cluster_assignments = np.argmax(probs, axis=1)
+cluster_assignments[probs.max(axis=1) < threshold] = -1
+gmm_to_df(cluster_assignments, "ip").value_counts()
+
+# visualization cluster
+x = dr[:, 0]
+y = dr[:, 1]
+
+colors = plt.cm.viridis(np.linspace(0, 1, 11)).tolist()
+plt.scatter(x, y, c=[colors[l] if l != -1 else 'lightgray' for l in cluster_assignments], cmap='viridis')
+plt.gca().spines['top'].set_visible(False)
+plt.gca().spines['right'].set_visible(False)
+plt.title('Cluster Distribution', fontsize=14, fontweight='bold')
+plt.xlabel('umap_x')
+plt.ylabel('umap_y')
+plt.grid(color='lightgray', alpha=0.3, zorder=1)
 plt.show()
 
 # merging
-df2 = pd.concat([df.reset_index(drop=True),gmm_to_df(gmm, "ip").reset_index(drop=True)], axis=1)
-df2_id = pd.concat([df_id.reset_index(drop=True),gmm_to_df(gmm, "ip").reset_index(drop=True)], axis=1)
+df2 = pd.concat([df.reset_index(drop=True),gmm_to_df(cluster_assignments, "ip").reset_index(drop=True)], axis=1)
+df2_id = pd.concat([df_id.reset_index(drop=True),gmm_to_df(cluster_assignments, "ip").reset_index(drop=True)], axis=1)
 # df2_id = pd.concat([df2_id.reset_index(drop=True),df.reset_index(drop=True)], axis=1)
 
 # creating DFs

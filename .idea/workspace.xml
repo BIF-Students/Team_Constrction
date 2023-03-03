@@ -4,17 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/Player_Roles_Project.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SQL_pross.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/helpers/student_bif_code.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="første prepross af SQL udtræk">
+      <change afterPath="$PROJECT_DIR$/archive/OldCluster.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TEST.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/TEST.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/encoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/encoder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PCA.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/PCA.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SQL_pross.py" beforeDir="false" afterPath="$PROJECT_DIR$/SQL_pross.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/archive/TEST.py" beforeDir="false" afterPath="$PROJECT_DIR$/Cluster.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/helpers/helperFunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/helperFunctions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pre_pros2.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/pre_pros2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp-plot.html" beforeDir="false" afterPath="$PROJECT_DIR$/archive/temp-plot.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,8 +54,12 @@
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\mll\OneDrive - Brøndbyernes IF Fodbold\Dokumenter\TC\Team_Constrction" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\mll\OneDrive - Brøndbyernes IF Fodbold\Dokumenter\TC\Team_Constrction\archive" />
+      <recent name="C:\Users\mll\OneDrive - Brøndbyernes IF Fodbold\Dokumenter\TC\Team_Constrction" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -72,11 +72,23 @@
       <updated>1675853639913</updated>
       <workItem from="1675853641147" duration="201000" />
       <workItem from="1675856214182" duration="670000" />
-      <workItem from="1675932219925" duration="18783000" />
+      <workItem from="1675932219925" duration="48581000" />
     </task>
+    <task id="LOCAL-00001" summary="første prepross af SQL udtræk">
+      <created>1676646533461</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1676646533461</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="første prepross af SQL udtræk" />
+    <option name="LAST_COMMIT_MESSAGE" value="første prepross af SQL udtræk" />
   </component>
 </project>
