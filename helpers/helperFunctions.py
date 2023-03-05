@@ -68,6 +68,34 @@ def findArea(row):
         s = 0
     return s
 
+def zone(row):
+    s = ""
+    #  id = row['id']
+    # print(row)
+    x = row['x']
+    y = row['y']
+    if (x >= 0 and x <= 33 and y >= 0 and y <= 33):
+        s = "Zone 1 Actions"
+    elif (x >= 0 and x <= 33 and y > 33 and y <= 67):
+        s = "Zone 2 Actions"
+    elif (x >= 0 and x <= 33 and y > 67 and y <= 100):
+        s = "Zone 1 Actions"
+    elif (x > 33 and x <= 67 and y >= 0 and y <= 33):
+        s = "Zone 3 Actions"
+    elif (x > 33 and x <= 67 and y > 33 and y <= 67):
+        s = "Zone 4 Actions"
+    elif (x > 33 and x <= 67 and y > 67 and y <= 100):
+        s = "Zone 3 Actions"
+    elif (x > 67 and x <= 100 and y >= 0 and y <= 33):
+        s = "Zone 5 Actions"
+    elif (x > 67 and x <= 100 and y > 33 and y <= 67):
+        s = "Zone 6 Actions"
+    elif (x >= 67 and x <= 100 and y >= 67 and y <= 100):
+        s = "Zone 5 Actions"
+    else:
+        s = "Zone 0 Actions"
+    return s
+
 
 def pen_shots(x, y):
     return np.where(x > 83,
@@ -90,7 +118,7 @@ def isWhiteSpaceCross (eventType, row):
     x_end = row['end_x']
     y_end = row['end_y']
     if(row[eventType] == 1):
-        ws_start_condition = x_start > 50 and x_start <= 100 and y_start >= 0 and y_start < 19 | x_start > 50 and x_start <= 100 and y_start > 81 and y_start <= 100
+        ws_start_condition = x_start > 50 and x_start <= 100 and y_start >= 0 and y_start < 19 or x_start > 50 and x_start <= 100 and y_start > 81 and y_start <= 100
         end_condition = x_end > 84 and x_end <= 100 and y_end > 19 and y_end < 81
         if(ws_start_condition and end_condition):
             return 1
@@ -104,7 +132,7 @@ def isHalfSpaceCross (eventType, row):
     x_end = row['end_x']
     y_end = row['end_y']
     if(row[eventType] == 1):
-        hs_start_condition = x_start > 50 and x_start <= 84 and y_start >= 19 and y_start <= 37 | x_start > 50 and x_start <= 84 and y_start >= 63 and y_start <= 81
+        hs_start_condition = x_start > 50 and x_start <= 84 and y_start >= 19 and y_start <= 37 or x_start > 50 and x_start <= 84 and y_start >= 63 and y_start <= 81
         end_condition = x_end > 84 and x_end <= 100 and y_end > 19 and y_end < 81
         if(hs_start_condition and end_condition):
             return 1
@@ -248,3 +276,39 @@ def names_clusters(data, cluster):
     dfp = dfp[dfp.ip_cluster == cluster]
     dfp = dfp.iloc[:, np.r_[4, 2, 1, 18, 17, 15, 16, 13, 14]]
     return dfp
+
+def possession_action(row):
+    x = row['subEventName']
+    possession = ['Simple pass', 'High pass', 'Throw in', 'Head pass', 'Free kick cross', 'Ground attacking duel', 'Cross', 'Corner', 'Free Kick', 'Smart pass', 'Shot', 'Free kick shot', 'Offside', 'Penalty', 'Acceleration']
+    if x in possession:
+        return 1
+    else:
+        return 0
+
+
+def non_possession_action(row):
+    x = row['subEventName']
+    non_possession = ['Clearance', 'Air duel', 'Ground defending duel', 'Foul', 'Ground loose ball duel', 'Hand foul', 'Violent Foul']
+    if x in non_possession:
+        return 1
+    else:
+        return 0
+
+
+def opp_space(df, cols):
+    possession = ["assist", "back_pass", "carry", "deep_completed_cross", "deep_completition", "dribble", "forward_pass", "foul_suffered", "goal", "head_shot", "key_pass", "lateral_pass", "linkup_play", "long_pass", "offensive_duel", "pass_into_penalty_area", "pass_to_final_third", "progressive_pass", "progressive_run", "second_assist", "short_or_medium_pass", "smart_pass", "third_assist", "through_pass", "touch_in_box", "under_pressure", "cross", "shots_PA", "shots_nonPA", "ws_cross", "hs_cross"]
+    non_possession = ["aerial_duel", "conceded_goal", "counterpressing_recovery", "defensive_duel", "dribbled_past_attempt", "ground_duel", "loose_ball_duel", "penalty_foul", "pressing_duel", "recovery", "sliding_tackle"]
+    zone = ['Zone 1 Actions', 'Zone 2 Actions', 'Zone 3 Actions', 'Zone 4 Actions', 'Zone 5 Actions', 'Zone 6 Actions']
+    for i in cols:
+        name = i + '_tendency'
+        if i in possession:
+            df[name] = df[i] / df['posAction'] * df[i]
+            df = df.drop([i], axis=1)
+        elif i in non_possession:
+            df[name] = df[i] / df['nonPosAction'] * df[i]
+            df = df.drop([i], axis=1)
+        elif i in zone:
+            df[name] = df[i] / (df['posAction'] + df['nonPosAction']) * df[i]
+            df = df.drop([i], axis=1)
+    return df
+

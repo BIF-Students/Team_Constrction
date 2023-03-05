@@ -32,8 +32,8 @@ def upload_data_to_db(data: pd.DataFrame, table_name: str, db_name: str = 'Devel
             :param table_name : table name
             :param db_name    : database name
             :param exists     : 'append' or 'replace' to append to the data or replace the data already in the db
-            :param fast_executemany : False as default, set to True to fast execute 
-            :param chunksize  : Specify the number of rows in each batch to be written at a time. By default None 
+            :param fast_executemany : False as default, set to True to fast execute
+            :param chunksize  : Specify the number of rows in each batch to be written at a time. By default None
         Returns:
             Nothing (data is added to the database)
         Author:
