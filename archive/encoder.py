@@ -18,8 +18,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import preprocessing
 
-from sklearn.model_selection import train_test_split
+import helpers
 
+from sklearn.model_selection import train_test_split
 
 
 event_data_cleaned = pd.read_csv ('C:/ITU/ITU_Research_Project/events_cleaned_temp.csv')
