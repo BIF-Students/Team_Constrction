@@ -13,7 +13,7 @@ weight_dicts = get_weight_dicts(df_input, clusters)
 # scaling weight dictionary from 0.5 to 2
 weight_dicts = scale_weights(weight_dicts)
 
-# testing
+# testing/checking
 cluster_name = 'Cluster 1'
 cluster_df = cluster_to_dataframe(weight_dicts, cluster_name)
 plot_sorted_bar_chart(cluster_df)
