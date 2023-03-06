@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="færdig pre-pros + soft clustering v1" />
+    <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="færdig pre-pros + soft clustering v1">
+      <change afterPath="$PROJECT_DIR$/Performance.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cluster.py" beforeDir="false" afterPath="$PROJECT_DIR$/Cluster.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SQL_pross.py" beforeDir="false" afterPath="$PROJECT_DIR$/SQL_pross.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helpers/helperFunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/helperFunctions.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -65,7 +71,7 @@
       <updated>1675853639913</updated>
       <workItem from="1675853641147" duration="201000" />
       <workItem from="1675856214182" duration="670000" />
-      <workItem from="1675932219925" duration="49277000" />
+      <workItem from="1675932219925" duration="63242000" />
     </task>
     <task id="LOCAL-00001" summary="første prepross af SQL udtræk">
       <created>1676646533461</created>

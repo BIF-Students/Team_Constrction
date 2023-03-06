@@ -40,7 +40,7 @@ trans = pca.fit_transform(df)
 opt_clus(trans)
 
 # clustering
-gmm = GaussianMixture(n_components=11, covariance_type='full', random_state=42).fit(dr)
+gmm = GaussianMixture(n_components=8, covariance_type='full', random_state=42).fit(dr)
 probs = gmm.predict_proba(dr)
 threshold = 0.7
 cluster_assignments = np.argmax(probs, axis=1)
@@ -51,8 +51,7 @@ gmm_to_df(cluster_assignments, "ip").value_counts()
 x = dr[:, 0]
 y = dr[:, 1]
 
-#push
-colors = plt.cm.viridis(np.linspace(0, 1, 11)).tolist()
+colors = plt.cm.viridis(np.linspace(0, 1, 8)).tolist()
 plt.scatter(x, y, c=[colors[l] if l != -1 else 'lightgray' for l in cluster_assignments], cmap='viridis')
 plt.gca().spines['top'].set_visible(False)
 plt.gca().spines['right'].set_visible(False)

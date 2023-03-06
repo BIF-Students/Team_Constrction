@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.mixture import GaussianMixture
 import matplotlib.pyplot as plt
 from sklearn import metrics
+import matplotlib.cm as cm
 
 
 # Filter to determine where an  occured
@@ -278,26 +279,34 @@ def names_clusters(data, cluster):
     return dfp
 
 def possession_action(row):
-    x = row['subEventName']
-    possession = ['Simple pass', 'High pass', 'Throw in', 'Head pass', 'Free kick cross', 'Ground attacking duel', 'Cross', 'Corner', 'Free Kick', 'Smart pass', 'Shot', 'Free kick shot', 'Offside', 'Penalty', 'Acceleration']
+    x = row['typePrimary']
+    possession = ['pass', 'free_kick', 'shot', 'throw_in', 'shot_against', 'touch', 'goal_kick', 'corner', 'acceleration', 'offside', 'penalty']
+    column_list = ['assist', 'carry', 'dribble', 'foul_suffered', 'linkup_play', 'offensive_duel', 'progressive_run', 'second_assist', 'third_assist']
     if x in possession:
         return 1
     else:
-        return 0
+        for col in column_list:
+            if row[col] == 1:
+                return 1
+    return 0
 
 
 def non_possession_action(row):
-    x = row['subEventName']
-    non_possession = ['Clearance', 'Air duel', 'Ground defending duel', 'Foul', 'Ground loose ball duel', 'Hand foul', 'Violent Foul']
+    x = row['typePrimary']
+    non_possession = ['interception', 'infraction', 'shot_against', 'clearance']
+    column_list = ['aerial_duel', 'counterpressing_recovery', 'defensive_duel', 'dribbled_past_attempt', 'loose_ball_duel', 'recovery', 'sliding_tackle']
     if x in non_possession:
         return 1
     else:
-        return 0
+        for col in column_list:
+            if row[col] == 1:
+                return 1
+    return 0
 
 
 def opp_space(df, cols):
     possession = ["assist", "back_pass", "carry", "deep_completed_cross", "deep_completition", "dribble", "forward_pass", "foul_suffered", "goal", "head_shot", "key_pass", "lateral_pass", "linkup_play", "long_pass", "offensive_duel", "pass_into_penalty_area", "pass_to_final_third", "progressive_pass", "progressive_run", "second_assist", "short_or_medium_pass", "smart_pass", "third_assist", "through_pass", "touch_in_box", "under_pressure", "cross", "shots_PA", "shots_nonPA", "ws_cross", "hs_cross"]
-    non_possession = ["aerial_duel", "conceded_goal", "counterpressing_recovery", "defensive_duel", "dribbled_past_attempt", "ground_duel", "loose_ball_duel", "penalty_foul", "pressing_duel", "recovery", "sliding_tackle"]
+    non_possession = ["aerial_duel", "conceded_goal", "counterpressing_recovery", "defensive_duel", "dribbled_past_attempt", "loose_ball_duel", "penalty_foul", "pressing_duel", "recovery", "sliding_tackle"]
     zone = ['Zone 1 Actions', 'Zone 2 Actions', 'Zone 3 Actions', 'Zone 4 Actions', 'Zone 5 Actions', 'Zone 6 Actions']
     for i in cols:
         name = i + '_tendency'
@@ -311,4 +320,85 @@ def opp_space(df, cols):
             df[name] = df[i] / (df['posAction'] + df['nonPosAction']) * df[i]
             df = df.drop([i], axis=1)
     return df
+
+
+'''The weights are calculated using the method of variance explained by the projection (VEP), which is a technique for 
+measuring the importance of a feature for a particular cluster. The VEP weight for a feature is proportional to the 
+difference between the mean value of the feature in the target cluster and the mean value of the feature in all the 
+other clusters, weighted by the variance of the feature in the target cluster. The intuition behind this is that if a 
+feature has a high VEP weight, then it is a good predictor of the target cluster.'''
+def get_weight_dicts(X, clusters):
+    weight_dicts = {}
+    for cluster_label in np.unique(clusters):
+        weight_dicts[f'Cluster {cluster_label}'] = {}
+
+    for cluster_label in np.unique(clusters):
+        cluster_indices = np.where(clusters == cluster_label)[0]
+        cluster_means = X.iloc[cluster_indices].mean()
+
+        for feature in X.columns:
+            feature_name = feature.replace("_tendency", "_vaep")
+            feature_mean = X[feature].mean()
+
+            other_clusters = np.unique(clusters[clusters != cluster_label])
+            other_cluster_means = X[clusters.isin(other_clusters)].mean()
+            other_cluster_feature_mean = other_cluster_means[feature]
+
+            weight = (cluster_means[feature] - other_cluster_feature_mean) * np.abs(cluster_means[feature] - 0.5)
+            weight_dicts[f'Cluster {cluster_label}'][feature_name] = weight
+
+    return weight_dicts
+
+
+def scale_weights(weight_dicts):
+    min_weight = np.inf
+    max_weight = -np.inf
+    for cluster_dict in weight_dicts.values():
+        for weight in cluster_dict.values():
+            if weight < min_weight:
+                min_weight = weight
+            if weight > max_weight:
+                max_weight = weight
+
+    for cluster_dict in weight_dicts.values():
+        for feature, weight in cluster_dict.items():
+            scaled_weight = ((weight - min_weight) / (max_weight - min_weight)) * 1.5 + 0.5
+            cluster_dict[feature] = scaled_weight
+
+    return weight_dicts
+
+
+def cluster_to_dataframe(weight_dicts, cluster_name):
+    cluster_weights = weight_dicts[cluster_name]
+    df = pd.DataFrame.from_dict(cluster_weights, orient='index').T
+    return df
+
+
+def plot_sorted_bar_chart(df):
+    df.columns = [col.replace('_vaep', '') for col in df.columns]
+    series = df.T.squeeze()
+    sorted_series = series.sort_values(ascending=False)
+
+    ax = sorted_series.plot(kind='bar', figsize=(12, 6), color=cm.viridis_r(sorted_series / float(max(sorted_series))))
+    ax.set_xlabel('Features')
+    ax.set_ylabel('Weights')
+    ax.axhline(y=1, color='darkred', linestyle='--', zorder=2)
+    plt.gca().spines['top'].set_visible(False)
+    plt.gca().spines['right'].set_visible(False)
+    plt.title('Feature Weight Pareto', fontsize=14, fontweight='bold')
+    plt.grid(color='lightgray', alpha=0.25, zorder=1)
+    plt.show()
+
+
+def calculate_weighted_scores(data, weight_dicts):
+    for name, weights in weight_dicts.items():
+        scores = []
+        for index, row in data.iterrows():
+            weighted_score = sum(row[feature] * weight for feature, weight in weights.items())
+            scores.append(weighted_score)
+        data[f'{name} Weighted Score'] = pd.Series(scores)
+    return data
+
+
+
 
