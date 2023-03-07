@@ -1,0 +1,88 @@
+DROP VIEW if exists vaep 
+DROP VIEW if exists mainEvents
+DROP VIEW if exists passEvents
+DROP VIEW if exists ts
+DROP VIEW if exists sd_view
+DROP VIEW if exists xg
+DROP VIEW if exists xa
+DROP VIEW if exists sd_view_2
+
+Create View vaep as
+ SELECT vaep.eventId, matchId, offensiveValue, defensiveValue, sumVaep
+  FROM Scouting_Raw_Staging.dbo.Vaep as vaep
+  WHERE matchId IN (SELECT matchId
+                              FROM Scouting.dbo.Wyscout_Matches
+                              WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530));
+
+'''
+186393, 187401, 186229, 187450, 186290, 187475, 186810, 187844, 187322, 187276, 186707, 187425, 186230, 187452, 186210, 187483, 186212, 187376, 186352, 187528, 186353, 187373, 186222, 187379, 186249, 187389, 186250, 187534, 186370, 187526, 186267, 187533, 186291, 187374, 186243, 187511, 186265, 187555, 186232, 187523, 186237, 187381, 186211, 187502, 186248, 187141, 186720, 186215, 187453, 187142, 186693, 187409, 186213, 187420, 186214
+'''
+
+
+Create View mainEvents as
+SELECT location_X as x, location_Y as y, eventId, typePrimary, matchId, teamId, playerId
+FROM Scouting_Raw.dbo.Wyscout_Events_Main_Info
+WHERE matchId IN (SELECT matchId
+                              FROM Scouting.dbo.Wyscout_Matches
+                              WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530));
+
+Create View passEvents as
+SELECT eventId, pass_EndLocation_X as end_x, pass_EndLocation_Y as end_y
+FROM Scouting_Raw.dbo.Wyscout_Events_Passes
+WHERE matchId IN (SELECT matchId
+                              FROM Scouting.dbo.Wyscout_Matches
+                              WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530));
+
+
+Create View ts as
+SELECT *
+FROM Scouting_Raw.dbo.Wyscout_Events_TypeSecondary
+WHERE matchId IN (SELECT matchId
+                              FROM Scouting.dbo.Wyscout_Matches
+                              WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530));
+
+Create View xg as
+SELECT eventId, shot_XG
+FROM [Scouting_Raw].[dbo].[Wyscout_Events_Shots]
+WHERE matchId IN (SELECT matchId
+                              FROM Scouting.dbo.Wyscout_Matches
+                              WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530));
+
+Create View xa as
+SELECT eventId, possessionAttack_XG
+FROM [Scouting_Raw].[dbo].Wyscout_Events_Possession
+WHERE matchId IN (SELECT matchId
+                              FROM Scouting.dbo.Wyscout_Matches
+                              WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530))
+and typePrimary in ('acceleration', 'duel', 'pass', 'throw_in', 'touch')
+
+
+Create View sd_view as
+select ts.eventId, ts.matchId, mainEvents.playerId, mainEvents.teamId, mainEvents.typePrimary, x, y, end_x, end_y, aerial_duel, assist, back_pass, ball_out, carry, conceded_goal, counterpressing_recovery, deep_completed_cross, deep_completition, defensive_duel, dribble, dribbled_past_attempt, forward_pass, foul_suffered, goal, ground_duel, head_pass, head_shot, key_pass, lateral_pass, linkup_play, long_pass, loose_ball_duel, loss, offensive_duel, opportunity, pass_into_penalty_area, pass_to_final_third, penalty_foul, pressing_duel, progressive_pass, progressive_run, recovery, second_assist, short_or_medium_pass, sliding_tackle, smart_pass, third_assist, through_pass, touch_in_box, under_pressure,[cross] ,conceded_postmatch_penalty,offensiveValue,defensiveValue, sumVaep, shot_XG as xG, possessionAttack_XG as xA
+from ts
+join vaep on vaep.eventId = ts.eventId
+left join mainEvents on ts.eventId = mainEvents.eventId
+left join passEvents on ts.eventId = passEvents.eventId
+left join xg on xg.eventId = ts.eventId
+left join xa on xa.eventId = ts.eventId
+
+
+Create View sd_view_2 as
+select sd.eventId, playerId, sd.teamId, sd.matchId, seasonId, competitionId, typePrimary, x, y, end_x, end_y, aerial_duel, assist, back_pass, ball_out, carry, conceded_goal, counterpressing_recovery, deep_completed_cross, deep_completition, defensive_duel, dribble, dribbled_past_attempt, forward_pass, foul_suffered, goal, ground_duel, head_pass, head_shot, key_pass, lateral_pass, linkup_play, long_pass, loose_ball_duel, loss, offensive_duel, opportunity, pass_into_penalty_area, pass_to_final_third, penalty_foul, pressing_duel, progressive_pass, progressive_run, recovery, second_assist, short_or_medium_pass, sliding_tackle, smart_pass, third_assist, through_pass, touch_in_box, under_pressure,[cross] ,conceded_postmatch_penalty,offensiveValue,defensiveValue, sumVaep, xG, xA
+from sd_view as sd
+join Scouting.dbo.Wyscout_Matches as m on m.matchId = sd.matchId
+
+
+
+
+SELECT  *
+INTO    sd_table
+FROM    sd_view_2;
+
+select top(100) * from sd_table
+
+
+select * from sd_table where seasonId in (187526, 187511, 187475, 187528, 187374);
+select * from sd_table where seasonId in (187534, 187555, 187527, 187523, 187502);
+select * from sd_table where seasonId in (187482, 187512, 187530, 187533, 187389);
+select * from sd_table where seasonId in (187452, 187459, 187483, 187450, 187425);

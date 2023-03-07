@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module version="4">
   <component name="NewModuleRootManager">
+<<<<<<< HEAD
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
+    </content>
+    <orderEntry type="jdk" jdkName="C:\Users\jhs\Anaconda3" jdkType="Python SDK" />
+=======
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="jdk" jdkName="Team_Constrction" jdkType="Python SDK" />
+>>>>>>> main
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

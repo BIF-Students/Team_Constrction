@@ -5,6 +5,7 @@ import plotly.offline as pyo
 from helpers.metrics2 import *
 import plotly.express as px
 import numpy as np
+import helperFunctions
 from helpers.helperFunctions import *
 
 #Unused imports
