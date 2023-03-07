@@ -1,0 +1,74 @@
+Index: Performance.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import numpy as np\r\nimport pandas as pd\r\nfrom helpers.helperFunctions import *\r\n\r\ndf = pd.read_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/players_clusters.csv',\r\n                 sep=\",\", encoding='unicode_escape')\r\n\r\n# creating weight dictionaries as input\r\nclusters = df['ip_cluster']\r\ndf_input = df.drop(['ip_cluster', 'playerId', 'seasonId', 'position'], axis=1)\r\nweight_dicts = get_weight_dicts(df_input, clusters)\r\n\r\n# scaling weight dictionary from 0.5 to 2\r\nweight_dicts = scale_weights(weight_dicts)\r\n\r\n# testing/checking\r\ncluster_name = 'Cluster 1'\r\ncluster_df = cluster_to_dataframe(weight_dicts, cluster_name)\r\nplot_sorted_bar_chart(cluster_df)\r\n\r\n# applying weights\r\ndfp = pd.read_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/events_clean.csv',\r\n                 sep=\",\", encoding='unicode_escape')\r\ndfp_id = dfp[['playerId', 'seasonId']]\r\ndfp = dfp.drop(dfp.filter(like='_tendency').columns, axis=1)\r\n\r\ndfp = calculate_weighted_scores(dfp, weight_dicts)\r\ncols_to_rank = dfp.columns[dfp.columns.str.endswith('Weighted Score')]\r\ndfp[cols_to_rank] = dfp[cols_to_rank].rank(pct=True)
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Performance.py b/Performance.py
+--- a/Performance.py	(revision 25339fb20a94d490bec73ea4ede40c09a70e8941)
++++ b/Performance.py	(date 1678115844106)
+@@ -13,7 +13,7 @@
+ # scaling weight dictionary from 0.5 to 2
+ weight_dicts = scale_weights(weight_dicts)
+ 
+-# testing/checking
++# testing
+ cluster_name = 'Cluster 1'
+ cluster_df = cluster_to_dataframe(weight_dicts, cluster_name)
+ plot_sorted_bar_chart(cluster_df)
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"a1f780ce-a592-44ab-9318-2d8a78444ee8\" name=\"Changes\" comment=\"færdig pre-pros + soft clustering v1\">\r\n      <change afterPath=\"$PROJECT_DIR$/Performance.py\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/Cluster.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/Cluster.py\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/SQL_pross.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/SQL_pross.py\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/helpers/helperFunctions.py\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/helpers/helperFunctions.py\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Python Script\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"MarkdownSettingsMigration\">\r\n    <option name=\"stateVersion\" value=\"1\" />\r\n  </component>\r\n  <component name=\"ProjectId\" id=\"2LS9VSXK7UgI9Lq4XDYpn08EeTD\" />\r\n  <component name=\"ProjectLevelVcsManager\">\r\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\r\n  </component>\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \"RunOnceActivity.OpenProjectViewOnStart\": \"true\",\r\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\r\n    \"SHARE_PROJECT_CONFIGURATION_FILES\": \"true\",\r\n    \"WebServerToolWindowFactoryState\": \"false\",\r\n    \"last_opened_file_path\": \"C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Team_Constrction\",\r\n    \"node.js.detected.package.eslint\": \"true\",\r\n    \"node.js.detected.package.tslint\": \"true\",\r\n    \"node.js.selected.package.eslint\": \"(autodetect)\",\r\n    \"node.js.selected.package.tslint\": \"(autodetect)\",\r\n    \"settings.editor.selected.configurable\": \"com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable\",\r\n    \"vue.rearranger.settings.migration\": \"true\"\r\n  }\r\n}]]></component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"CopyFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\mll\\OneDrive - Brøndbyernes IF Fodbold\\Dokumenter\\TC\\Team_Constrction\" />\r\n    </key>\r\n    <key name=\"MoveFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\mll\\OneDrive - Brøndbyernes IF Fodbold\\Dokumenter\\TC\\Team_Constrction\\archive\" />\r\n      <recent name=\"C:\\Users\\mll\\OneDrive - Brøndbyernes IF Fodbold\\Dokumenter\\TC\\Team_Constrction\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"a1f780ce-a592-44ab-9318-2d8a78444ee8\" name=\"Changes\" comment=\"\" />\r\n      <created>1675853639913</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1675853639913</updated>\r\n      <workItem from=\"1675853641147\" duration=\"201000\" />\r\n      <workItem from=\"1675856214182\" duration=\"670000\" />\r\n      <workItem from=\"1675932219925\" duration=\"63242000\" />\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"første prepross af SQL udtræk\">\r\n      <created>1676646533461</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1676646533461</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00002\" summary=\"færdig pre-pros + soft clustering v1\">\r\n      <created>1677860725605</created>\r\n      <option name=\"number\" value=\"00002\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1677860725605</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00003\" summary=\"færdig pre-pros + soft clustering v1\">\r\n      <created>1677861057634</created>\r\n      <option name=\"number\" value=\"00003\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1677861057634</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00004\" summary=\"færdig pre-pros + soft clustering v1\">\r\n      <created>1677861277360</created>\r\n      <option name=\"number\" value=\"00004\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1677861277360</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"5\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State />\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"første prepross af SQL udtræk\" />\r\n    <MESSAGE value=\"færdig pre-pros + soft clustering v1\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"færdig pre-pros + soft clustering v1\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 25339fb20a94d490bec73ea4ede40c09a70e8941)
++++ b/.idea/workspace.xml	(date 1678179102058)
+@@ -5,11 +5,8 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="færdig pre-pros + soft clustering v1">
+-      <change afterPath="$PROJECT_DIR$/Performance.py" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/Cluster.py" beforeDir="false" afterPath="$PROJECT_DIR$/Cluster.py" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/SQL_pross.py" beforeDir="false" afterPath="$PROJECT_DIR$/SQL_pross.py" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/helpers/helperFunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/helperFunctions.py" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/Performance.py" beforeDir="false" afterPath="$PROJECT_DIR$/Performance.py" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -71,7 +68,7 @@
+       <updated>1675853639913</updated>
+       <workItem from="1675853641147" duration="201000" />
+       <workItem from="1675856214182" duration="670000" />
+-      <workItem from="1675932219925" duration="63242000" />
++      <workItem from="1675932219925" duration="64125000" />
+     </task>
+     <task id="LOCAL-00001" summary="første prepross af SQL udtræk">
+       <created>1676646533461</created>
+@@ -101,7 +98,21 @@
+       <option name="project" value="LOCAL" />
+       <updated>1677861277360</updated>
+     </task>
+-    <option name="localTasksCounter" value="5" />
++    <task id="LOCAL-00005" summary="færdig pre-pros + soft clustering v1">
++      <created>1678115787107</created>
++      <option name="number" value="00005" />
++      <option name="presentableId" value="LOCAL-00005" />
++      <option name="project" value="LOCAL" />
++      <updated>1678115787107</updated>
++    </task>
++    <task id="LOCAL-00006" summary="færdig pre-pros + soft clustering v1">
++      <created>1678115826035</created>
++      <option name="number" value="00006" />
++      <option name="presentableId" value="LOCAL-00006" />
++      <option name="project" value="LOCAL" />
++      <updated>1678115826036</updated>
++    </task>
++    <option name="localTasksCounter" value="7" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">

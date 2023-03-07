@@ -5,11 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="færdig pre-pros + soft clustering v1">
-      <change afterPath="$PROJECT_DIR$/Performance.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cluster.py" beforeDir="false" afterPath="$PROJECT_DIR$/Cluster.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SQL_pross.py" beforeDir="false" afterPath="$PROJECT_DIR$/SQL_pross.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helpers/helperFunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/helperFunctions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Performance.py" beforeDir="false" afterPath="$PROJECT_DIR$/Performance.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,7 +68,7 @@
       <updated>1675853639913</updated>
       <workItem from="1675853641147" duration="201000" />
       <workItem from="1675856214182" duration="670000" />
-      <workItem from="1675932219925" duration="63242000" />
+      <workItem from="1675932219925" duration="64125000" />
     </task>
     <task id="LOCAL-00001" summary="første prepross af SQL udtræk">
       <created>1676646533461</created>
@@ -101,7 +98,21 @@
       <option name="project" value="LOCAL" />
       <updated>1677861277360</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="færdig pre-pros + soft clustering v1">
+      <created>1678115787107</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1678115787107</updated>
+    </task>
+    <task id="LOCAL-00006" summary="færdig pre-pros + soft clustering v1">
+      <created>1678115826035</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1678115826036</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
