@@ -4,6 +4,7 @@ from sklearn.mixture import GaussianMixture
 import matplotlib.pyplot as plt
 from sklearn import metrics
 import matplotlib.cm as cm
+import warnings
 
 
 # Filter to determine where an  occured
@@ -221,35 +222,52 @@ def off_def(row):
 
 def opt_clus(dr):
     n_range = range(2, 21)
-    # bic_score = []
-    # aic_score = []
+    threshold_step = 0.05
     sil_score = []
     chi_score = []
     dbi_score = []
 
     for n in n_range:
+        best_sil = 0
+        best_chi = 0
+        best_dbi = 100
         gm = GaussianMixture(n_components=n, covariance_type='full', random_state=42)
         gm.fit(dr)
-        labels = gm.predict(dr)
-        #labels = labels.reshape(labels.shape[0], 1) # for 3D
-        print(("Clusters: ", n, "Siloutte: ", metrics.silhouette_score(dr, labels, metric='euclidean')))
-        # bic_score.append(gm.bic(dr))
-        # aic_score.append(gm.aic(dr))
-        sil_score.append(metrics.silhouette_score(dr, labels, metric='euclidean'))
-        chi_score.append(metrics.calinski_harabasz_score(dr, labels)/10000)
-        dbi_score.append(metrics.davies_bouldin_score(dr, labels))
+        probs = gm.predict_proba(dr)
+
+        for threshold in np.arange(0.3, 0.8 + threshold_step, threshold_step):
+            labels = np.argmax(probs, axis=1)
+            labels[probs.max(axis=1) < threshold] = -1
+            labels, dr = zip(*[(c, o) for c, o in zip(labels, dr) if c >= 0])
+
+            sil_val = metrics.silhouette_score(dr, labels, metric='euclidean', sample_size=None, random_state=None)
+            chi_val = metrics.calinski_harabasz_score(dr, labels)
+            dbi_val = metrics.davies_bouldin_score(dr, labels)
+
+            if sil_val > best_sil:
+                best_sil = sil_val
+                print("Threshold: ", round(threshold, 2))
+            if chi_val > best_chi: best_chi = chi_val
+            if dbi_val < best_dbi: best_dbi = dbi_val
+
+        print(("Cluster: ", n, "SIL: ", round(best_sil, 2), "CHI: ", round(best_chi, 2), "DBI: ", round(best_dbi, 2)))
+        sil_score.append(best_sil)
+        chi_score.append(best_chi/1000)
+        dbi_score.append(best_dbi)
 
     fig, ax = plt.subplots(figsize=(12, 8), nrows=1)
-    # ax.plot(n_range, bic_score, '-o', color='orange', label='BIC')
-    # ax.plot(n_range, aic_score, '-o', color='blue', label='AIC')
     ax.plot(n_range, sil_score, '-o', color='orange', label='SIL')
     ax.plot(n_range, chi_score, '-o', color='blue', label='CHI')
     ax.plot(n_range, dbi_score, '-o', color='green', label='DBI')
     ax.set(xlabel='Number of Clusters', ylabel='Score')
     ax.set_xticks(n_range)
-    ax.set_title('Evaluation Scores Per Number Of Clusters')
     ax.legend(fontsize='x-large')
+    plt.gca().spines['top'].set_visible(False)
+    plt.gca().spines['right'].set_visible(False)
+    plt.title('Evaluation Scores Per Number Of Clusters', fontsize=14, fontweight='bold')
+    plt.grid(color='lightgray', alpha=0.25, zorder=1)
     plt.show()
+
 
 
 def gmm_to_df(df, phase):
