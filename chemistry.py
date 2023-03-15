@@ -15,7 +15,6 @@ df_def = df_def[df_def['nonPosAction'] == 1] # Filter dataframe for defensive ac
 
 matches_positions = {}
 
-#re
 
 def allocate_position(row):
     x = row['x']
