@@ -15,16 +15,6 @@ df_def = df_def[df_def['nonPosAction'] == 1] # Filter dataframe for defensive ac
 
 matches_positions = {}
 
-tester = {}
-tester[(1,2)] = {'matchId': 10, 'playerId': 12, 'x': [10,20,30], 'y': [30,40,50]}
-
-tester2 = {}
-
-tester2[(1,2)] = {'matchId': tester[(1,2)]['matchId'], 'playerId': tester[(1,2)]['playerId'], 'avg_x': sum(tester[(1,2)]['x'])/len(tester[(1,2)]['x']), 'avg_y': sum(tester[(1,2)]['y'])/len(tester[(1,2)]['y'])}
-
-tester[(1,2)]['matchId']
-
-
 def allocate_position(row):
     x = row['x']
     y = row['y']
