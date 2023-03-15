@@ -96,6 +96,35 @@ def zone(row):
         s = "Zone 0 Actions"
     return s
 
+def find_zone_chemistry(row):
+    s = ""
+    #  id = row['id']
+    # print(row)
+    x = row['x']
+    y = row['y']
+    if (x >= 0 and x <= 33 and y >= 0 and y <= 33):
+        s = 1
+    elif (x >= 0 and x <= 33 and y > 33 and y <= 67):
+        s = 2
+    elif (x >= 0 and x <= 33 and y > 67 and y <= 100):
+        s = 3
+    elif (x > 33 and x <= 67 and y >= 0 and y <= 33):
+        s = 4
+    elif (x > 33 and x <= 67 and y > 33 and y <= 67):
+        s = 5
+    elif (x > 33 and x <= 67 and y > 67 and y <= 100):
+        s = 6
+    elif (x > 67 and x <= 100 and y >= 0 and y <= 33):
+        s = 7
+    elif (x > 67 and x <= 100 and y > 33 and y <= 67):
+        s = 8
+    elif (x >= 67 and x <= 100 and y >= 67 and y <= 100):
+        s = 9
+    else:
+        s = 0
+    return s
+
+
 
 def pen_shots(x, y):
     return np.where(x > 83,
@@ -278,21 +307,29 @@ def names_clusters(data, cluster):
     return dfp
 
 def possession_action(row):
-    x = row['subEventName']
-    possession = ['Simple pass', 'High pass', 'Throw in', 'Head pass', 'Free kick cross', 'Ground attacking duel', 'Cross', 'Corner', 'Free Kick', 'Smart pass', 'Shot', 'Free kick shot', 'Offside', 'Penalty', 'Acceleration']
+    x = row['typePrimary']
+    possession = ['pass', 'free_kick', 'shot', 'throw_in', 'shot_against', 'touch', 'goal_kick', 'corner', 'acceleration', 'offside', 'penalty']
+    column_list = ['assist', 'carry', 'dribble', 'foul_suffered', 'linkup_play', 'offensive_duel', 'progressive_run', 'second_assist', 'third_assist']
     if x in possession:
         return 1
     else:
-        return 0
+        for col in column_list:
+            if row[col] == 1:
+                return 1
+    return 0
 
 
 def non_possession_action(row):
-    x = row['subEventName']
-    non_possession = ['Clearance', 'Air duel', 'Ground defending duel', 'Foul', 'Ground loose ball duel', 'Hand foul', 'Violent Foul']
+    x = row['typePrimary']
+    non_possession = ['interception', 'infraction', 'shot_against', 'clearance']
+    column_list = ['aerial_duel', 'counterpressing_recovery', 'defensive_duel', 'dribbled_past_attempt', 'loose_ball_duel', 'recovery', 'sliding_tackle']
     if x in non_possession:
         return 1
     else:
-        return 0
+        for col in column_list:
+            if row[col] == 1:
+                return 1
+    return 0
 
 
 def opp_space(df, cols):
