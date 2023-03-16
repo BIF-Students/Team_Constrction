@@ -191,17 +191,26 @@ def gmodeHelp(x):
 def pos_group(row):
     x = row['position']
     g = ['gk']
-    d = ['lb', 'rb', 'rcb', 'rcb3', 'lcb', 'cb', 'rb5', 'lcb3', 'lwb', 'rwb']
-    m = ['lcmf', 'rcmf', 'ldmf', 'dmf', 'rdmf', 'lcmf3', 'rcmf3']
-    a = ['lw', 'amf', 'cf', 'lamf', 'rw', 'ss', 'ramf']
+    cb = ['rcb', 'lcb', 'cb', 'lcb3', 'rcb3']
+    b = ['rb', 'lb', 'rwb', 'lwb', 'rb5', 'lb5']
+    m = ['lcmf3', 'rdmf', 'lcmf', 'rcmf3', 'rcmf', 'dmf', 'ldmf']
+    am = ['lamf', 'amf', 'ramf', 'ramf']
+    w = ['lw', 'rw', 'lwf', 'rwf']
+    a = ['cf', 'ss']
     if x in g:
         return "GK"
-    elif x in d:
-        return "DEF"
+    elif x in cb:
+        return "CB"
+    elif x in b:
+        return "B"
     elif x in m:
-        return "MID"
+        return "MC"
+    elif x in am:
+        return "AM"
+    elif x in w:
+        return "W"
     elif x in a:
-        return "ATT"
+        return "ST"
     else:
         return "other"
 

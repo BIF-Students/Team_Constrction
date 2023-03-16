@@ -1,18 +1,20 @@
 import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
 from helpers.student_bif_code import *
 from helpers.helperFunctions import *
-from sklearn.preprocessing import MinMaxScaler
 
-df = load_db_to_pd(sql_query = "SELECT * FROM sd_table", db_name='Development')
+df = load_db_to_pd(sql_query = "SELECT * FROM sd_tableF WHERE competitionId IN (852, 905, 729, 707, 795);", db_name='Development')
 
 df = df.drop(['ball_out', 'head_pass', 'loss', 'opportunity', 'conceded_postmatch_penalty',
               'teamId', 'competitionId',
               'conceded_goal', 'deep_completition', 'pass_into_penalty_area', 'pressing_duel', 'ground_duel'],
              axis=1)
 
+REMOVE COLUMNS WITHOUT DATA
+
 # extra stats placeholder (missing passes into pen, FT pass)
-df['shots_PA'] = np.where(df['typePrimary'] == 'Shot', non_pen_shots(df.x, df.y), 0)
-df['shots_nonPA'] = np.where(df['typePrimary'] == 'Shot', pen_shots(df.x, df.y), 0)
+df['shots_PA'] = np.where(df['typePrimary'] == 'shot', non_pen_shots(df.x, df.y), 0)
+df['shots_nonPA'] = np.where(df['typePrimary'] == 'shot', pen_shots(df.x, df.y), 0)
 df['ws_cross'] = df.apply(lambda row: isWhiteSpaceCross('cross', row), axis=1)
 df['hs_cross'] = df.apply(lambda row: isHalfSpaceCross('cross', row), axis=1)
 
@@ -23,24 +25,31 @@ dfx['eventId'] = df['eventId']
 df = pd.merge(df, dfx, on='eventId')
 
 # indicate pos/def action
-df.insert(58, 'posAction', df.apply(lambda row: possession_action(row), axis=1), allow_duplicates=True)
-df.insert(58, 'nonPosAction', df.apply(lambda row: non_possession_action(row), axis=1), allow_duplicates=True)
+df['posAction'] = df.apply(lambda row: possession_action(row), axis=1)
+df['nonPosAction'] = df.apply(lambda row: non_possession_action(row), axis=1)
 
 # adding vaep pr related stat
-temp = df.iloc[:, np.r_[10:43, 46:58]].columns # update to include added stats
+# df.insert(52, 'Zone 0 Actions', 0, allow_duplicates=True) -- ONLY use if no Zone 0
+temp = df.iloc[:, np.r_[10:43, 46:59]].columns # update to include added stats
 for i in temp:
     name = i + '_vaep'
     df[name] = np.where(df[i] != 0, df['sumVaep'], 0)
 
 # grouping per season
-dfc = df.drop(['eventId',
+df = df.drop(['eventId',
                 'x', 'y', 'end_x', 'end_y', 'eventZone',
                'typePrimary',
                'matchId',
                'offensiveValue', 'defensiveValue', 'sumVaep'],
              axis=1)
-dfc = dfc[(dfc.playerId != 0)]
-dfc = dfc.groupby(['playerId', 'seasonId'], as_index=False).sum()
+df = df[(df.playerId != 0)]
+dfc = df.groupby(['playerId', 'seasonId'], as_index=False).sum()
+
+# merging dfs
+frames = [] # run ONLY in the beginning
+frames.append(dfc)
+print(frames)
+dfc = pd.concat(frames) # run ONLY in the end
 
 # adding positions and removing GKs
 df_posmin = load_db_to_pd(sql_query = "SELECT * FROM Wyscout_Positions_Minutes", db_name='Scouting')
@@ -78,7 +87,7 @@ dfc.columns.get_loc("Zone 6 Actions_vaep")
 df_elo = load_db_to_pd(sql_query = "SELECT * FROM League_Factor", db_name='Scouting')
 df_elo = df_elo.drop(['date'], axis=1)
 dfc = pd.merge(dfc, df_elo, on=['seasonId'])
-dfc_elo = dfc.iloc[:, np.r_[6:51]].mul(dfc.leagueFactor, axis=0) #update iloc if changes
+dfc_elo = dfc.iloc[:, np.r_[7:53]].mul(dfc.leagueFactor, axis=0) #update iloc if changes
 dfc_other = dfc.drop(dfc.filter(like='_vaep').columns, axis=1)
 dfc = pd.concat([dfc_other.reset_index(drop=True),dfc_elo.reset_index(drop=True)], axis=1)
 
@@ -101,4 +110,4 @@ check = outliers.describe()
 dfc = dfc.drop(['cross_tendency', 'cross_vaep', 'xG', 'xA', 'nonPosAction', 'posAction', 'leagueFactor'], axis=1)
 
 # export
-dfc.to_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/events_clean.csv', index=False)
+df.to_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/events_clean.csv', index=False)

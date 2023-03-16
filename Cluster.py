@@ -3,14 +3,15 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import umap
-from helpers.helperFunctions import *
 from sklearn.mixture import GaussianMixture
-from helpers.student_bif_code import *
 from sklearn.decomposition import PCA
+from helpers.student_bif_code import *
+from helpers.helperFunctions import *
 
 # loading
 df = pd.read_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/events_clean.csv',
                  sep=",", encoding='unicode_escape')
+df = df.drop(['Zone 0 Actions', 'Zone 0 Actions_vaep'], axis=1)
 
 # tjek positions_minutes (om der er mangler)
 df_posmin = load_db_to_pd(sql_query = "SELECT * FROM Wyscout_Positions_Minutes", db_name='Scouting')
@@ -25,7 +26,8 @@ df = df.drop(['playerId', 'seasonId', 'position', 'pos_group'], axis=1)
 df = df.drop(df.filter(like='_vaep').columns, axis=1)
 
 # applying UMAP - remember to install pynndescent to make it run faster
-dr = umap.UMAP(n_neighbors=50, min_dist=0.0, n_components=2, random_state=42).fit_transform(df)
+test = df[['goal_tendency', 'head_shot_tendency', 'touch_in_box_tendency', 'shots_PA_tendency', 'Zone 6 Actions_tendency']]
+dr = umap.UMAP(n_neighbors=50, min_dist=0.0, n_components=2, random_state=42).fit_transform(test)
 
 # when n_components=2
 dr2 = pd.DataFrame(dr, columns=["x", "y"])
@@ -38,7 +40,7 @@ opt_clus(dr)
 
 # pca comparison
 pca = PCA(n_components=0.8)
-trans = pca.fit_transform(df)
+trans = pca.fit_transform(dr)
 opt_clus(trans)
 
 # clustering
