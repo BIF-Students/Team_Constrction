@@ -189,21 +189,18 @@ def gmodeHelp(x):
     return m.values[0] if not m.empty else np.nan
 
 def pos_group(row):
-    x = row['map_group']
-    g = ['GK']
-    d = ['CB']
-    m = ['AM', 'CM', 'DM']
-    w = ['LM', 'RM', 'LW', 'RW', 'RB', 'LB', 'LWB', 'RWB']
-    f = ['FW']
+    x = row['position']
+    g = ['gk']
+    d = ['lb', 'rb', 'rcb', 'rcb3', 'lcb', 'cb', 'rb5', 'lcb3', 'lwb', 'rwb']
+    m = ['lcmf', 'rcmf', 'ldmf', 'dmf', 'rdmf', 'lcmf3', 'rcmf3']
+    a = ['lw', 'amf', 'cf', 'lamf', 'rw', 'ss', 'ramf']
     if x in g:
         return "GK"
     elif x in d:
         return "DEF"
     elif x in m:
         return "MID"
-    elif x in w:
-        return "WIDE"
-    elif x in f:
+    elif x in a:
         return "ATT"
     else:
         return "other"

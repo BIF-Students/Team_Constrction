@@ -17,10 +17,11 @@ df_posmin = load_db_to_pd(sql_query = "SELECT * FROM Wyscout_Positions_Minutes",
 df_pos = df_posmin.drop(['matchId', 'teamId', 'time'], axis=1)
 df_pos = df_pos.groupby(['playerId', 'seasonId'], as_index=False).agg(gmodeHelp)
 df = pd.merge(df, df_pos, on=['playerId', 'seasonId'])
+df['pos_group'] = df.apply(lambda row: pos_group(row), axis=1)
 
 # saving IDs
-df_id = df[['playerId', 'seasonId', 'position']]
-df = df.drop(['playerId', 'seasonId', 'position'], axis=1)
+df_id = df[['playerId', 'seasonId', 'pos_group']]
+df = df.drop(['playerId', 'seasonId', 'position', 'pos_group'], axis=1)
 df = df.drop(df.filter(like='_vaep').columns, axis=1)
 
 # applying UMAP - remember to install pynndescent to make it run faster
@@ -29,7 +30,7 @@ dr = umap.UMAP(n_neighbors=50, min_dist=0.0, n_components=2, random_state=42).fi
 # when n_components=2
 dr2 = pd.DataFrame(dr, columns=["x", "y"])
 dr2 = df_id.join(dr2)
-plot = sns.scatterplot(data=dr2, x="x", y="y", hue = "position")
+plot = sns.scatterplot(data=dr2, x="x", y="y", hue = "pos_group")
 plt.show()
 
 # optimal GMM model
