@@ -86,3 +86,11 @@ select * from sd_table where seasonId in (187526, 187511, 187475, 187528, 187374
 select * from sd_table where seasonId in (187534, 187555, 187527, 187523, 187502);
 select * from sd_table where seasonId in (187482, 187512, 187530, 187533, 187389);
 select * from sd_table where seasonId in (187452, 187459, 187483, 187450, 187425);
+
+
+create view events_and_realted_events as (
+select e.eventId, e.x, e.y, e.typePrimary, e.teamId, e.matchId, e.playerId, mi.relatedEventId from mainEvents as e
+left join [Scouting_Raw].[dbo].[Wyscout_Events_Main_Info] as mi on e.eventId = mi.eventId
+WHERE mi.matchId IN (SELECT matchId
+                              FROM Scouting.dbo.Wyscout_Matches
+                              WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530)));
