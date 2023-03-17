@@ -27,7 +27,7 @@ df = df.drop(df.filter(like='_vaep').columns, axis=1)
 
 # applying UMAP - remember to install pynndescent to make it run faster
 test = df[['goal_tendency', 'head_shot_tendency', 'touch_in_box_tendency', 'shots_PA_tendency', 'Zone 6 Actions_tendency']]
-dr = umap.UMAP(n_neighbors=50, min_dist=0.0, n_components=2, random_state=42).fit_transform(test)
+dr = umap.UMAP(n_neighbors=50, min_dist=0.0, n_components=2, random_state=42).fit_transform(df)
 
 # when n_components=2
 dr2 = pd.DataFrame(dr, columns=["x", "y"])
@@ -40,14 +40,14 @@ opt_clus(dr)
 
 # pca comparison
 pca = PCA(n_components=0.8)
-trans = pca.fit_transform(dr)
+trans = pca.fit_transform(df)
 opt_clus(trans)
 
 # clustering
-clusters = 11
+clusters = 7
 gmm = GaussianMixture(n_components=clusters, covariance_type='full', random_state=42).fit(dr)
 probs = gmm.predict_proba(dr)
-threshold = 0.7 # found via opt_clust
+threshold = 0.35 # found via opt_clust
 cluster_assignments = np.argmax(probs, axis=1)
 cluster_assignments[probs.max(axis=1) < threshold] = -1
 gmm_to_df(cluster_assignments, "ip").value_counts()
@@ -69,6 +69,8 @@ plt.show()
 # merging
 df2 = pd.concat([df.reset_index(drop=True),gmm_to_df(cluster_assignments, "ip").reset_index(drop=True)], axis=1)
 df2 = pd.concat([df_id.reset_index(drop=True),df2.reset_index(drop=True)], axis=1)
+
+df2.groupby('ip_cluster')['pos_group'].value_counts()
 
 # export
 df2.to_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/players_clusters.csv', index=False)

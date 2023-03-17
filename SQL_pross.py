@@ -3,7 +3,7 @@ from sklearn.preprocessing import MinMaxScaler
 from helpers.student_bif_code import *
 from helpers.helperFunctions import *
 
-df = load_db_to_pd(sql_query = "SELECT * FROM sd_tableF WHERE competitionId IN (852, 905, 729, 707, 795);", db_name='Development')
+df = load_db_to_pd(sql_query = "SELECT * FROM sd_tableF WHERE competitionId IN (852);", db_name='Development')
 
 df = df.drop(['ball_out', 'head_pass', 'loss', 'opportunity', 'conceded_postmatch_penalty',
               'teamId', 'competitionId',
@@ -29,7 +29,7 @@ df['posAction'] = df.apply(lambda row: possession_action(row), axis=1)
 df['nonPosAction'] = df.apply(lambda row: non_possession_action(row), axis=1)
 
 # adding vaep pr related stat
-# df.insert(52, 'Zone 0 Actions', 0, allow_duplicates=True) -- ONLY use if no Zone 0
+# df.insert(52, 'Zone 0 Actions', 0, allow_duplicates=True) # ONLY use if no Zone 0
 temp = df.iloc[:, np.r_[10:43, 46:59]].columns # update to include added stats
 for i in temp:
     name = i + '_vaep'
@@ -76,6 +76,7 @@ dfc_norm = dfc.drop(['playerId', 'seasonId'], axis=1)
 
 dfc_norm = dfc_norm.iloc[:, np.r_[0:94]].div(dfc_norm.games, axis=0) #update iloc if changes
 dfc = pd.concat([dfc_id.reset_index(drop=True),dfc_norm.reset_index(drop=True)], axis=1)
+test = dfc.describe()
 
 # switching counting stats to opportunity spaces
 temp = dfc.columns
@@ -110,4 +111,4 @@ check = outliers.describe()
 dfc = dfc.drop(['cross_tendency', 'cross_vaep', 'xG', 'xA', 'nonPosAction', 'posAction', 'leagueFactor'], axis=1)
 
 # export
-df.to_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/events_clean.csv', index=False)
+dfc.to_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/events_clean.csv', index=False)
