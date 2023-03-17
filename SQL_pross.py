@@ -3,14 +3,12 @@ from sklearn.preprocessing import MinMaxScaler
 from helpers.student_bif_code import *
 from helpers.helperFunctions import *
 
-df = load_db_to_pd(sql_query = "SELECT * FROM sd_tableF WHERE competitionId IN (852);", db_name='Development')
+df = load_db_to_pd(sql_query = "SELECT * FROM sd_tableF WHERE competitionId IN (852, 905, 729, 707, 795);", db_name='Development')
 
 df = df.drop(['ball_out', 'head_pass', 'loss', 'opportunity', 'conceded_postmatch_penalty',
               'teamId', 'competitionId',
               'conceded_goal', 'deep_completition', 'pass_into_penalty_area', 'pressing_duel', 'ground_duel'],
              axis=1)
-
-REMOVE COLUMNS WITHOUT DATA
 
 # extra stats placeholder (missing passes into pen, FT pass)
 df['shots_PA'] = np.where(df['typePrimary'] == 'shot', non_pen_shots(df.x, df.y), 0)
@@ -81,6 +79,7 @@ test = dfc.describe()
 # switching counting stats to opportunity spaces
 temp = dfc.columns
 dfc = opp_space(dfc, temp)
+test2 = dfc.describe()
 
 dfc.columns.get_loc("Zone 6 Actions_vaep")
 

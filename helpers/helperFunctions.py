@@ -202,7 +202,7 @@ def pos_group(row):
     elif x in cb:
         return "CB"
     elif x in b:
-        return "B"
+        return "FB"
     elif x in m:
         return "MC"
     elif x in am:
