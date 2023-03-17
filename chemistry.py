@@ -14,13 +14,17 @@ df_events_related_ids = load_db_to_pd(sql_query="select * from events_and_realte
 df_events_related_ids_2 = df_events_related_ids[['eventId', "relatedEventId"]]
 related_id_restored_df = pd.merge(df, df_events_related_ids_2, how = 'left', on='eventId')
 
-extracted =related_id_restored_df[['eventId', 'typePrimary', 'playerId', 'teamId', 'matchId', 'sumVaep']]
-extracted =extracted.rename(columns ={'eventId': 'relatedEventId', 'typePrimary': 'related_event', 'playerId': 'playerId_2', 'teamId': 'teamId_2', 'matchId': 'matchId_2'})
+extracted = related_id_restored_df[['eventId', 'typePrimary', 'playerId', 'teamId', 'matchId', 'sumVaep']]
+extracted = extracted.rename(columns ={'eventId': 'relatedEventId', 'typePrimary': 'related_event', 'playerId': 'playerId_2', 'teamId': 'teamId_2', 'matchId': 'matchId_2'})
 
 merged =pd.merge(extracted, related_id_restored_df, how = 'right', on='relatedEventId')
-joined_df = merged[['eventId', 'relatedEventId', 'typePrimary', 'related_event', 'playerId', 'player2', 'teamId', 'teamId', 'matchId', 'match2']]
+joined_df = merged[['eventId', 'relatedEventId', 'typePrimary', 'related_event', 'playerId', 'playerId_2', 'teamId', 'teamId_2', 'matchId', 'matchId_2', 'sumVaep_x', 'sumVaep_y']]
 
-join_df = join_df.rename(columns ={'playerId': 'player1' 'relatedEventId', 'tp_related': 'related_event' ,'matchId': 'match1'})
+joined_df = joined_df.rename(columns ={'playerId': 'playerId_1' ,'matchId': 'matchId_1', 'teamId': 'teamId_1' ,'sumVaep_x': 'sumVaep_1', 'sumVaep_y': 'sumVaep_2'})
+joined_df = joined_df[(joined_df['playerId_1'].notna()) & (joined_df['playerId_2'].notna()) & (joined_df['teamId_1'].notna()) & (joined_df['teamId_2'].notna()) & (joined_df['matchId_1'].notna()) & (joined_df['matchId_2'].notna())]
+
+joined_df['sumVaep_1'] = joined_df['sumVaep_1'].fillna(0)
+joined_df['sumVaep_2'] = joined_df['sumVaep_2'].fillna(0)
 
 
 merged['relatedEventId'] = merged['relatedEventId'].fillna(0)

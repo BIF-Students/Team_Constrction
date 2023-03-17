@@ -1,3 +1,5 @@
+import math
+
 import pandas as pd
 import numpy as np
 from sklearn.mixture import GaussianMixture
@@ -349,3 +351,8 @@ def opp_space(df, cols):
             df = df.drop([i], axis=1)
     return df
 
+
+
+(3/4) * 3
+
+(math.pow(3,2)/4)
