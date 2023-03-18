@@ -6,29 +6,13 @@ from helpers.helperFunctions import *
 import math
 import numpy as np
 import itertools
+from helpers.chemistry_helpers import *
 
 # Load data from a SQL database table into a pandas DataFrame
 df = load_db_to_pd(sql_query="select * from sd_table", db_name='Development')
 df_events_related_ids = load_db_to_pd(sql_query="select * from events_and_realted_events", db_name='Development')
 
-df_events_related_ids_2 = df_events_related_ids[['eventId', "relatedEventId"]]
-related_id_restored_df = pd.merge(df, df_events_related_ids_2, how = 'left', on='eventId')
-
-extracted = related_id_restored_df[['eventId', 'typePrimary', 'playerId', 'teamId', 'matchId', 'sumVaep']]
-extracted = extracted.rename(columns ={'eventId': 'relatedEventId', 'typePrimary': 'related_event', 'playerId': 'playerId_2', 'teamId': 'teamId_2', 'matchId': 'matchId_2'})
-
-merged =pd.merge(extracted, related_id_restored_df, how = 'right', on='relatedEventId')
-joined_df = merged[['eventId', 'relatedEventId', 'typePrimary', 'related_event', 'playerId', 'playerId_2', 'teamId', 'teamId_2', 'matchId', 'matchId_2', 'sumVaep_x', 'sumVaep_y']]
-
-joined_df = joined_df.rename(columns ={'playerId': 'playerId_1' ,'matchId': 'matchId_1', 'teamId': 'teamId_1' ,'sumVaep_x': 'sumVaep_1', 'sumVaep_y': 'sumVaep_2'})
-joined_df = joined_df[(joined_df['playerId_1'].notna()) & (joined_df['playerId_2'].notna()) & (joined_df['teamId_1'].notna()) & (joined_df['teamId_2'].notna()) & (joined_df['matchId_1'].notna()) & (joined_df['matchId_2'].notna())]
-
-joined_df['sumVaep_1'] = joined_df['sumVaep_1'].fillna(0)
-joined_df['sumVaep_2'] = joined_df['sumVaep_2'].fillna(0)
-
-
-merged['relatedEventId'] = merged['relatedEventId'].fillna(0)
-merged['relatedEventId'] = merged['relatedEventId'].astype('int')
+df_joi_v2 = generate_joi(df, df_events_related_ids)
 
 
 df_cd = pd.merge(df_events_related_ids, df_events_related_ids, how='inner', left_on = 'eventId', right_on = 'relatedEventId')
