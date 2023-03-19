@@ -94,3 +94,9 @@ left join [Scouting_Raw].[dbo].[Wyscout_Events_Main_Info] as mi on e.eventId = m
 WHERE mi.matchId IN (SELECT matchId
                               FROM Scouting.dbo.Wyscout_Matches
                               WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530)));
+
+
+SELECT  *
+INTO    sd_table_re
+FROM    (select sd.*, re.relatedEventId from sd_table as sd
+		left join related_events as re on sd.eventId = re.eventId) as new;

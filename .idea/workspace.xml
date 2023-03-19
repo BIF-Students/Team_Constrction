@@ -5,9 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="soft clustering v2">
-      <change afterPath="$PROJECT_DIR$/helpers/chemistry_helpers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chemistry.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helpers/chemistry_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/chemistry_helpers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sql_script.txt" beforeDir="false" afterPath="$PROJECT_DIR$/sql_script.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -97,7 +98,10 @@
       <workItem from="1679055435826" duration="1695000" />
       <workItem from="1679066060919" duration="82000" />
       <workItem from="1679154330424" duration="406000" />
-      <workItem from="1679154764514" duration="6435000" />
+      <workItem from="1679154764514" duration="6951000" />
+      <workItem from="1679220170258" duration="10758000" />
+      <workItem from="1679235180646" duration="8348000" />
+      <workItem from="1679243611740" duration="1173000" />
     </task>
     <task id="LOCAL-00001" summary="første prepross af SQL udtræk">
       <created>1676646533461</created>
