@@ -177,7 +177,7 @@ def compute_jdi (df) :
     df['jdi_zone_8'] = df.zone_8_net_oi * df.zone_8_imp * df.distance
     df['jdi_zone_9'] = df.zone_9_net_oi * df.zone_9_imp * df.distance
     df['jdi'] = df.jdi_zone_1 + df.jdi_zone_2 + df.jdi_zone_3 + df.jdi_zone_4 + df.jdi_zone_5 + df.jdi_zone_6 + df.jdi_zone_7 +df.jdi_zone_8 + df.jdi_zone_9
-
+    df = df.rename(columns= {'player1': 'p1', 'player2': 'p2'})
     return df
 
 
@@ -207,11 +207,13 @@ def compute_distances(df_mt, df_full):
     return players_matches_distances
 
 def compute_net_oi_game(df):
+    copy = df
     cols = [f'zone_{i}_net_oi' for i in range(1, 10)]
     expected_cols = [f'zone_{i}_expected_vaep' for i in range(1, 10)]
     for col, expected_col in zip(cols, expected_cols):
-        df[col] = df[col.replace('_net_oi', '')] - df[expected_col]
-    return df
+        print(col)
+        copy[col] = copy[expected_col] - copy[col.replace('_net_oi', '')]
+    return copy
 def compute_running_avg_team_vaep (row, label):
     if row['games_played'] == 0:
         return row[label]
@@ -277,3 +279,25 @@ def process_for_jdi (df, df_net_oi, matches_all, distances_df):
     df_swoi_netoi_dist = pd.merge(df_swoi_netoi, distances_df, left_on=(['matchId', 'teamId', 'playerId']),
                                   right_on=(['matchId', 'teamId', 'player1']), how='inner')
     return df_swoi_netoi_dist
+
+
+def compute_pairwise_playing_time (df):
+    paired = df.merge(df, on=(['matchId', 'teamId']), how='inner', suffixes=('1', '2'))
+    paired = paired[paired.playerId1 != paired.playerId2]
+    paired['p1'] = np.where(paired.playerId1 < paired.playerId2, paired.playerId1, paired.playerId2)
+    paired['p2'] = np.where(paired.playerId2 > paired.playerId1, paired.playerId2, paired.playerId1)
+    paired['minutes'] = np.where(paired.minutes1 < paired.minutes2, paired.minutes1, paired.minutes2)
+    paired = paired[['teamId', 'matchId','p1', 'p2', 'minutes']]
+    paired = paired.drop_duplicates()
+    paired = paired.groupby(['teamId', 'p1','p2'], as_index=False )['minutes'].sum()
+    paired['norm90'] = paired.minutes/90
+    return paired
+
+
+def compute_normalized_values(df_joi_game, df_jdi_game, df_pairwise_time):
+    df_joi_season = df_joi_game.groupby(['p1', 'p2', 'teamId_1'], as_index = False)['joi'].sum()
+    df_jdi_season = df_jdi_game.groupby(['p1', 'p2', 'teamId'], as_index = False)['jdi'].sum()
+    df_merged = (pd.merge(df_joi_season, df_jdi_season, on=(['p1', 'p2']))).merge(df_pairwise_time, on= (['p1', 'p2']))
+    df_merged['df_joi90'] = df_merged.joi / df_merged.norm90
+    df_merged['df_jdi90'] = df_merged.jdi / df_merged.norm90
+    return df_merged

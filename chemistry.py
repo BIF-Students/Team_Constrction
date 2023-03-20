@@ -13,6 +13,19 @@ from helpers.chemistry_helpers import *
 df = load_db_to_pd(sql_query="select * from sd_table", db_name='Development')
 df_events_related_ids = load_db_to_pd(sql_query="select * from sd_table_re", db_name='Development')
 matches_all = load_db_to_pd(sql_query="select matchId, home_teamId, away_teamId from [Scouting_Raw].[dbo].[Wyscout_Matches_All] WHERE matchId IN (SELECT matchId from Scouting.dbo.Wyscout_Matches where Scouting.dbo.Wyscout_Matches.seasonId in (187530))", db_name='Development')
+df_sqaud = load_db_to_pd(sql_query="SELECT * FROM [Scouting_Raw].[dbo].[Wyscout_Match_Squad] WHERE matchId IN (SELECT matchId FROM Scouting.dbo.Wyscout_Matches WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530));", db_name='Scouting_Raw')
+
+#Remove players not in starting 11
+df_sqaud = df_sqaud[(df_sqaud.bench == False)]
+
+
+'''
+This extract the playing time between pair of players 
+for a whole season and normalized per 90 minutes
+'''
+pairwise_playing_time = compute_pairwise_playing_time(df_sqaud)
+
+
 
 #Compute joi values
 df_joi = generate_joi(df_events_related_ids)
@@ -77,4 +90,7 @@ Finally, a sum of the jdi values per szone is comuted and poses the final jdi co
 df_net_oi = compute_net_oi_game(df_running_vaep_avg)
 df_swoi_netoi_dist = process_for_jdi(df_def_actions_player, df_net_oi, matches_all, ec_df)
 df_jdi = compute_jdi(df_swoi_netoi_dist)
+df_joi90_and_jdi90 = compute_normalized_values(df_joi, df_jdi, pairwise_playing_time)
 
+
+df_checker = df_jdi[(df_jdi.matchId == 5252460)]
