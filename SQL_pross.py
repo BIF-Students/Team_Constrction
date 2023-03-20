@@ -3,7 +3,7 @@ from sklearn.preprocessing import MinMaxScaler
 from helpers.student_bif_code import *
 from helpers.helperFunctions import *
 
-df = load_db_to_pd(sql_query = "SELECT * FROM sd_tableF WHERE competitionId IN (852, 905, 729, 707, 795);", db_name='Development')
+df = load_db_to_pd(sql_query = "SELECT * FROM sd_tableF WHERE competitionId IN (335, 412, 635, 808, 795, 465);", db_name='Development')
 
 df = df.drop(['ball_out', 'head_pass', 'loss', 'opportunity', 'conceded_postmatch_penalty',
               'teamId', 'competitionId',
@@ -44,10 +44,11 @@ df = df[(df.playerId != 0)]
 dfc = df.groupby(['playerId', 'seasonId'], as_index=False).sum()
 
 # merging dfs
-frames = [] # run ONLY in the beginning
+# frames = [] # run ONLY in the beginning
 frames.append(dfc)
 print(frames)
 dfc = pd.concat(frames) # run ONLY in the end
+dfc.to_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/tempframes.csv', index=False)
 
 # adding positions and removing GKs
 df_posmin = load_db_to_pd(sql_query = "SELECT * FROM Wyscout_Positions_Minutes", db_name='Scouting')
@@ -83,21 +84,30 @@ test2 = dfc.describe()
 
 dfc.columns.get_loc("Zone 6 Actions_vaep")
 
+dfx = dfc.copy()
+dfc = dfx.copy()
+
 # ELO factor for vaep
+dfc = dfc.sort_values('playerId')
+dfc = dfc.reset_index(drop=True)
 df_elo = load_db_to_pd(sql_query = "SELECT * FROM League_Factor", db_name='Scouting')
 df_elo = df_elo.drop(['date'], axis=1)
 dfc = pd.merge(dfc, df_elo, on=['seasonId'])
-dfc_elo = dfc.iloc[:, np.r_[7:53]].mul(dfc.leagueFactor, axis=0) #update iloc if changes
 dfc_other = dfc.drop(dfc.filter(like='_vaep').columns, axis=1)
+dfc_elo = dfc.iloc[:, np.r_[7:53]].mul(dfc.leagueFactor, axis=0) #update iloc if changes
 dfc = pd.concat([dfc_other.reset_index(drop=True),dfc_elo.reset_index(drop=True)], axis=1)
 
 # normalizing (min-max scaling)
+print(dfc.head(10))
 scale = MinMaxScaler()
+dfc_id = dfc[['playerId', 'seasonId']]
+#dfc = dfc.sort_values('playerId')
+#dfc = dfc.reset_index(drop=True)
 dfc.replace([np.inf, -np.inf], 0, inplace=True)
 dfc_scaled = dfc.drop(['playerId', 'seasonId'], axis=1)
 dfc_scaled[dfc_scaled.columns] = scale.fit_transform(dfc_scaled[dfc_scaled.columns])
 check = dfc_scaled.describe()
-
+print(dfc_id.head(10))
 dfc = pd.concat([dfc_id.reset_index(drop=True),dfc_scaled.reset_index(drop=True)], axis=1)
 
 # nan and outlier checks
@@ -107,7 +117,8 @@ outliers = find_outliers_IQR(dfc)
 check = outliers.describe()
 
 # removing irrelevant stats
-dfc = dfc.drop(['cross_tendency', 'cross_vaep', 'xG', 'xA', 'nonPosAction', 'posAction', 'leagueFactor'], axis=1)
+dfc = dfc.drop(['cross_tendency', 'cross_vaep', 'xG', 'xA', 'nonPosAction', 'posAction', 'leagueFactor',
+                'Zone 0 Actions', 'Zone 0 Actions_vaep', 'penalty_foul_tendency', 'penalty_foul_vaep'], axis=1)
 
 # export
 dfc.to_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/events_clean.csv', index=False)

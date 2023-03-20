@@ -5,6 +5,8 @@ from helpers.helperFunctions import *
 df = pd.read_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/players_clusters.csv',
                  sep=",", encoding='unicode_escape')
 
+MAKE VAEP STATS TO QUARTILES
+
 # creating weight dictionaries as input
 clusters = df['ip_cluster']
 df_input = df.drop(['ip_cluster', 'playerId', 'seasonId', 'position'], axis=1)

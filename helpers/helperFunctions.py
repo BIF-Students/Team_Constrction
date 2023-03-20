@@ -258,7 +258,7 @@ def opt_clus(dr):
 
         print(("Cluster: ", n, "SIL: ", round(best_sil, 2), "CHI: ", round(best_chi, 2), "DBI: ", round(best_dbi, 2)))
         sil_score.append(best_sil)
-        chi_score.append(best_chi/1000)
+        chi_score.append(best_chi/20000)
         dbi_score.append(best_dbi)
 
     fig, ax = plt.subplots(figsize=(12, 8), nrows=1)

@@ -1,14 +1,8 @@
 QUERY 1:
-SELECT * FROM sd_tableF WHERE competitionId IN (168, 310, 364, 480, 750, 830);
+SELECT * FROM sd_tableF WHERE competitionId IN (168, 310, 364, 750, 852, 426, 669);
 
 QUERY 2:
-SELECT * FROM sd_tableF WHERE competitionId IN (198, 323, 400, 524, 775, 692);
+SELECT * FROM sd_tableF WHERE competitionId IN (323, 524, 692, 830, 729, 448);
 
 QUERY 3:
-SELECT * FROM sd_tableF WHERE competitionId IN (302, 335, 412, 635, 808);
-
-QUERY 4:
-SELECT * FROM sd_tableF WHERE competitionId IN (426, 448, 465, 669, 776);
-
-QUERY 5:
-SELECT * FROM sd_tableF WHERE competitionId IN (852, 905, 729, 707, 795);
+SELECT * FROM sd_tableF WHERE competitionId IN (335, 412, 635, 808, 795, 465);
