@@ -98,7 +98,6 @@ dfc_elo = dfc.iloc[:, np.r_[7:53]].mul(dfc.leagueFactor, axis=0) #update iloc if
 dfc = pd.concat([dfc_other.reset_index(drop=True),dfc_elo.reset_index(drop=True)], axis=1)
 
 # normalizing (min-max scaling)
-print(dfc.head(10))
 scale = MinMaxScaler()
 dfc_id = dfc[['playerId', 'seasonId']]
 #dfc = dfc.sort_values('playerId')
@@ -107,7 +106,6 @@ dfc.replace([np.inf, -np.inf], 0, inplace=True)
 dfc_scaled = dfc.drop(['playerId', 'seasonId'], axis=1)
 dfc_scaled[dfc_scaled.columns] = scale.fit_transform(dfc_scaled[dfc_scaled.columns])
 check = dfc_scaled.describe()
-print(dfc_id.head(10))
 dfc = pd.concat([dfc_id.reset_index(drop=True),dfc_scaled.reset_index(drop=True)], axis=1)
 
 # nan and outlier checks
