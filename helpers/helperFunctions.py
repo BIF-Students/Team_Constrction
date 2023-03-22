@@ -98,34 +98,6 @@ def zone(row):
         s = "Zone 0 Actions"
     return s
 
-def find_zone_chemistry(row):
-    s = ""
-    #  id = row['id']
-    # print(row)
-    x = row['x']
-    y = row['y']
-    if (x >= 0 and x <= 33 and y >= 0 and y <= 33):
-        s = 1
-    elif (x >= 0 and x <= 33 and y > 33 and y <= 67):
-        s = 2
-    elif (x >= 0 and x <= 33 and y > 67 and y <= 100):
-        s = 3
-    elif (x > 33 and x <= 67 and y >= 0 and y <= 33):
-        s = 4
-    elif (x > 33 and x <= 67 and y > 33 and y <= 67):
-        s = 5
-    elif (x > 33 and x <= 67 and y > 67 and y <= 100):
-        s = 6
-    elif (x > 67 and x <= 100 and y >= 0 and y <= 33):
-        s = 7
-    elif (x > 67 and x <= 100 and y > 33 and y <= 67):
-        s = 8
-    elif (x >= 67 and x <= 100 and y >= 67 and y <= 100):
-        s = 9
-    else:
-        s = 0
-    return s
-
 
 
 def pen_shots(x, y):

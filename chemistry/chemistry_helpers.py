@@ -16,28 +16,20 @@ def find_zones_and_vaep(df):
 
 def find_zone_chemistry(row):
     s = ""
-    #  id = row['id']
-    # print(row)
     x = row['x']
     y = row['y']
-    if (x >= 0 and x <= 33 and y >= 0 and y <= 33):
+    if x >= 0 and x < 50 and y >= 0 and y < 33:
         s = 1
-    elif (x >= 0 and x <= 33 and y > 33 and y <= 67):
-        s = 2
-    elif (x >= 0 and x <= 33 and y > 67 and y <= 100):
-        s = 3
-    elif (x > 33 and x <= 67 and y >= 0 and y <= 33):
+    elif x >= 50 and x <= 100 and y >= 0 and y < 33:
         s = 4
-    elif (x > 33 and x <= 67 and y > 33 and y <= 67):
+    elif x >= 0 and x < 50 and y >= 33 and y < 66:
+        s = 2
+    elif x >= 50 and x <= 100 and y >= 33 and y < 66:
         s = 5
-    elif (x > 33 and x <= 67 and y > 67 and y <= 100):
+    elif x >= 0 and x < 50 and y >=66 and y <= 100:
+        s = 3
+    elif x >= 50 and x <= 100 and y >= 66 and y <= 100:
         s = 6
-    elif (x > 67 and x <= 100 and y >= 0 and y <= 33):
-        s = 7
-    elif (x > 67 and x <= 100 and y > 33 and y <= 67):
-        s = 8
-    elif (x >= 67 and x <= 100 and y >= 67 and y <= 100):
-        s = 9
     else:
         s = 0
     return s
@@ -107,9 +99,7 @@ def compute_relative_player_impact(df_player, df_team):
     df_full['zone_4_imp'] = np.where(df_full.zone_4_pl > 0, df_full.zone_4_pl/df_full.zone_4_t,0)
     df_full['zone_5_imp'] = np.where(df_full.zone_5_pl > 0, df_full.zone_5_pl/df_full.zone_5_t,0)
     df_full['zone_6_imp'] = np.where(df_full.zone_6_pl > 0, df_full.zone_6_pl/df_full.zone_6_t,0)
-    df_full['zone_7_imp'] = np.where(df_full.zone_7_pl > 0, df_full.zone_7_pl/df_full.zone_7_t,0)
-    df_full['zone_8_imp'] = np.where(df_full.zone_8_pl > 0, df_full.zone_8_pl/df_full.zone_8_t,0)
-    df_full['zone_9_imp'] = np.where(df_full.zone_9_pl > 0, df_full.zone_9_pl/df_full.zone_9_t,0)
+
     return df_full
 
 def find_zones_and_counts_pl(df):
@@ -121,19 +111,13 @@ def find_zones_and_counts_pl(df):
             'zone_3': 'sum',
             'zone_4': 'sum',
             'zone_5': 'sum',
-            'zone_6': 'sum',
-            'zone_7': 'sum',
-            'zone_8': 'sum',
-            'zone_9': 'sum'})
+            'zone_6': 'sum'})
         df = df.rename(columns={'zone_1': 'zone_1_pl',
                                 'zone_2': 'zone_2_pl',
                                 'zone_3': 'zone_3_pl',
                                 'zone_4': 'zone_4_pl',
                                 'zone_5': 'zone_5_pl',
-                                'zone_6': 'zone_6_pl',
-                                'zone_7': 'zone_7_pl',
-                                'zone_8': 'zone_8_pl',
-                                'zone_9': 'zone_9_pl'
+                                'zone_6': 'zone_6_pl'
                                 })
         return df
 
@@ -148,37 +132,37 @@ def find_zones_and_counts_t(df):
         'zone_3': 'sum',
         'zone_4': 'sum',
         'zone_5': 'sum',
-        'zone_6': 'sum',
-        'zone_7': 'sum',
-        'zone_8': 'sum',
-        'zone_9': 'sum'})
+        'zone_6': 'sum'})
     df = df.rename(columns={'zone_1': 'zone_1_t',
                             'zone_2': 'zone_2_t',
                             'zone_3': 'zone_3_t',
                             'zone_4': 'zone_4_t',
                             'zone_5': 'zone_5_t',
-                            'zone_6': 'zone_6_t',
-                            'zone_7': 'zone_7_t',
-                            'zone_8': 'zone_8_t',
-                            'zone_9': 'zone_9_t'
+                            'zone_6': 'zone_6_t'
                             })
 
     return df
 
 
-def compute_jdi (df) :
-    df['jdi_zone_1'] = df.zone_1_net_oi * df.zone_1_imp * df.distance
-    df['jdi_zone_2'] = df.zone_2_net_oi * df.zone_2_imp * df.distance
-    df['jdi_zone_3'] = df.zone_3_net_oi * df.zone_3_imp * df.distance
-    df['jdi_zone_4'] = df.zone_4_net_oi * df.zone_4_imp * df.distance
-    df['jdi_zone_5'] = df.zone_5_net_oi * df.zone_5_imp * df.distance
-    df['jdi_zone_6'] = df.zone_6_net_oi * df.zone_6_imp * df.distance
-    df['jdi_zone_7'] = df.zone_7_net_oi * df.zone_7_imp * df.distance
-    df['jdi_zone_8'] = df.zone_8_net_oi * df.zone_8_imp * df.distance
-    df['jdi_zone_9'] = df.zone_9_net_oi * df.zone_9_imp * df.distance
-    df['jdi'] = df.jdi_zone_1 + df.jdi_zone_2 + df.jdi_zone_3 + df.jdi_zone_4 + df.jdi_zone_5 + df.jdi_zone_6 + df.jdi_zone_7 +df.jdi_zone_8 + df.jdi_zone_9
-    df = df.rename(columns= {'player1': 'p1', 'player2': 'p2'})
+def compute_jdi (df):
+    df['jdi_zone_1'] = np.where(df.zone_1_t > 3, df.zone_1_net_oi * df.zone_1_imp * df.distance, 0)
+    df['jdi_zone_2'] = np.where(df.zone_2_t > 3, df.zone_2_net_oi * df.zone_2_imp * df.distance, 0)
+    df['jdi_zone_3'] = np.where(df.zone_3_t > 3, df.zone_3_net_oi * df.zone_3_imp * df.distance, 0)
+    df['jdi_zone_4'] = np.where(df.zone_4_t > 3, df.zone_4_net_oi * df.zone_4_imp * df.distance, 0)
+    df['jdi_zone_5'] = np.where(df.zone_5_t > 3, df.zone_5_net_oi * df.zone_5_imp * df.distance, 0)
+    df['jdi_zone_6'] = np.where(df.zone_6_t > 3, df.zone_6_net_oi * df.zone_6_imp * df.distance, 0)
+    df['jdi'] = df.jdi_zone_1 + df.jdi_zone_2 + df.jdi_zone_3 + df.jdi_zone_4 + df.jdi_zone_5 + df.jdi_zone_6
+    df = df.groupby(['matchId', 'teamId', 'p1', 'p2'], as_index = False )['jdi'].sum().reset_index()
     return df
+
+'''    df['jdi_zone_1'] = (df.zone_1_net_oi * df.zone_1_imp * df.distance) if df['zone_1_t'] >= 3  else 0
+    df['jdi_zone_2'] = (df.zone_2_net_oi * df.zone_2_imp * df.distance) if df['zone_2_t'] >= 3  else 0
+    df['jdi_zone_3'] = (df.zone_3_net_oi * df.zone_3_imp * df.distance) if df['zone_3_t'] >= 3  else 0
+    df['jdi_zone_4'] = (df.zone_4_net_oi * df.zone_4_imp * df.distance) if df['zone_4_t'] >= 3  else 0
+    df['jdi_zone_5'] = (df.zone_5_net_oi * df.zone_5_imp * df.distance) if df['zone_5_t'] >= 3  else 0
+    df['jdi_zone_6'] = (df.zone_6_net_oi * df.zone_6_imp * df.distance) if df['zone_6_t'] >= 3  else 0
+    df = df.rename(columns= {'player1': 'p1', 'player2': 'p2'})'''
+
 
 
 
@@ -208,12 +192,12 @@ def compute_distances(df_mt, df_full):
 
 def compute_net_oi_game(df):
     copy = df
-    cols = [f'zone_{i}_net_oi' for i in range(1, 10)]
-    expected_cols = [f'zone_{i}_expected_vaep' for i in range(1, 10)]
+    cols = [f'zone_{i}_net_oi' for i in range(1, 7)]
+    expected_cols = [f'zone_{i}_expected_vaep' for i in range(1, 7)]
     for col, expected_col in zip(cols, expected_cols):
-        print(col)
         copy[col] = copy[expected_col] - copy[col.replace('_net_oi', '')]
     return copy
+
 def compute_running_avg_team_vaep (row, label):
     if row['games_played'] == 0:
         return row[label]
@@ -221,13 +205,12 @@ def compute_running_avg_team_vaep (row, label):
         return row[label] / (row['games_played'] +1)
 
 def team_vaep_game(df):
-    df = df.groupby(['matchId', 'teamId'])['zone_1', 'zone_2', 'zone_3', 'zone_4', 'zone_5', 'zone_6', 'zone_7', 'zone_8', 'zone_9'].sum().reset_index()
+    df = df.groupby(['matchId', 'teamId'])['zone_1', 'zone_2', 'zone_3', 'zone_4', 'zone_5', 'zone_6'].sum().reset_index()
     df = df.sort_values(by=['teamId', 'matchId'])
     df[['zone_1_cumsum', 'zone_2_cumsum',
         'zone_3_cumsum', 'zone_4_cumsum',
-        'zone_5_cumsum', 'zone_6_cumsum',
-        'zone_7_cumsum', 'zone_8_cumsum', 'zone_9_cumsum'
-        ]] = df.groupby('teamId')[['zone_1', 'zone_2', 'zone_3', 'zone_4', 'zone_5', 'zone_6', 'zone_7', 'zone_8', 'zone_9']].cumsum()
+        'zone_5_cumsum', 'zone_6_cumsum'
+        ]] = df.groupby('teamId')[['zone_1', 'zone_2', 'zone_3', 'zone_4', 'zone_5', 'zone_6']].cumsum()
 
     df['games_played'] = df.groupby(['teamId']).cumcount()
     df['zone_1_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_1_cumsum') ,axis = 1)
@@ -236,49 +219,54 @@ def team_vaep_game(df):
     df['zone_4_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_4_cumsum') ,axis = 1)
     df['zone_5_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_5_cumsum') ,axis = 1)
     df['zone_6_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_6_cumsum') ,axis = 1)
-    df['zone_7_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_7_cumsum') ,axis = 1)
-    df['zone_8_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_8_cumsum') ,axis = 1)
-    df['zone_9_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_9_cumsum') ,axis = 1)
     return df
 
 
-def process_for_jdi (df, df_net_oi, matches_all, distances_df):
-    df_players_actions = find_zones_and_counts_pl(df)
-    df_team_actions = find_zones_and_counts_t(df)
-    df_swoi = compute_relative_player_impact(df_players_actions, df_team_actions)
+def process_for_jdi (df_net_oi, matches_all, distances_df, df_player_share):
+    #MAke a copy
     df_net_oi_v2 = df_net_oi[['matchId', 'teamId',
                               'zone_1_net_oi', 'zone_2_net_oi',
                               'zone_3_net_oi', 'zone_4_net_oi',
-                              'zone_5_net_oi', 'zone_6_net_oi',
-                              'zone_7_net_oi', 'zone_8_net_oi',
-                              'zone_9_net_oi'
+                              'zone_5_net_oi', 'zone_6_net_oi'
                               ]]
+    #Merge with mataches to discover home and away teams
     df_net_oi_v2 = pd.merge(df_net_oi_v2, matches_all, on='matchId')
 
-    df_net_oi_v2['opposing_team'] = np.where(df_net_oi_v2.teamId == df_net_oi_v2.home_teamId, df_net_oi_v2.away_teamId,
-                                             df_net_oi_v2.home_teamId)
+    #Determine the opposing team in order for us to check whether opposing team over or underperforms in an area
+    df_net_oi_v2['opposing_team'] = np.where(df_net_oi_v2.teamId == df_net_oi_v2.home_teamId, df_net_oi_v2.away_teamId,df_net_oi_v2.home_teamId)
+
+    #Remove irrelevant columns
     df_net_oi_v2 = df_net_oi_v2.drop(['home_teamId', 'away_teamId'], axis=1)
-    duplicate_for_merge = df_net_oi_v2
-    merged_opposing_vaep_values = pd.merge(df_net_oi_v2, duplicate_for_merge, left_on=(['matchId', 'teamId']),
-                                           right_on=(['matchId', 'opposing_team']))
+
+    #Copy of df
+    duplicate_for_merge = df_net_oi_v2.copy()
+
+    #merge the two dataframes to get who is the opposing team for each game and what are their net oi
+    merged_opposing_vaep_values = pd.merge(df_net_oi_v2, duplicate_for_merge, left_on=(['matchId', 'teamId']),right_on=(['matchId', 'opposing_team']))
+
+
+    #Remove unusable columns
     merged_opposing_vaep_values = merged_opposing_vaep_values.drop(['teamId_y', 'zone_1_net_oi_x', 'zone_2_net_oi_x',
                                                                     'zone_3_net_oi_x', 'zone_4_net_oi_x',
                                                                     'zone_5_net_oi_x', 'zone_6_net_oi_x',
-                                                                    'zone_7_net_oi_x', 'zone_8_net_oi_x',
-                                                                    'zone_9_net_oi_x', 'opposing_team_y'
+                                                                    'opposing_team_y'
                                                                     ], axis=1)
+
+    #Assign appropriate feature names
     merged_opposing_vaep_values = merged_opposing_vaep_values.rename(
         columns={'teamId_x': 'teamId', 'opposing_team_x': 'opposing_team',
                  'zone_1_net_oi_y': 'zone_1_net_oi', 'zone_2_net_oi_y': 'zone_2_net_oi',
                  'zone_3_net_oi_y': 'zone_3_net_oi', 'zone_4_net_oi_y': 'zone_4_net_oi',
-                 'zone_5_net_oi_y': 'zone_5_net_oi', 'zone_6_net_oi_y': 'zone_6_net_oi',
-                 'zone_7_net_oi_y': 'zone_7_net_oi', 'zone_8_net_oi_y': 'zone_8_net_oi',
-                 'zone_9_net_oi_y': 'zone_9_net_oi'})
+                 'zone_5_net_oi_y': 'zone_5_net_oi', 'zone_6_net_oi_y': 'zone_6_net_oi'})
 
-    df_swoi_netoi = pd.merge(merged_opposing_vaep_values, df_swoi, on=(['matchId', 'teamId']), how='inner')
-    df_swoi_netoi_dist = pd.merge(df_swoi_netoi, distances_df, left_on=(['matchId', 'teamId', 'playerId']),
-                                  right_on=(['matchId', 'teamId', 'player1']), how='inner')
-    return df_swoi_netoi_dist
+    #Merge to obtain net oi in each dataframe and share for each player
+    df_snoi_netoi = pd.merge(merged_opposing_vaep_values, df_player_share, on=(['matchId', 'teamId']), how='inner')
+
+    #merge with distances
+    df_share_dist = pd.merge(df_snoi_netoi, distances_df, left_on=(['matchId', 'teamId', 'playerId']), right_on=(['matchId', 'teamId', 'player1']), how='inner')
+    df_share_dist_2 = pd.merge(df_snoi_netoi, distances_df, left_on=(['matchId', 'teamId', 'playerId']), right_on=(['matchId', 'teamId', 'player2']), how='inner')
+    df_share_dist_final = pd.concat([df_share_dist, df_share_dist_2])
+    return df_share_dist_final
 
 
 def compute_pairwise_playing_time (df):

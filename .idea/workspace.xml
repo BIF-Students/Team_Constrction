@@ -5,10 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="soft clustering v2">
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/chemistry/distance.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chemistry/jdi.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chemistry/joi.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chemistry/netoi.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chemistry/responsibility_share.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helpers/chemistry_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/chemistry_helpers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helpers/chemistry_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helpers/helperFunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/helperFunctions.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,6 +77,7 @@
       <recent name="C:\Users\mll\OneDrive - Brøndbyernes IF Fodbold\Dokumenter\TC\Team_Constrction" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\jhs\Teamconstruction\Team_Construction\chemistry" />
       <recent name="C:\Users\mll\OneDrive - Brøndbyernes IF Fodbold\Dokumenter\TC\Team_Constrction\archive" />
       <recent name="C:\Users\mll\OneDrive - Brøndbyernes IF Fodbold\Dokumenter\TC\Team_Constrction" />
     </key>
@@ -91,7 +97,7 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/helpers/chemistry_helpers.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\jhs\Teamconstruction\Team_Construction\chemistry\chemistry_helpers.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -132,7 +138,9 @@
       <workItem from="1679235180646" duration="8348000" />
       <workItem from="1679243611740" duration="1858000" />
       <workItem from="1679334322374" duration="686000" />
-      <workItem from="1679335025948" duration="9504000" />
+      <workItem from="1679335025948" duration="9733000" />
+      <workItem from="1679474692078" duration="10820000" />
+      <workItem from="1679489455486" duration="13699000" />
     </task>
     <task id="LOCAL-00001" summary="første prepross af SQL udtræk">
       <created>1676646533461</created>
