@@ -152,7 +152,7 @@ def compute_jdi (df):
     df['jdi_zone_5'] = np.where(df.zone_5_t > 3, df.zone_5_net_oi * df.zone_5_imp * df.distance, 0)
     df['jdi_zone_6'] = np.where(df.zone_6_t > 3, df.zone_6_net_oi * df.zone_6_imp * df.distance, 0)
     df['jdi'] = df.jdi_zone_1 + df.jdi_zone_2 + df.jdi_zone_3 + df.jdi_zone_4 + df.jdi_zone_5 + df.jdi_zone_6
-    df = df.groupby(['matchId', 'teamId', 'p1', 'p2'], as_index = False )['jdi'].sum().reset_index()
+    #df = df.groupby(['matchId', 'teamId', 'p1', 'p2'], as_index = False )['jdi'].sum().reset_index()
     return df
 
 '''    df['jdi_zone_1'] = (df.zone_1_net_oi * df.zone_1_imp * df.distance) if df['zone_1_t'] >= 3  else 0

@@ -5,15 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="soft clustering v2">
-      <change afterPath="$PROJECT_DIR$/chemistry/distance.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chemistry/jdi.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chemistry/joi.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chemistry/netoi.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/chemistry/responsibility_share.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chemistry/smallTest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_15_03_2023_16_36_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_15_03_2023_16_36__Changes_.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helpers/chemistry_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helpers/helperFunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/helperFunctions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/chemistry.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/joi.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/joi.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -140,7 +138,8 @@
       <workItem from="1679334322374" duration="686000" />
       <workItem from="1679335025948" duration="9733000" />
       <workItem from="1679474692078" duration="10820000" />
-      <workItem from="1679489455486" duration="13699000" />
+      <workItem from="1679489455486" duration="14739000" />
+      <workItem from="1679510029755" duration="7892000" />
     </task>
     <task id="LOCAL-00001" summary="første prepross af SQL udtræk">
       <created>1676646533461</created>
