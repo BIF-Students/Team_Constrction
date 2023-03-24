@@ -1,36 +1,71 @@
 # DEF ATTRIBUTES --------------------------------------------------------
 defending = [
-    "aThird_duel_tendency",
-    "gd_duel_tendency",
-    "foul_tendency",
-    "air_duel_tendency",
-    "Clearance",
-    "anticipation_ratio",
+    "aerial_duel_tendency",
+    "counterpressing_recovery_tendency",
+    "defensive_duel_tendency",
+    "dribbled_past_attempt_tendency",
+    "loose_ball_duel_tendency",
+    "recovery_tendency",
+    "sliding_tackle_tendency",
     "ip_cluster"
 ]
 
-# POSSESION ATTRIBUTES --------------------------------------------------------
-possession = [
-    "safe_pass_tendency",
-    "switches_tendency",
-    "simple_pass_tendency",
-    "pp_tendency",
-    "ptp_ratio",
-    "ptc_ratio",
+# PASSING ESTABLISHED PLAY ATTRIBUTES --------------------------------------------------------
+passingE = [
+    "short_or_medium_pass_tendency",
+    "back_pass_tendency",
+    "under_pressure_tendency",
+    "forward_pass_tendency",
+    "lateral_pass_tendency",
+    "linkup_play_tendency",
+    "long_pass_tendency",
+    "pass_to_final_third_tendency",
+    "progressive_pass_tendency",
     "ip_cluster"
 ]
 
-# ATTACKING ATTRIBUTES ------------------------------
-attacking = [
-    "goal",
-    "PA_shots_tendency",
-    "nonPA_shots_tendency",
-    "assist",
-    "Ground attacking duel",
+# PASSING ATTACKING PLAY ATTRIBUTES --------------------------------------------------------
+passingA = [
+    "assist_tendency",
+    "second_assist_tendency",
+    "third_assist_tendency",
+    "key_pass_tendency",
+    "smart_pass_tendency",
+    "through_pass_tendency",
+    "deep_completed_cross_tendency",
     "ws_cross_tendency",
     "hs_cross_tendency",
-    "smart_pass_tendency",
-    "key_pass_tendency",
+    "ip_cluster"
+]
+
+# TAKE-ON ATTRIBUTES ------------------------------
+takeon = [
+    "dribble_tendency",
+    "offensive_duel_tendency",
+    "foul_suffered_tendency",
+    "progressive_run_tendency",
+    "carry_tendency",
+    "touch_in_box_tendency",
+    "ip_cluster"
+    ]
+
+# FINISHING ATTRIBUTES ------------------------------
+finishing = [
+    "goal_tendency",
+    "head_shot_tendency",
+    "shots_PA_tendency",
+    "shots_nonPA_tendency",
+    "ip_cluster"
+    ]
+
+# ATTACKING ATTRIBUTES ------------------------------
+zones = [
+    "Zone 1 Actions_tendency",
+    "Zone 2 Actions_tendency",
+    "Zone 3 Actions_tendency",
+    "Zone 4 Actions_tendency",
+    "Zone 5 Actions_tendency",
+    "Zone 6 Actions_tendency",
     "ip_cluster"
 ]
 

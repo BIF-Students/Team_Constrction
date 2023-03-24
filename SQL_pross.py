@@ -44,7 +44,7 @@ df = df[(df.playerId != 0)]
 dfc = df.groupby(['playerId', 'seasonId'], as_index=False).sum()
 
 # merging dfs
-# frames = [] # run ONLY in the beginning
+frames = [] # run ONLY in the beginning
 frames.append(dfc)
 print(frames)
 dfc = pd.concat(frames) # run ONLY in the end
@@ -57,10 +57,6 @@ df_pos = df_pos.groupby(['playerId', 'seasonId'], as_index=False).agg(gmodeHelp)
 dfc = pd.merge(dfc, df_pos, on=['playerId', 'seasonId'])
 dfc = dfc[dfc.position != 'gk']
 dfc = dfc.drop(['position'], axis=1)
-
-# xA/xG ratios
-dfc['xA_tendency'] = dfc['assist'] / dfc['xA'] # means assist-to-xA ratio but renamed for function purpose
-dfc['xG_tendency'] = dfc['goal'] / dfc['xG'] # means goal-to-xG ratio but renamed for function purpose
 
 # normalizing (per 90 incl. cutoff)
 df_min = df_posmin.drop(['matchId', 'teamId', 'position'], axis=1)
@@ -76,6 +72,10 @@ dfc_norm = dfc.drop(['playerId', 'seasonId'], axis=1)
 dfc_norm = dfc_norm.iloc[:, np.r_[0:94]].div(dfc_norm.games, axis=0) #update iloc if changes
 dfc = pd.concat([dfc_id.reset_index(drop=True),dfc_norm.reset_index(drop=True)], axis=1)
 test = dfc.describe()
+
+# xA/xG ratios
+dfc['xA_tendency'] = dfc['assist'] / dfc['xA'] # means assist-to-xA ratio but renamed for function purpose
+dfc['xG_tendency'] = dfc['goal'] / dfc['xG'] # means goal-to-xG ratio but renamed for function purpose
 
 # switching counting stats to opportunity spaces
 temp = dfc.columns

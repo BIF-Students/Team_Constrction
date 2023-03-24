@@ -8,22 +8,13 @@ import numpy as np
 import helperFunctions
 from helpers.helperFunctions import *
 
-#Unused imports
-'''
-import numpy as np
-import matplotlib.pyplot as plt
-from mplsoccer import Pitch
-import seaborn as sns
-import plotly.express as px
-'''
-
-
-# --------------------------------------------------------
-# Define pitch with predeefiend rows
-
 # Get individuals scores in subcategories
-data = pd.read_csv("C:/ITU/ITU_Research_Project/clustered_data/clusters.csv", sep = ",", encoding='unicode_escape')
-data = pd.read_csv("C:/Users/mall/OneDrive - Implement/Documents/Andet/RP/Data/clustersTEST.csv", sep = ",", encoding='unicode_escape')
+# data = pd.read_csv("C:/ITU/ITU_Research_Project/clustered_data/clusters.csv", sep = ",", encoding='unicode_escape')
+data = pd.read_csv("C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/players_clusters.csv", sep = ",", encoding='unicode_escape')
+viz = pd.read_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/events_clean.csv', sep=",", encoding='unicode_escape')
+data = pd.merge(data, viz, on=['playerId', 'seasonId'])
+data = data.drop(['x', 'y'], axis=1)
+data = data.drop(data.filter(like='_vaep').columns, axis=1)
 
 #Function to produce averages for each cluster for specified values in arguemnt
 def get_stat_values (data, metric):
@@ -52,8 +43,6 @@ def compute_sum_per_metric(data, dict):
 
 # data = compute_sum_per_metric(data, dict_lists)
 
-
-
 def get_avg(df):
     averages = pd.DataFrame(columns=['labels', 'vals'])
     labels = df.labels.unique()
@@ -64,8 +53,6 @@ def get_avg(df):
         df_done = pd.DataFrame(data, columns=['labels', 'vals'])
         averages = pd.concat([averages, df_done])
     return averages
-
-
 
 #Function to create spiderweb plot for spcified stats
 def make_spider_web(raw_data, stat, title_att):
@@ -93,26 +80,7 @@ def make_spider_web(raw_data, stat, title_att):
           go.Scatterpolar(r=frame.vals, fill='toself', opacity=0.4, theta=frame.labels, name="# Cluster " + str(cluster)),
       )
 
-  pyo.plot(fig)
-
-#Spider web with closed lines
-def make_spider_web_v2(raw_data, stat, title_att):
-      stat_vals = get_stat_values(raw_data, stat)
-      df_visual = get_avg(stat_vals)
-      # averages_found['ip_clusters'] =
-      clusters = stat_vals.ip_cluster.unique()
-      df_visual['cluster'] = 'AVG'
-      clusters.sort()
-      for cluster in clusters:
-          cluster_df = stat_vals[stat_vals['ip_cluster'] == cluster]
-          frame = cluster_df.loc[:, cluster_df.columns != 'ip_cluster']
-          frame['cluster'] = cluster
-          df_visual = pd.concat([df_visual, frame])
-      fig = px.line_polar(df_visual, r="vals", theta="labels", color="cluster", line_close=True,
-                          color_discrete_sequence=px.colors.sequential.Plasma_r,
-                          template="plotly_dark", )
-      fig.show()
-
+  fig.show()
 
 def pareto(df, cluster):
     df = df.drop(['playerId', 'seasonId', 'map_group', 'pos_group'], axis=1)
@@ -128,220 +96,40 @@ def pareto(df, cluster):
     fig.show()
 
 def stat_comp(df):
-    df = df.drop(['playerId', 'seasonId', 'map_group', 'pos_group'], axis=1)
+    df = df.drop(['playerId', 'seasonId', 'pos_group'], axis=1)
     df = df.groupby(['ip_cluster'], as_index=False).mean()
     return df
 
 def pos_dist(df, cluster):
-    df = df.drop(['playerId', 'seasonId', 'pos_group'], axis=1)
+    df = df.drop(['playerId', 'seasonId'], axis=1)
     df = df[df.ip_cluster == cluster]
     df = df.drop(['ip_cluster'], axis=1)
-    df = df.groupby(['map_group'], as_index=False).count()
+    df = df.groupby(['pos_group'], as_index=False).count()
     return df
 
-
 # getting percentiles
-ids = data.iloc[:, np.r_[0:5]]
-test = data.iloc[:, np.r_[5:26]]
+data = data[data['ip_cluster'] != -1]
+ids = data.iloc[:, np.r_[0:3]]
+test = data.iloc[:, np.r_[3:44]]
 test = test.rank(pct = True)
 test = pd.concat([ids.reset_index(drop=True),test.reset_index(drop=True)], axis=1)
-test = compute_sum_per_metric(test, dict_lists)
-
-test2 = test.iloc[:, np.r_[25:30]]
-test2 = test2.rank(pct = True)
-test2 = pd.concat([ids.reset_index(drop=True),test2.reset_index(drop=True)], axis=1)
 
 #Plotting spiderwebs
-make_spider_web(data, finishing, "Finishing")
-make_spider_web(data, creating, "Creating")
-make_spider_web(data, progression, "Progression")
-make_spider_web(data, established, "Established")
-make_spider_web(data, duels, "Duels")
-make_spider_web(data, game_reading, "Game Reading")
-make_spider_web(test2, categories, "Categories")
-
-make_spider_web(test, attacking, "Attacking")
-make_spider_web(test, possession, "Possession")
+make_spider_web(test, finishing, "Finishing")
+make_spider_web(test, takeon, "Take-on")
+make_spider_web(test, passingA, "Passing (Attacking Play)")
+make_spider_web(test, passingE, "Passing (Established Play)")
 make_spider_web(test, defending, "Defending")
+make_spider_web(test, zones, "Zones")
 pareto(test, 0)
-check = stat_comp(test)
-check2 = pos_dist(test, 5)
 
+# check 1
+check = stat_comp(test)
+check2 = pos_dist(test, 0)
+
+# check 2
 players = pd.read_csv('C:/Users/mall/OneDrive - Implement/Documents/Andet/RP/Data/Wyscout_Players.csv', sep=";", encoding='unicode_escape')
 players.drop(columns=players.columns[0], axis=1, inplace=True)
 dfp = pd.merge(players, test, on='playerId')
 dfp = dfp[dfp.ip_cluster == 1]
 check3 = dfp.iloc[:, np.r_[1, 15, 16:37]]
-
-# validate clusters
-xyz = names_clusters(test, 1)
-val = pd.read_csv('C:/Users/mall/OneDrive - Implement/Documents/Andet/RP/Data/val.csv', sep=";", encoding='unicode_escape')
-xyz = data.iloc[:, np.r_[0, 5]]
-val_df = pd.merge(val, xyz, on='playerId')
-val_df.to_csv('C:/Users/mall/OneDrive - Implement/Documents/Andet/RP/Data/valDF.csv', index=False)
-
-#-------------------------------------- Unused code atm ----------------------------------------------#
-
-#Not used at, kept in case of potential future usage
-
-'''
-def get_cluster_scores(data):
-   DEF_score = (data[(data.labels == 'ground_duels') | (data.labels == 'air_duels') | (data.labels == 'clearance') | (data.labels == 'game_reading') | (data.labels == 'disciplinary')]).groupby(['cluster']).sum()
-   DEF_score['labels'] = "DEF"
-   #DEF_score.index.name = 'cluster'
-   #DEF_score.reset_index(inplace=True)
-
-   POS_score = (data[ (data.labels == 'misc') | (data.labels == 'progression') | (data.labels == 'established')]).groupby(['cluster']).sum()
-   POS_score['labels'] = "POS"
-  # DEF_score.index.name = 'cluster'
-   #DEF_score.reset_index(inplace=True)
-
-   ATT_score = (data[(data.labels == 'finishing') | (data.labels == 'movement') | (data.labels == 'creating')]).groupby(['cluster']).sum()
-   ATT_score['labels'] = "ATT"
-#  DEF_score.index.name = 'cluster'
-#  DEF_score.reset_index(inplace=True)
-
-   list_of_frames = [DEF_score, POS_score, ATT_score]
-   df_final = pd.concat(list_of_frames)
-
-   df_final.index.name = 'cluster'
-   df_final.reset_index(inplace=True)
-
-   return df_final
-def getdata():
-    DEF = pd.read_csv('C:/ITU/ITU_Research_Project/clustered_data/DEF.csv', sep=",", encoding='unicode_escape')
-    MID = pd.read_csv('C:/ITU/ITU_Research_Project/clustered_data/MID.csv', sep=",", encoding='unicode_escape')
-    WIDE = pd.read_csv('C:/ITU/ITU_Research_Project/clustered_data/WIDE.csv', sep=",", encoding='unicode_escape')
-    ATT = pd.read_csv('C:/ITU/ITU_Research_Project/clustered_data/ATT.csv', sep=",", encoding='unicode_escape')
-    raw = pd.read_csv("C:/ITU/ITU_Research_Project/preprocessed/events_CN.csv", sep=",", encoding='unicode_escape')
-
-    DEF_v2 = pd.merge(DEF, raw, on=['playerId', 'seasonId', 'map_group', 'pos_group'])
-    MID_v2 = pd.merge(MID, raw, on=['playerId', 'seasonId', 'map_group', 'pos_group'])
-    WIDE_v2 = pd.merge(WIDE, raw, on=['playerId', 'seasonId', 'map_group', 'pos_group'])
-    ATT_v2 = pd.merge(ATT, raw, on=['playerId', 'seasonId', 'map_group', 'pos_group'])
-
-    DEF_v3 = DEF_v2.drop(['playerId', 'seasonId', 'map_group', 'pos_group', 'teamId'], axis=1)
-    MID_v3 = MID_v2.drop(['playerId', 'seasonId', 'map_group', 'pos_group', 'teamId'], axis=1)
-    ATT_v3 = ATT_v2.drop(['playerId', 'seasonId', 'map_group', 'pos_group', 'teamId'], axis=1)
-    WIDE_v3 = WIDE_v2.drop(['playerId', 'seasonId', 'map_group', 'pos_group', 'teamId'], axis=1)
-
-    return DEF_v3, MID_v3, WIDE_v3, ATT_v3
-def get_cluster_sub_scores(data):
-    clusters = data.cluster.unique()
-    final_frame = pd.DataFrame()
-    for cluster in clusters:
-        cluster_frame = data[data['cluster'] == cluster]
-        vals = get_scores(cluster_frame)
-        frame_made = pd.DataFrame((((pd.DataFrame.from_records(vals)).sum())))
-        frame_made = frame_made.rename_axis("labels").reset_index()
-        frame_made.columns.values[1] = "values"
-        frame_made['cluster'] = cluster
-        final_frame = pd.concat([final_frame, frame_made])
-
-    return final_frame
-def get_scores(cluster_frame):
-    def_scores = {'ground_duels': cluster_frame[ground_duels].sum().sum(),
-                  'air_duels': cluster_frame[air_duels].sum().sum(),
-                  'clearance': cluster_frame[clearance].sum().sum(),
-                  'game_reading': cluster_frame[game_reading].sum().sum(),
-                  'disciplinary': cluster_frame[disciplinary].sum().sum(),
-                  }
-
-    pos_scores = {'established': cluster_frame[established].sum().sum(),
-                  'progression': cluster_frame[progression].sum().sum(),
-                  'misc': cluster_frame[misc].sum().sum(),
-                  }
-
-    att_scores = {'finishing': cluster_frame[finishing].sum().sum(),
-                  'creating': cluster_frame[creating].sum().sum(),
-                  'movement': cluster_frame[movement].sum().sum(),
-                  }
-    return def_scores, pos_scores, att_scores
-
-
-# Extract data on each position group
-DEF, MID, WIDE, ATT = getdata()
-
-df = pd.DataFrame(dict(
-    r=[1, 5, 2, 2, 3],
-    theta=['processing cost','mechanical properties','chemical stability',
-           'thermal stability', 'device integration']))
-
-fig = px.line_polar(df, r='r', theta=finishing, line_close=True)
-fig.show()
-
-
-
-# Get summarized sub scores for each cluster divided by positional groups
-def_sub_scores_per_cluster = get_cluster_sub_scores(DEF)
-
-mid_sub_scores_per_cluster = get_cluster_sub_scores(MID)
-wide_sub_scores_per_cluster = get_cluster_sub_scores(WIDE)
-att_sub_scores_per_cluster = get_cluster_sub_scores(ATT)
-
-def_scores = get_cluster_scores(def_sub_scores_per_cluster)
-mid_scores = get_cluster_scores(mid_sub_scores_per_cluster)
-wide_scores = get_cluster_scores(wide_sub_scores_per_cluster)
-att_scores = get_cluster_scores(att_sub_scores_per_cluster)
-
-sns.barplot(data=def_scores, x="labels", y="values")
-plt.show()
-
-sns.kdeplot(data=df1, x="values")
-plt.show()
-
-
-sns.barplot(data=def_scores, x="labels", y="values", hue='cluster')
-plt.show()
-
-def createPitchWithZones():
-    data = np.array([
-        [0, 0],
-        [16, 0],  # x+16
-        [0, 19],
-        [16, 19],  # x+17
-        [33, 0],
-        [33, 19],
-        [67, 0],  # x+34
-        [67, 19],
-        [84, 0],
-        [84, 19],
-        [100, 0],
-        [100, 19],
-        [0, 81],
-        [0, 100],
-        [16, 81],
-        [16, 100],
-        [33, 81],
-        [33, 100],
-        [67, 81],  # x+34
-        [67, 100],
-        [84, 81],
-        [84, 100],
-        [100, 81],
-        [100, 100],
-        [16, 63],
-        [16, 63],
-        [16, 63],
-        [33, 63],
-        [67, 63],
-        [16, 37],
-        [33, 37],
-        [50, 19],
-        [50, 0],
-        [50, 37],
-        [50, 63],
-        [50, 81],
-        [50, 100],
-        [67, 37],
-        [84, 37],
-        [84, 63], ])
-    pitch = Pitch(pitch_type='wyscout', axis=True,
-                  positional=True,
-                  tick=True,
-                  label=True)
-    fig, ax = pitch.draw()
-    x, y = data.T
-    plt.scatter(x, y)
-    plt.show()
-'''

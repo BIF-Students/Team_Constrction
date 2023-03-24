@@ -49,8 +49,8 @@ trans = pca.fit_transform(df)
 opt_clus(trans)
 
 # clustering
-clusters = 5
-gmm = GaussianMixture(n_components=clusters, covariance_type='full', random_state=42).fit(dr)
+clusters = 6
+gmm = GaussianMixture(n_components=clusters, covariance_type='diag', random_state=42).fit(dr)
 probs = gmm.predict_proba(dr)
 threshold = 0.7 # found via opt_clust
 cluster_assignments = np.argmax(probs, axis=1)
@@ -89,6 +89,10 @@ df2.groupby('ip_cluster')['pos_group'].value_counts()
 
 # -----------------------------------------------------------------------------------
 
+# merge w. dr2
+temp = df2[['playerId', 'seasonId', 'ip_cluster']]
+df2 = pd.merge(dr2, temp, on=['playerId', 'seasonId'])
+
 # creating DFs
 cX = df2[df2.ip_cluster == -1]
 c0 = df2[df2.ip_cluster == 0]
@@ -96,6 +100,7 @@ c1 = df2[df2.ip_cluster == 1]
 c2 = df2[df2.ip_cluster == 2]
 c3 = df2[df2.ip_cluster == 3]
 c4 = df2[df2.ip_cluster == 4]
+c5 = df2[df2.ip_cluster == 5]
 
 # dropping cluster
 cX = cX.drop(['ip_cluster'], axis=1)
@@ -104,6 +109,7 @@ c1 = c1.drop(['ip_cluster'], axis=1)
 c2 = c2.drop(['ip_cluster'], axis=1)
 c3 = c3.drop(['ip_cluster'], axis=1)
 c4 = c4.drop(['ip_cluster'], axis=1)
+c5 = c5.drop(['ip_cluster'], axis=1)
 
 # dropping cluster
 cX_id = cX[['playerId', 'seasonId', 'pos_group']]
@@ -118,31 +124,29 @@ c3_id = c3[['playerId', 'seasonId', 'pos_group']]
 c3 = c3.drop(['playerId', 'seasonId', 'pos_group'], axis=1)
 c4_id = c4[['playerId', 'seasonId', 'pos_group']]
 c4 = c4.drop(['playerId', 'seasonId', 'pos_group'], axis=1)
-
-# applying UMAP - remember to install pynndescent to make it run faster
-dr0_ip = umap.UMAP(n_neighbors=30, min_dist=0.0, n_components=2, random_state=42, metric='manhattan').fit_transform(c0)
-dr1_ip = umap.UMAP(n_neighbors=30, min_dist=0.0, n_components=2, random_state=42, metric='manhattan').fit_transform(c1)
-dr2_ip = umap.UMAP(n_neighbors=30, min_dist=0.0, n_components=2, random_state=42, metric='manhattan').fit_transform(c2)
-dr3_ip = umap.UMAP(n_neighbors=30, min_dist=0.0, n_components=2, random_state=42, metric='manhattan').fit_transform(c3)
-dr4_ip = umap.UMAP(n_neighbors=30, min_dist=0.0, n_components=2, random_state=42, metric='manhattan').fit_transform(c4)
+c5_id = c5[['playerId', 'seasonId', 'pos_group']]
+c5 = c5.drop(['playerId', 'seasonId', 'pos_group'], axis=1)
 
 # creating clusters
 # opt_clus(dr1_ip) # running for 0-5
-gmm0_ip = GaussianMixture(n_components=3, covariance_type='full', random_state=42).fit(dr0_ip).predict_proba(dr0_ip)
+gmm0_ip = GaussianMixture(n_components=3, covariance_type='full', random_state=42).fit(c0).predict_proba(c0)
 ca0 = np.argmax(gmm0_ip, axis=1)
 ca0[gmm0_ip.max(axis=1) < 0.6] = -1
-gmm1_ip = GaussianMixture(n_components=3, covariance_type='full', random_state=42).fit(dr1_ip).predict_proba(dr1_ip)
+gmm1_ip = GaussianMixture(n_components=3, covariance_type='full', random_state=42).fit(c1).predict_proba(c1)
 ca1 = np.argmax(gmm1_ip, axis=1)
 ca1[gmm1_ip.max(axis=1) < 0.6] = -1
-gmm2_ip = GaussianMixture(n_components=3, covariance_type='full', random_state=42).fit(dr2_ip).predict_proba(dr2_ip)
+gmm2_ip = GaussianMixture(n_components=3, covariance_type='full', random_state=42).fit(c2).predict_proba(c2)
 ca2 = np.argmax(gmm2_ip, axis=1)
 ca2[gmm2_ip.max(axis=1) < 0.6] = -1
-gmm3_ip = GaussianMixture(n_components=3, covariance_type='full', random_state=42).fit(dr3_ip).predict_proba(dr3_ip)
+gmm3_ip = GaussianMixture(n_components=3, covariance_type='full', random_state=42).fit(c3).predict_proba(c3)
 ca3 = np.argmax(gmm3_ip, axis=1)
 ca3[gmm3_ip.max(axis=1) < 0.6] = -1
-gmm4_ip = GaussianMixture(n_components=3, covariance_type='full', random_state=42).fit(dr4_ip).predict_proba(dr4_ip)
+gmm4_ip = GaussianMixture(n_components=3, covariance_type='full', random_state=42).fit(c4).predict_proba(c4)
 ca4 = np.argmax(gmm4_ip, axis=1)
 ca4[gmm4_ip.max(axis=1) < 0.6] = -1
+gmm5_ip = GaussianMixture(n_components=3, covariance_type='full', random_state=42).fit(c5).predict_proba(c5)
+ca5 = np.argmax(gmm5_ip, axis=1)
+ca5[gmm5_ip.max(axis=1) < 0.6] = -1
 
 # visualizing to check --- change all but dr3
 '''dr3 = pd.DataFrame(dr0_ip, columns=["x", "y", "z"])
@@ -154,9 +158,7 @@ fig = px.scatter_3d(dr3, x='x', y='y', z='z', color='c', color_discrete_map=colo
 fig.update_traces(marker=dict(line=dict(width=0.001, color='white')))
 fig.show()'''
 
-dr3 = pd.DataFrame(dr0_ip, columns=["x", "y"])
-dr3 = pd.concat([c0_id.reset_index(drop=True),dr3.reset_index(drop=True)], axis=1)
-dr3 = pd.concat([dr3.reset_index(drop=True),pd.DataFrame(ca0, columns=["c"]).reset_index(drop=True)], axis=1)
+dr3 = pd.concat([c3.reset_index(drop=True),pd.DataFrame(ca3, columns=["c"]).reset_index(drop=True)], axis=1)
 plot = sns.scatterplot(data=dr3, x="x", y="y", hue = "c")
 plt.show()
 
@@ -167,23 +169,43 @@ c1_id = pd.concat([c1_id.reset_index(drop=True),gmm_to_df(ca1, "ip").reset_index
 c2_id = pd.concat([c2_id.reset_index(drop=True),gmm_to_df(ca2, "ip").reset_index(drop=True)], axis=1)
 c3_id = pd.concat([c3_id.reset_index(drop=True),gmm_to_df(ca3, "ip").reset_index(drop=True)], axis=1)
 c4_id = pd.concat([c4_id.reset_index(drop=True),gmm_to_df(ca4, "ip").reset_index(drop=True)], axis=1)
+c5_id = pd.concat([c5_id.reset_index(drop=True),gmm_to_df(ca5, "ip").reset_index(drop=True)], axis=1)
 
 # adjusting clust no.
 c1_id.loc[c1_id['ip_cluster'] != -1, 'ip_cluster'] += 3
 c2_id.loc[c2_id['ip_cluster'] != -1, 'ip_cluster'] += 6
 c3_id.loc[c3_id['ip_cluster'] != -1, 'ip_cluster'] += 9
 c4_id.loc[c4_id['ip_cluster'] != -1, 'ip_cluster'] += 12
+c5_id.loc[c5_id['ip_cluster'] != -1, 'ip_cluster'] += 15
 
 # merge
-frames = [cX_id, c0_id, c1_id, c2_id, c3_id, c4_id]
+frames = [cX_id, c0_id, c1_id, c2_id, c3_id, c4_id, c5_id]
 dfx = pd.concat(frames)
-stats = [cX, c0, c1, c2, c3, c4]
+stats = [cX, c0, c1, c2, c3, c4, c5]
 dfy = pd.concat(stats)
 df3 = pd.concat([dfx.reset_index(drop=True),dfy.reset_index(drop=True)], axis=1)
 df3 = df3.sort_values('playerId')
 df3 = df3.reset_index(drop=True)
 df3.to_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/players_clusters.csv', index=False)
 
+palette = sns.color_palette("CMRmap", 18) + ['lightgrey']
+hue_order = list(range(18)) + [-1]
+
+sns.scatterplot(data=df3[df3['ip_cluster'] != -1], x='x', y='y', hue='ip_cluster', palette=palette, hue_order=hue_order)
+sns.scatterplot(data=df3[df3['ip_cluster'] == -1], x='x', y='y', color='lightgrey', size=1)
+plt.gca().spines['top'].set_visible(False)
+plt.gca().spines['right'].set_visible(False)
+plt.title('Cluster Distribution', fontsize=14, fontweight='bold')
+plt.xlabel('umap_x')
+plt.ylabel('umap_y')
+plt.grid(color='lightgray', alpha=0.25, zorder=1)
+plt.legend('', frameon=False)
+# plt.legend(loc="upper right", bbox_to_anchor=(1.12, 1))
+plt.savefig('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/clustersIMG.png')
+plt.show()
+
+test = df3[df3['ip_cluster'] == -1]
+test['ip_cluster'].value_counts()
 # visualize - 3D
 '''df3 = pd.read_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/players_clusters.csv',
                  sep=",", encoding='unicode_escape')
@@ -194,23 +216,3 @@ dr2['c2'] = dr2['ip_cluster'].astype(str)
 fig = px.scatter_3d(dr2, x='x', y='y', z='z', color='c2', color_discrete_map=color_map, color_discrete_sequence=px.colors.qualitative.Light24_r)
 fig.update_traces(marker=dict(line=dict(width=0.001, color='white')))
 fig.show()'''
-
-temp = df3[['playerId', 'seasonId', 'ip_cluster']]
-dr2 = dr2.sort_values('playerId')
-dr2 = dr2.reset_index(drop=True)
-dr2 = pd.merge(dr2, temp, on=['playerId', 'seasonId'])
-palette = sns.color_palette("CMRmap", 15) + ['lightgrey']
-hue_order = list(range(15)) + [-1]
-
-sns.scatterplot(data=dr2[dr2['ip_cluster'] != -1], x='x', y='y', hue='ip_cluster', palette=palette, hue_order=hue_order)
-# sns.scatterplot(data=dr2[dr2['ip_cluster'] == -1], x='x', y='y', color='lightgrey', size=0.4)
-plt.gca().spines['top'].set_visible(False)
-plt.gca().spines['right'].set_visible(False)
-plt.title('Cluster Distribution', fontsize=14, fontweight='bold')
-plt.xlabel('umap_x')
-plt.ylabel('umap_y')
-plt.grid(color='lightgray', alpha=0.25, zorder=1)
-plt.legend(loc="upper right", bbox_to_anchor=(1.12, 1))
-plt.show()
-
-dr2['ip_cluster'].value_counts()
