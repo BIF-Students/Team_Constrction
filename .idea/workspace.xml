@@ -5,13 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="soft clustering v2">
-      <change afterPath="$PROJECT_DIR$/chemistry/sql_statements.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chemistry/chemistry.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/jdi.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/jdi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/netoi.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/netoi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/smallTest.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/smallTest.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -144,7 +140,8 @@
       <workItem from="1679651202878" duration="13343000" />
       <workItem from="1679816798574" duration="1512000" />
       <workItem from="1679835952103" duration="5942000" />
-      <workItem from="1679843536986" duration="12701000" />
+      <workItem from="1679843536986" duration="13587000" />
+      <workItem from="1679943274474" duration="5528000" />
     </task>
     <task id="LOCAL-00001" summary="første prepross af SQL udtræk">
       <created>1676646533461</created>

@@ -74,5 +74,4 @@ df_joi90_and_jdi90 = compute_normalized_values(df_joi, df_jdi, df_pairwise_playi
 stamps = get_timestamps(187530)
 
 
-
-vaep, subs = get_TVP(df_process_21_22, df_sqaud, stamps)
+vaep, subs,tvp = get_TVP(df_process_21_22, df_sqaud, stamps)

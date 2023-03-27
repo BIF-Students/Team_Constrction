@@ -312,9 +312,15 @@ def compute_normalized_values(df_joi_game, df_jdi_game, df_pairwise_time):
 def get_TVP(df_vaep, squad, stamps):
     stamps = stamps[['eventId', 'matchPeriod', 'minute', 'second', 'matchTimestamp']]
     df_vaep = df_vaep.merge(stamps, on =('eventId'))
-    df_vaep = df_vaep.sort_values(by=['teamId', 'matchId', 'minute', 'second'], ascending=True)
-    df_vaep['cumulative_sumVaep'] = df_vaep.groupby(['teamId', 'matchId', 'minute', 'second'])['sumVaep'].transform('cumsum')
-
     squad['minutes_passed'] = squad['minutes'].astype(int)
-    squad['seconds_passed_within_minute'] = ((squad['minutes'] - squad['minutes_passed']) * 60).astype( float)
-    return df_vaep, squad
+    squad['seconds_passed_within_minute'] = ((squad['minutes'] - squad['minutes_passed']) * 60).astype(float)
+
+    player_TVG = []
+    for i, row in squad.iterrows():
+        g_vaep = df_vaep.loc[(df_vaep['matchId'] == row['matchId']) & (df_vaep['teamId'] == row['teamId'])]
+        g_vaep = g_vaep.loc[(g_vaep['minute'] < (row['minutes_passed'] +1)) & ((g_vaep['minute'] < row['minutes_passed']) | (g_vaep['minute'] == row['minutes_passed']) & (g_vaep['second'] <= row['seconds_passed_within_minute']))]
+
+        player_TVG.append([row.playerId, row.matchId, row.teamId, row.minutes_passed, row.seconds_passed_within_minute, sum(g_vaep['sumVaep'])])
+    frame = pd.DataFrame(data = player_TVG, columns=['playerId', 'matchId', 'teamId', 'minutes_played', 'seconds_in_minute', 'in_game_team_vaep'])
+
+    return df_vaep, squad, frame
