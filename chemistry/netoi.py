@@ -60,18 +60,3 @@ def getOi(df):
     #vaep produced in a game in a zone
     df_net_oi = compute_net_oi_game(df_merged)
     return df_net_oi
-
-def get_avg_veap_team_season(df):
-    #Copy inital df to dataframe of interest
-    df_vaep_zone_match = df
-
-    #Add column with zones related to each action
-    df_vaep_zone_match['zone'] = df_vaep_zone_match.apply(lambda row: find_zone_chemistry(row), axis = 1)
-
-    #Method used to make zone column to columns marking each zone and computing vaep per action in a particular zone
-    def_zones_vaep = find_zones_and_vaep(df_vaep_zone_match)
-
-
-    return def_zones_vaep_team_season
-
-

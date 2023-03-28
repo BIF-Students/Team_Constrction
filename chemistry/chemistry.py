@@ -1,8 +1,7 @@
 # Import necessary modules
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-
-from chemistry.distance import getDistance
+from chemistry.distance import *
 from chemistry.jdi import getJdi
 from chemistry.joi import getJoi
 from chemistry.netoi import getOi
@@ -11,7 +10,6 @@ from chemistry.smallTest import test_players_in_a_match
 from chemistry.sql_statements import *
 from helpers.student_bif_code import load_db_to_pd  # custom module
 from chemistry.chemistry_helpers import *
-from datetime import datetime
 
 
 # Load data from a SQL database table into a pandas DataFrame
@@ -49,10 +47,6 @@ for a whole season and normalized per 90 minutes
 '''
 df_pairwise_playing_time = compute_pairwise_playing_time(df_sqaud)
 
-tester_x = df_pairwise_playing_time[df_pairwise_playing_time.p1 == 15080]
-15080.00000,446455.00000
-
-
 df_process = sd_table.copy()
 df_process_20_21 = df_process[df_process['seasonId'] == min(df_process.seasonId)]
 df_process_21_22 = df_process[df_process['seasonId'] == max(df_process.seasonId)]
@@ -82,32 +76,4 @@ was on the pitch
 '''
 stamps = get_timestamps(187530)
 
-'''
-tvp is a dataframe containing; 
-The average match vaep for a team in a season.
-The match vaep for a team related to a player, only inspects
-the team vaep for the minutes a player was on the pitch
-'''
-
-tvp, = get_TVP(df_process_21_22, df_sqaud, stamps)
-
-league_avg_vaep = get_league_vaep(df_process_21_22)
-tvp['league_vaep'] = league_avg_vaep
-tvp['factor'] = tvp['in_game_team_vaep'] / tvp['league_vaep']
-merged = tvp.merge(tvp, on='teamId', suffixes = ('1', '2'))
-merged = merged[['teamId', 'playerId1', 'playerId2', 'factor1', 'factor2']]
-merged = merged[(merged.playerId1 != merged.playerId2) & (merged.playerId1 < merged.playerId2) ]
-merged = merged.rename(columns = {'playerId1':'p1', 'playerId2':'p2'})
-
-dfc = pd.merge(df_joi90_and_jdi90, merged, on=['teamId', 'p1', 'p2'], how='inner')
-dfc = dfc.sort_values(by=['p1' , 'p2', 'teamId'])
-
-df_id = dfc[['p1' , 'p2', 'teamId']]
-mask = ~dfc.columns.isin(['p1', 'p2', 'teamId'])
-df_scale = dfc.loc[:, mask]
-
-scale = MinMaxScaler()
-df_scale[df_scale.columns] = scale.fit_transform(df_scale[df_scale.columns])
-df_scaled = pd.concat([df_id.reset_index(drop=True),df_scale.reset_index(drop=True)], axis=1)
-df_chemistry = df_scaled.assign(chem1 = (df_scaled.df_joi90 * df_scaled.df_jdi90 * df_scaled.factor1), chem2= (df_scaled.df_joi90 * df_scaled.df_jdi90 * df_scaled.factor2))
 
