@@ -1,4 +1,7 @@
 # Import necessary modules
+import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
+
 from chemistry.distance import getDistance
 from chemistry.jdi import getJdi
 from chemistry.joi import getJoi
@@ -46,6 +49,10 @@ for a whole season and normalized per 90 minutes
 '''
 df_pairwise_playing_time = compute_pairwise_playing_time(df_sqaud)
 
+tester_x = df_pairwise_playing_time[df_pairwise_playing_time.p1 == 15080]
+15080.00000,446455.00000
+
+
 df_process = sd_table.copy()
 df_process_20_21 = df_process[df_process['seasonId'] == min(df_process.seasonId)]
 df_process_21_22 = df_process[df_process['seasonId'] == max(df_process.seasonId)]
@@ -65,13 +72,42 @@ df_jdi = getJdi(df_net_oi, df_matches_all, df_ec, df_player_share)
 #Extract joi
 df_joi = getJoi(df_events_related_ids)
 
-#df_checker = df_ec[(df_ec.teamId == 4487)]
-#df_tester = test_players_in_a_match(df_player_share=df_player_share, df_net_oi= df_net_oi, df_matches_all=df_matches_all, df_ec=df_ec, df_jdi=df_jdi, match=5252420, p1=170237, p2=450371, t1= 4487 )
-
-#Extract normalized values
+#Computes joi90 and jdi90 for each pair of players
 df_joi90_and_jdi90 = compute_normalized_values(df_joi, df_jdi, df_pairwise_playing_time)
 
+'''
+Extract minute and second for each event. This is important to 
+determine team vaep in a game in the minutes a particular player
+was on the pitch
+'''
 stamps = get_timestamps(187530)
 
+'''
+tvp is a dataframe containing; 
+The average match vaep for a team in a season.
+The match vaep for a team related to a player, only inspects
+the team vaep for the minutes a player was on the pitch
+'''
 
-vaep, subs,tvp = get_TVP(df_process_21_22, df_sqaud, stamps)
+tvp, = get_TVP(df_process_21_22, df_sqaud, stamps)
+
+league_avg_vaep = get_league_vaep(df_process_21_22)
+tvp['league_vaep'] = league_avg_vaep
+tvp['factor'] = tvp['in_game_team_vaep'] / tvp['league_vaep']
+merged = tvp.merge(tvp, on='teamId', suffixes = ('1', '2'))
+merged = merged[['teamId', 'playerId1', 'playerId2', 'factor1', 'factor2']]
+merged = merged[(merged.playerId1 != merged.playerId2) & (merged.playerId1 < merged.playerId2) ]
+merged = merged.rename(columns = {'playerId1':'p1', 'playerId2':'p2'})
+
+dfc = pd.merge(df_joi90_and_jdi90, merged, on=['teamId', 'p1', 'p2'], how='inner')
+dfc = dfc.sort_values(by=['p1' , 'p2', 'teamId'])
+
+df_id = dfc[['p1' , 'p2', 'teamId']]
+mask = ~dfc.columns.isin(['p1', 'p2', 'teamId'])
+df_scale = dfc.loc[:, mask]
+
+scale = MinMaxScaler()
+df_scale[df_scale.columns] = scale.fit_transform(df_scale[df_scale.columns])
+df_scaled = pd.concat([df_id.reset_index(drop=True),df_scale.reset_index(drop=True)], axis=1)
+df_chemistry = df_scaled.assign(chem1 = (df_scaled.df_joi90 * df_scaled.df_jdi90 * df_scaled.factor1), chem2= (df_scaled.df_joi90 * df_scaled.df_jdi90 * df_scaled.factor2))
+

@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="soft clustering v2">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SQL_pross.py" beforeDir="false" afterPath="$PROJECT_DIR$/SQL_pross.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chemistry/chemistry.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" afterDir="false" />
     </list>
@@ -141,7 +142,9 @@
       <workItem from="1679816798574" duration="1512000" />
       <workItem from="1679835952103" duration="5942000" />
       <workItem from="1679843536986" duration="13587000" />
-      <workItem from="1679943274474" duration="5528000" />
+      <workItem from="1679943274474" duration="6241000" />
+      <workItem from="1679989474848" duration="1805000" />
+      <workItem from="1679991330165" duration="6934000" />
     </task>
     <task id="LOCAL-00001" summary="første prepross af SQL udtræk">
       <created>1676646533461</created>

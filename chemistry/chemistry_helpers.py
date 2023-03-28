@@ -319,8 +319,14 @@ def get_TVP(df_vaep, squad, stamps):
     for i, row in squad.iterrows():
         g_vaep = df_vaep.loc[(df_vaep['matchId'] == row['matchId']) & (df_vaep['teamId'] == row['teamId'])]
         g_vaep = g_vaep.loc[(g_vaep['minute'] < (row['minutes_passed'] +1)) & ((g_vaep['minute'] < row['minutes_passed']) | (g_vaep['minute'] == row['minutes_passed']) & (g_vaep['second'] <= row['seconds_passed_within_minute']))]
-
         player_TVG.append([row.playerId, row.matchId, row.teamId, row.minutes_passed, row.seconds_passed_within_minute, sum(g_vaep['sumVaep'])])
     frame = pd.DataFrame(data = player_TVG, columns=['playerId', 'matchId', 'teamId', 'minutes_played', 'seconds_in_minute', 'in_game_team_vaep'])
 
-    return df_vaep, squad, frame
+    team_vaep_p_in_game = frame.groupby(['teamId', 'playerId'], as_index = False)['in_game_team_vaep'].mean()
+
+    return team_vaep_p_in_game, frame, df_vaep
+
+def get_league_vaep(df):
+    df = df.groupby(['matchId'], as_index =False)['sumVaep'].sum()
+    league_vaep =  df['sumVaep'].mean()
+    return league_vaep

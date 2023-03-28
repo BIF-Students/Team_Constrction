@@ -90,6 +90,7 @@ scale = MinMaxScaler()
 dfc.replace([np.inf, -np.inf], 0, inplace=True)
 dfc_scaled = dfc.drop(['playerId', 'seasonId'], axis=1)
 dfc_scaled[dfc_scaled.columns] = scale.fit_transform(dfc_scaled[dfc_scaled.columns])
+
 check = dfc_scaled.describe()
 
 dfc = pd.concat([dfc_id.reset_index(drop=True),dfc_scaled.reset_index(drop=True)], axis=1)
