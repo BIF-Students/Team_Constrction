@@ -9,6 +9,10 @@ def getOi(df):
     # Add column with zones related to each action
     df_vaep_zone_match['zone'] = df_vaep_zone_match.apply(lambda row: find_zone_chemistry(row), axis=1)
 
+    df_vaep_zone_match = df_vaep_zone_match[(~df_vaep_zone_match.typePrimary.isin(
+        ['interception', 'clearence', 'goal_kick', 'infraction', 'offside', 'shot_against']))]
+
+
     # Method used to make zone column to columns marking each zone and computing vaep per action in a particular zone
     df_zones_vaep = find_zones_and_vaep(df_vaep_zone_match)
 

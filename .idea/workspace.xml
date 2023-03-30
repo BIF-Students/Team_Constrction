@@ -8,8 +8,11 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chemistry/chemistry.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/distance.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/distance.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chemistry/jdi.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/jdi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/netoi.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/netoi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/responsibility_share.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/responsibility_share.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/sql_statements.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/sql_statements.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sql_script.txt" beforeDir="false" afterPath="$PROJECT_DIR$/sql_script.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -146,7 +149,10 @@
       <workItem from="1679943274474" duration="6241000" />
       <workItem from="1679989474848" duration="1805000" />
       <workItem from="1679991330165" duration="7276000" />
-      <workItem from="1680003287267" duration="8659000" />
+      <workItem from="1680003287267" duration="12883000" />
+      <workItem from="1680075443799" duration="29476000" />
+      <workItem from="1680113604561" duration="5971000" />
+      <workItem from="1680194628424" duration="9985000" />
     </task>
     <task id="LOCAL-00001" summary="første prepross af SQL udtræk">
       <created>1676646533461</created>

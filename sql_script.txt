@@ -8,9 +8,9 @@ DROP VIEW if exists xa
 DROP VIEW if exists sd_view_2
 
 Create View vaep as
- SELECT vaep.eventId, matchId, offensiveValue, defensiveValue, sumVaep
-  FROM Scouting_Raw_Staging.dbo.Vaep as vaep
-  WHERE matchId IN (SELECT matchId
+SELECT vaep.eventId, matchId, offensiveValue, defensiveValue, sumVaep
+FROM Scouting_Raw_Staging.dbo.Vaep as vaep
+WHERE matchId IN (SELECT matchId
                               FROM Scouting.dbo.Wyscout_Matches
                               WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530));
 
@@ -18,41 +18,40 @@ Create View vaep as
 186393, 187401, 186229, 187450, 186290, 187475, 186810, 187844, 187322, 187276, 186707, 187425, 186230, 187452, 186210, 187483, 186212, 187376, 186352, 187528, 186353, 187373, 186222, 187379, 186249, 187389, 186250, 187534, 186370, 187526, 186267, 187533, 186291, 187374, 186243, 187511, 186265, 187555, 186232, 187523, 186237, 187381, 186211, 187502, 186248, 187141, 186720, 186215, 187453, 187142, 186693, 187409, 186213, 187420, 186214
 '''
 
-
 Create View mainEvents as
 SELECT location_X as x, location_Y as y, eventId, typePrimary, matchId, teamId, playerId
 FROM Scouting_Raw.dbo.Wyscout_Events_Main_Info
 WHERE matchId IN (SELECT matchId
-                              FROM Scouting.dbo.Wyscout_Matches
-                              WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530));
+FROM Scouting.dbo.Wyscout_Matches
+WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530));
 
 Create View passEvents as
 SELECT eventId, pass_EndLocation_X as end_x, pass_EndLocation_Y as end_y
 FROM Scouting_Raw.dbo.Wyscout_Events_Passes
 WHERE matchId IN (SELECT matchId
-                              FROM Scouting.dbo.Wyscout_Matches
-                              WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530));
+FROM Scouting.dbo.Wyscout_Matches
+WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530));
 
 
 Create View ts as
 SELECT *
 FROM Scouting_Raw.dbo.Wyscout_Events_TypeSecondary
 WHERE matchId IN (SELECT matchId
-                              FROM Scouting.dbo.Wyscout_Matches
-                              WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530));
+FROM Scouting.dbo.Wyscout_Matches
+WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530));
 
 Create View xg as
 SELECT eventId, shot_XG
 FROM [Scouting_Raw].[dbo].[Wyscout_Events_Shots]
 WHERE matchId IN (SELECT matchId
-                              FROM Scouting.dbo.Wyscout_Matches
-                              WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530));
+FROM Scouting.dbo.Wyscout_Matches
+WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530));
 
 Create View xa as
 SELECT eventId, possessionAttack_XG
 FROM [Scouting_Raw].[dbo].Wyscout_Events_Possession
 WHERE matchId IN (SELECT matchId
-                              FROM Scouting.dbo.Wyscout_Matches
+FROM Scouting.dbo.Wyscout_Matches
                               WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530))
 and typePrimary in ('acceleration', 'duel', 'pass', 'throw_in', 'touch')
 
@@ -92,8 +91,8 @@ create view events_and_realted_events as (
 select e.eventId, e.x, e.y, e.typePrimary, e.teamId, e.matchId, e.playerId, mi.relatedEventId from mainEvents as e
 left join [Scouting_Raw].[dbo].[Wyscout_Events_Main_Info] as mi on e.eventId = mi.eventId
 WHERE mi.matchId IN (SELECT matchId
-                              FROM Scouting.dbo.Wyscout_Matches
-                              WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530)));
+FROM Scouting.dbo.Wyscout_Matches
+WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530)));
 
 
 SELECT  *

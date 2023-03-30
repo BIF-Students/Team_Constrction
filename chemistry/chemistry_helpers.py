@@ -136,6 +136,47 @@ def compute_relative_player_impact(df_player, df_team):
     return df_full
 
 
+def compute_relative_player_impact_v3(df_player, df_team):
+    # Merge two dataframes based on matchId and teamId using inner join
+    df_full = pd.merge(df_player, df_team, on=['matchId', 'teamId'], how='inner')
+
+    # Compute relative player impact for each of the six zones
+    # If the number of passes in a zone is greater than 0, compute the impact as the ratio of passes completed to passes attempted in that zone
+    # If the number of passes in a zone is 0, set the impact for that zone to 0
+    df_full['zone_1_imp'] = np.where(df_full.zone_1_pl > 0, df_full.zone_1_pl / df_full.zone_1_t, 0)
+    df_full['zone_2_imp'] = np.where(df_full.zone_2_pl > 0, df_full.zone_2_pl / df_full.zone_2_t, 0)
+    df_full['zone_3_imp'] = np.where(df_full.zone_3_pl > 0, df_full.zone_3_pl / df_full.zone_3_t, 0)
+    df_full['zone_4_imp'] = np.where(df_full.zone_4_pl > 0, df_full.zone_4_pl / df_full.zone_4_t, 0)
+    df_full['zone_5_imp'] = np.where(df_full.zone_5_pl > 0, df_full.zone_5_pl / df_full.zone_5_t, 0)
+    df_full['zone_6_imp'] = np.where(df_full.zone_6_pl > 0, df_full.zone_6_pl / df_full.zone_6_t, 0)
+
+    df_full['zone_total'] = df_full.zone_1_t + df_full.zone_2_t + df_full.zone_3_t + df_full.zone_4_t + df_full.zone_5_t + df_full.zone_6_t
+
+    df_full['zone_1_weight'] = df_full.zone_1_t / df_full.zone_total
+    df_full['zone_2_weight'] = df_full.zone_2_t / df_full.zone_total
+    df_full['zone_3_weight'] = df_full.zone_3_t / df_full.zone_total
+    df_full['zone_4_weight'] = df_full.zone_4_t / df_full.zone_total
+    df_full['zone_5_weight'] = df_full.zone_5_t / df_full.zone_total
+    df_full['zone_6_weight'] = df_full.zone_6_t / df_full.zone_total
+    # Return the dataframe with the relative player impact for each zone
+    return df_full
+
+
+def compute_relative_player_impact_v2(df_player, df_team):
+    # Merge two dataframes based on matchId and teamId using inner join
+    df_full = pd.merge(df_player, df_team, on=['matchId', 'teamId'], how='inner')
+
+    # Compute relative player impact for each of the six zones
+    # If the number of passes in a zone is greater than 0, compute the impact as the ratio of passes completed to passes attempted in that zone
+    # If the number of passes in a zone is 0, set the impact for that zone to 0
+    df_full['impact'] = df_full.def_actions_count_pl / df_full.def_actions_count_t
+
+    # Return the dataframe with the relative player impact for each zone
+    return df_full
+
+
+
+
 def find_zones_and_counts_pl(df):
     # Use the pandas "get_dummies" method to create dummy variables for each "zone" category,
     # prefixing them with "zone_" in the column names.
@@ -201,14 +242,54 @@ def find_zones_and_counts_t(df):
 
 def compute_jdi (df):
     #Compute jdi per zone per pair of players
-    df['jdi_zone_1'] = np.where(df.zone_1_t > 3, df.zone_1_net_oi * df.zone_1_imp * (1/df.distance), 0)
-    df['jdi_zone_2'] = np.where(df.zone_2_t > 3, df.zone_2_net_oi * df.zone_2_imp * (1/df.distance), 0)
-    df['jdi_zone_3'] = np.where(df.zone_3_t > 3, df.zone_3_net_oi * df.zone_3_imp * (1/df.distance), 0)
-    df['jdi_zone_4'] = np.where(df.zone_4_t > 3, df.zone_4_net_oi * df.zone_4_imp * (1/df.distance), 0)
-    df['jdi_zone_5'] = np.where(df.zone_5_t > 3, df.zone_5_net_oi * df.zone_5_imp * (1/df.distance), 0)
-    df['jdi_zone_6'] = np.where(df.zone_6_t > 3, df.zone_6_net_oi * df.zone_6_imp * (1/df.distance), 0)
+    df['jdi_zone_1'] = np.where(df.zone_1_t > 3, df.zone_1_net_oi * df.impact  * (1/df.distance), 0)
+    df['jdi_zone_2'] = np.where(df.zone_2_t > 3, df.zone_2_net_oi * df.impact * (1/df.distance), 0)
+    df['jdi_zone_3'] = np.where(df.zone_3_t > 3, df.zone_3_net_oi * df.impact * (1/df.distance), 0)
+    df['jdi_zone_4'] = np.where(df.zone_4_t > 3, df.zone_4_net_oi * df.impact * (1/df.distance), 0)
+    df['jdi_zone_5'] = np.where(df.zone_5_t > 3, df.zone_5_net_oi * df.impact * (1/df.distance), 0)
+    df['jdi_zone_6'] = np.where(df.zone_6_t > 3, df.zone_6_net_oi * df.impact * (1/df.distance), 0)
 
     #Compute total jdi across zones for pairs of players
+    df['jdi'] = df.jdi_zone_1 + df.jdi_zone_2 + df.jdi_zone_3 + df.jdi_zone_4 + df.jdi_zone_5 + df.jdi_zone_6
+    return df
+
+def compute_jdi_v3 (df):
+    df['total_actions'] = df['zones_total'] = df.zone_1_team + df.zone_2_team + df.zone_3_team + df.zone_4_team + df.zone_5_team + df.zone_6_team
+    df['jdi_zone_1'] = np.where(df.zone_1_team > 3, (((df.zone_1_net_oi * df.zone_1_imp1) / df.distance ) + ((df.zone_1_team* df.zone_1_imp2) / df.distance))*(df.zone_1_team/df.zones_total), 0)
+    df['jdi_zone_2'] = np.where(df.zone_2_team > 3, ((df.zone_2_net_oi * df.zone_2_imp1) / df.distance ) + ((df.zone_2_team* df.zone_2_imp2) / df.distance)*(df.zone_2_team/df.zones_total) , 0)
+    df['jdi_zone_3'] = np.where(df.zone_3_team > 3, ((df.zone_3_net_oi * df.zone_3_imp1) / df.distance ) + ((df.zone_3_team* df.zone_3_imp2) / df.distance)*(df.zone_3_team/df.zones_total), 0)
+    df['jdi_zone_4'] = np.where(df.zone_4_team > 3, ((df.zone_4_net_oi * df.zone_4_imp1) / df.distance ) + ((df.zone_4_team* df.zone_4_imp2) / df.distance)*(df.zone_4_team/df.zones_total), 0)
+    df['jdi_zone_5'] = np.where(df.zone_5_team > 3, ((df.zone_5_net_oi * df.zone_5_imp1) / df.distance ) + ((df.zone_5_team* df.zone_5_imp2) / df.distance)*(df.zone_5_team/df.zones_total), 0)
+    df['jdi_zone_6'] = np.where(df.zone_6_team > 3, ((df.zone_6_net_oi * df.zone_6_imp1) / df.distance ) + ((df.zone_6_team* df.zone_6_imp2) / df.distance)*(df.zone_6_team/df.zones_total), 0)
+
+    #Compute total jdi across zones for pairs of players
+    df['jdi'] = df.jdi_zone_1 + df.jdi_zone_2 + df.jdi_zone_3 + df.jdi_zone_4 + df.jdi_zone_5 + df.jdi_zone_6
+    return df
+
+def generate_chemistry_ability(df):
+    df1 = df[['p1','shortName_x', 'role_name_x','areaName_x', 'df_jdi90', 'df_joi90', 'chemistry']].rename(columns={'p1':'playerId', 'shortName_x': 'shortName', 'role_name_x': 'role_name' ,'areaName_x': 'areaName'})
+    df2 = df[['p2', 'shortName_y', 'role_name_y','areaName_y', 'df_jdi90', 'df_joi90', 'chemistry']].rename(columns={'p2':'playerId','shortName_y': 'shortName', 'role_name_y': 'role_name' ,'areaName_y': 'areaName'})
+    players_and_chemistry = pd.concat([df1, df2])
+    players_and_chemistry_season = players_and_chemistry.groupby(['playerId', 'shortName',  'role_name' , 'areaName'], as_index=False)['chemistry'].sum().reset_index(drop=True)
+
+    return players_and_chemistry_season
+
+def compute_jdi_v2(df):
+    # Compute jdi per zone per pair of players
+    df['jdi_zone_1_unW'] = np.where(df.zone_1_t > 3, df.zone_1_net_oi * df.zone_1_imp * (1 / df.distance), 0)
+    df['jdi_zone_2_unW'] = np.where(df.zone_2_t > 3, df.zone_2_net_oi * df.zone_2_imp * (1 / df.distance), 0)
+    df['jdi_zone_3_unW'] = np.where(df.zone_3_t > 3, df.zone_3_net_oi * df.zone_3_imp * (1 / df.distance), 0)
+    df['jdi_zone_4_unW'] = np.where(df.zone_4_t > 3, df.zone_4_net_oi * df.zone_4_imp * (1 / df.distance), 0)
+    df['jdi_zone_5_unW'] = np.where(df.zone_5_t > 3, df.zone_5_net_oi * df.zone_5_imp * (1 / df.distance), 0)
+    df['jdi_zone_6_unW'] = np.where(df.zone_6_t > 3, df.zone_6_net_oi * df.zone_6_imp * (1 / df.distance), 0)
+    df = df.assign(jdi_zone_1 = df.jdi_zone_1_unW * df.zone_1_weight,
+                    jdi_zone_2 = df.jdi_zone_2_unW * df.zone_2_weight,
+                    jdi_zone_3 = df.jdi_zone_3_unW * df.zone_3_weight,
+                    jdi_zone_4 = df.jdi_zone_4_unW * df.zone_4_weight,
+                    jdi_zone_5 = df.jdi_zone_5_unW * df.zone_5_weight,
+                    jdi_zone_6 = df.jdi_zone_6_unW * df.zone_6_weight)
+
+    # Compute total jdi across zones for pairs of players
     df['jdi'] = df.jdi_zone_1 + df.jdi_zone_2 + df.jdi_zone_3 + df.jdi_zone_4 + df.jdi_zone_5 + df.jdi_zone_6
     return df
 
@@ -375,20 +456,19 @@ def compute_normalized_values(df_joi_game, df_jdi_game, df_pairwise_time):
 
     # Aggregate sum of 'jdi' for each player pair in each team for the season
     df_jdi_season = df_jdi_game.groupby(['p1', 'p2', 'teamId'], as_index = False)['jdi'].sum()
-
     # Merge the two dataframes based on the player pairs
     df_merged = (pd.merge(df_joi_season, df_jdi_season, on=(['p1', 'p2']))).merge(df_pairwise_time, on= (['p1', 'p2']))
 
     # Compute the normalized value of 'joi' and 'jdi' by dividing them by the norm90 value
-    df_merged['df_joi90'] = df_merged.joi / df_merged.norm90
-    df_merged['df_jdi90'] = df_merged.jdi / df_merged.norm90
+    df_merged['df_joi90'] = df_merged.joi * 90/df_merged.minutes
+    df_merged['df_jdi90'] = df_merged.jdi * 90/df_merged.minutes
 
     # Rename the column 'teamId_1' to 'teamId' and select relevant columns
     df_merged = df_merged.rename(columns={'teamId_1': 'teamId'})
     df_merged = df_merged[['p1', 'p2', 'teamId', 'joi', 'jdi', 'minutes', 'norm90', 'df_jdi90', 'df_joi90']]
 
     # Filter out player pairs who have played less than 300 minutes together
-    df_merged = df_merged.query('minutes > 300')
+    df_merged = df_merged[df_merged['minutes'] >= 720]
     return df_merged
 
 def get_TVP(df_vaep, squad, stamps):
@@ -426,42 +506,45 @@ def get_league_vaep(df):
 
 
 def compute_chemistry(df, squad, stamps, df_joi90_jdi90):
-
-    '''
-    tvp is a dataframe containing;
-    The average match vaep for a team in a season.
-    The match vaep for a team related to a player, only inspects
-    the team vaep for the minutes a player was on the pitch
-    '''
     tvp = get_TVP(df, squad, stamps)
-    league_avg_vaep = get_league_vaep(df) # Compute league average vaep per game
-    tvp['league_vaep'] = league_avg_vaep # Place league vaep as column
-    tvp['factor'] = tvp['in_game_team_vaep'] / tvp['league_vaep'] # Compute global factor values
-    merged = tvp.merge(tvp, on='teamId', suffixes=('1', '2')) # Pair players
+    league_avg_vaep = get_league_vaep(df)
+    tvp['league_vaep'] = league_avg_vaep  # Place league vaep as column
+    tvp['factor'] = tvp['in_game_team_vaep'] / tvp['league_vaep']  # Compute global factor values
 
-    #Extract columns of interest
+    merged = tvp.merge(tvp, on='teamId', suffixes=('1', '2'))  # Pair players
     merged = merged[['teamId', 'playerId1', 'playerId2', 'factor1', 'factor2']]
-    '''
-    Filter columns for pairings of players with themselves and establish an order
-    by having the player with the smallest id in the p1 column
-    '''
+    # Filter columns for pairings of players with themselves and establish an order
+    # by having the player with the smallest id in the p1 column
     merged = merged[(merged.playerId1 != merged.playerId2) & (merged.playerId1 < merged.playerId2)]
-    merged = merged.rename(columns={'playerId1': 'p1', 'playerId2': 'p2'}) #Rename player columns
+    merged = merged.rename(columns={'playerId1': 'p1', 'playerId2': 'p2'})  # Rename player columns
+    merged = merged.sort_values(by=['p1', 'p2', 'teamId'])  # Sort dataframe in ascending order(default)
+    dfm_id = merged[['p1', 'p2', 'teamId']]  # Extract columns that should not be scaled
+    mask_m = ~merged.columns.isin(['p1', 'p2', 'teamId'])  # Extract column names for scaling
 
-    #Merge with joi and jdi dataframes
-    dfc = pd.merge(df_joi90_jdi90, merged, on=['teamId', 'p1', 'p2'], how='inner')
-    dfc = dfc.sort_values(by=['p1', 'p2', 'teamId']) #Sort dataframe in ascending order(default)
+    df_scale_m = merged.loc[:, mask_m]
+    scale1 = MinMaxScaler(feature_range=(0.9, 1.1))
+    df_scale_m[df_scale_m.columns] = scale1.fit_transform(df_scale_m[df_scale_m.columns])  # Perform min/max scaling
+    df_factors_scaled = pd.concat([dfm_id.reset_index(drop=True), df_scale_m.reset_index(drop=True)], axis=1)
 
-    df_id = dfc[['p1', 'p2', 'teamId']] #Extract columns that should not be scaled
-    mask = ~dfc.columns.isin(['p1', 'p2', 'teamId'])# Extract column names for scaling
-    df_scale = dfc.loc[:, mask] # Extract columns for scaling
+    # Merge with joi and jdi dataframes
+    dfc = pd.merge(df_joi90_jdi90, df_factors_scaled, on=['teamId', 'p1', 'p2'], how='inner')
+    dfc = dfc.sort_values(by=['p1', 'p2', 'teamId'])  # Sort dataframe in ascending order(default)
+    df_id = dfc[['p1', 'p2', 'teamId', 'minutes', 'factor1', 'factor2']]  # Extract columns that should not be scaled
+    mask = ~dfc.columns.isin( ['p1', 'p2', 'teamId', 'minutes', 'factor1', 'factor2'])  # Extract column names for scaling
+    df_scale = dfc.loc[:, mask]  # Extract columns for scaling
 
-    scale = MinMaxScaler() #Initiate sclaing instance
-    df_scale[df_scale.columns] = scale.fit_transform(df_scale[df_scale.columns]) #Perform min/max scaling
+    scale2 = MinMaxScaler()  # Initiate sclaing instance
+    df_scale[df_scale.columns] = scale2.fit_transform(df_scale[df_scale.columns])  # Perform min/max scaling
+    # Re-establosh dataframe with id's
+    df_chemistry = pd.concat([df_id.reset_index(drop=True), df_scale.reset_index(drop=True)], axis=1)
+    # Compute chemistry columns based on formula
+    df_chemistry['chemistry'] = df_chemistry.df_joi90 * df_chemistry.df_jdi90 * df_chemistry.factor1 * df_chemistry.factor2
 
-    #Re-establosh dataframe with id's
-    df_scaled = pd.concat([df_id.reset_index(drop=True), df_scale.reset_index(drop=True)], axis=1)
+    return df_chemistry
 
-    #Compute chemistry columns based on formula
-    df_chemistry = df_scaled.assign(chem1=(df_scaled.df_joi90 * df_scaled.df_jdi90 * df_scaled.factor1),
-                                    chem2=(df_scaled.df_joi90 * df_scaled.df_jdi90 * df_scaled.factor2))
+
+def get_overview_frame(df_chem, df_players):
+    df_player_1_added = pd.merge(df_chem, df_players, left_on ='p1', right_on="playerId")
+    df_player_2_added = pd.merge(df_player_1_added, df_players, left_on ='p2', right_on="playerId")
+    df_filtered = df_player_2_added[['p1','p2', 'shortName_x', 'shortName_y', 'minutes', 'role_name_x', 'role_name_y', 'areaName_x', 'areaName_y', 'df_jdi90', 'df_joi90','chemistry']]
+    return df_filtered
