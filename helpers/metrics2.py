@@ -26,6 +26,7 @@ passingE = [
 
 # PASSING ATTACKING PLAY ATTRIBUTES --------------------------------------------------------
 passingA = [
+    "xA_tendency",
     "assist_tendency",
     "second_assist_tendency",
     "third_assist_tendency",
@@ -51,6 +52,7 @@ takeon = [
 
 # FINISHING ATTRIBUTES ------------------------------
 finishing = [
+    "xG_tendency",
     "goal_tendency",
     "head_shot_tendency",
     "shots_PA_tendency",

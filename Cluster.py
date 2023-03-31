@@ -206,6 +206,7 @@ plt.show()
 
 test = df3[df3['ip_cluster'] == -1]
 test['ip_cluster'].value_counts()
+
 # visualize - 3D
 '''df3 = pd.read_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/players_clusters.csv',
                  sep=",", encoding='unicode_escape')

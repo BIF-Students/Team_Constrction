@@ -6,6 +6,7 @@ from helpers.metrics2 import *
 import plotly.express as px
 import numpy as np
 import helperFunctions
+from helpers.student_bif_code import *
 from helpers.helperFunctions import *
 
 # Get individuals scores in subcategories
@@ -40,8 +41,6 @@ def compute_sum_per_metric(data, dict):
         h.remove('ip_cluster')
         data[key] = data[h].sum(axis=1)
     return data
-
-# data = compute_sum_per_metric(data, dict_lists)
 
 def get_avg(df):
     averages = pd.DataFrame(columns=['labels', 'vals'])
@@ -83,7 +82,7 @@ def make_spider_web(raw_data, stat, title_att):
   fig.show()
 
 def pareto(df, cluster):
-    df = df.drop(['playerId', 'seasonId', 'map_group', 'pos_group'], axis=1)
+    df = df.drop(['playerId', 'seasonId', 'pos_group'], axis=1)
     df = df.groupby(['ip_cluster'], as_index=False).mean()
     df = df[df.ip_cluster == cluster]
     df = df.drop(['ip_cluster'], axis=1)
@@ -109,8 +108,8 @@ def pos_dist(df, cluster):
 
 # getting percentiles
 data = data[data['ip_cluster'] != -1]
-ids = data.iloc[:, np.r_[0:3]]
-test = data.iloc[:, np.r_[3:44]]
+ids = data.iloc[:, np.r_[0:4]]
+test = data.iloc[:, np.r_[4:47]]
 test = test.rank(pct = True)
 test = pd.concat([ids.reset_index(drop=True),test.reset_index(drop=True)], axis=1)
 
@@ -128,8 +127,8 @@ check = stat_comp(test)
 check2 = pos_dist(test, 0)
 
 # check 2
-players = pd.read_csv('C:/Users/mall/OneDrive - Implement/Documents/Andet/RP/Data/Wyscout_Players.csv', sep=";", encoding='unicode_escape')
-players.drop(columns=players.columns[0], axis=1, inplace=True)
+players = load_db_to_pd(sql_query = "SELECT * FROM Wyscout_Players", db_name='Scouting')
+players = players[['playerId', 'shortName']]
 dfp = pd.merge(players, test, on='playerId')
-dfp = dfp[dfp.ip_cluster == 1]
-check3 = dfp.iloc[:, np.r_[1, 15, 16:37]]
+dfp = dfp.loc[(dfp['seasonId'] == 186810) | (dfp['seasonId'] == 187475)]
+check3 = dfp[dfp.ip_cluster == 17]

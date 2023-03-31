@@ -4,6 +4,7 @@ from sklearn.mixture import GaussianMixture
 import matplotlib.pyplot as plt
 from sklearn import metrics
 import matplotlib.cm as cm
+from sklearn.ensemble import RandomForestClassifier
 import warnings
 
 
@@ -374,24 +375,6 @@ def get_weight_dicts(X, clusters):
     return weight_dicts
 
 
-def scale_weights(weight_dicts):
-    min_weight = np.inf
-    max_weight = -np.inf
-    for cluster_dict in weight_dicts.values():
-        for weight in cluster_dict.values():
-            if weight < min_weight:
-                min_weight = weight
-            if weight > max_weight:
-                max_weight = weight
-
-    for cluster_dict in weight_dicts.values():
-        for feature, weight in cluster_dict.items():
-            scaled_weight = ((weight - min_weight) / (max_weight - min_weight)) * 1.5 + 0.5
-            cluster_dict[feature] = scaled_weight
-
-    return weight_dicts
-
-
 def cluster_to_dataframe(weight_dicts, cluster_name):
     cluster_weights = weight_dicts[cluster_name]
     df = pd.DataFrame.from_dict(cluster_weights, orient='index').T
@@ -406,7 +389,6 @@ def plot_sorted_bar_chart(df):
     ax = sorted_series.plot(kind='bar', figsize=(12, 6), color=cm.viridis_r(sorted_series / float(max(sorted_series))))
     ax.set_xlabel('Features')
     ax.set_ylabel('Weights')
-    ax.axhline(y=1, color='darkred', linestyle='--', zorder=2)
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
     plt.title('Feature Weight Pareto', fontsize=14, fontweight='bold')
@@ -415,14 +397,14 @@ def plot_sorted_bar_chart(df):
 
 
 def calculate_weighted_scores(data, weight_dicts):
+    score_data = pd.DataFrame()  # create a new dataframe to store the scores
     for name, weights in weight_dicts.items():
         scores = []
         for index, row in data.iterrows():
             weighted_score = sum(row[feature] * weight for feature, weight in weights.items())
             scores.append(weighted_score)
-        data[f'{name} Weighted Score'] = pd.Series(scores)
-    return data
-
+        score_data[f'{name} Weighted Score'] = pd.Series(scores)
+    return pd.concat([data, score_data], axis=1)
 
 
 
