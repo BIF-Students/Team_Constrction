@@ -39,9 +39,24 @@ def load_data(competitionId):
     df_related_ids = load_db_to_pd(sql_query = "select s.*, e.relatedEventId from sd_tableF as s left join [Scouting_Raw].[dbo].[Wyscout_Events_Main_Info] as e on e.eventId = s.eventId where seasonId = %s" % season_21_22, db_name='Development')
 
     df_players_teams = load_db_to_pd(sql_query = "SELECT * FROM [Scouting_Raw].[dbo].[Wyscout_Players] as p join Wyscout_Teams as t on t.teamId = p.currentTeamId", db_name='Scouting_Raw')
+    df_events_with_goals = load_db_to_pd(sql_query = "SELECT t.eventId, goal, sumVaep "
+                                                     "FROM [Scouting_Raw].[dbo].[Wyscout_Events_TypeSecondary] as t "
+                                                     "join Scouting_Raw_Staging.dbo.Vaep as v on v.eventId = t.eventId "
+                                                     "where t.matchId in(SELECT matchId FROM Scouting.dbo.Wyscout_Matches "
+                                                     "WHERE Scouting.dbo.Wyscout_Matches.seasonId = %s) and goal = 1" % season_21_22,
+                                                      db_name='Scouting_Raw')
+
+    df_possesion_sequences_ordered = load_db_to_pd(sql_query="SELECT t.* , me.playerId, me.teamId, p.possessionId, p.possessionEventIndex, v.sumVaep "
+                                                             "FROM [Scouting_Raw].[dbo].[Wyscout_Events_Possession] as p "
+                                                             "JOIN Scouting_Raw.dbo.Wyscout_Events_TypeSecondary as t ON t.eventId = p.eventId "
+                                                             "JOIN Scouting.dbo.Wyscout_Matches AS m ON m.matchId = t.matchId "
+                                                             "join scouting_raw_staging.dbo.Vaep as v on t.eventId = v.eventId "
+                                                             "join Scouting_Raw.dbo.Wyscout_Events_Main_Info as me on me.eventId = t.eventId "
+                                                             "WHERE m.seasonId = %s ORDER BY p.possessionId ASC, possessionEventIndex" % season_21_22,
+                                                              db_name='Scouting_Raw')
 
 
-    return df, df_matches_all, df_sqaud, df_keepers, df_related_ids, df_players_teams
+    return df, df_matches_all, df_sqaud, df_keepers, df_related_ids, df_players_teams, df_events_with_goals, df_possesion_sequences_ordered
 
 def get_subs(seasonId):
     s = "(" + str(seasonId) + ")"

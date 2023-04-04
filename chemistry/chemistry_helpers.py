@@ -40,6 +40,7 @@ def find_zone_chemistry(row):
     return s  # Return the zone number that the (x, y) pair belongs to
 
 
+
 def get_average_positions(key_values, newDict):
     # Loop through each key in key_values
     for key in key_values:
@@ -70,52 +71,6 @@ def allocate_position(row, matches_positions):
         # if it isn't, create a new entry in the dictionary with the matchId, teamId, playerId, and the x and y values
         matches_positions[(mId, pId)] = {'matchId': mId, 'teamId': tId, 'playerId': pId, 'x': [x], 'y': [y]}
 
-def generate_joi (df):
-    #Copy dataframe
-    df_events_related_ids = df
-
-    #filter for relevant columns
-    df_events_related_ids  =df_events_related_ids[['eventId', 'matchId', 'playerId', 'typePrimary', 'teamId', 'sumVaep']]
-
-    #change naming convention
-    df_events_related_ids = df_events_related_ids.rename(columns = {'eventId': 'relatedEventId', 'matchId': 'matchId_2', 'playerId': 'playerId_2', 'teamId' : 'teamId_2', 'typePrimary': 'related_event', 'sumVaep': 'sumVaep_2'})
-    df = df.rename(columns = {'matchId': 'matchId_1', 'playerId': 'playerId_1', 'teamId' : 'teamId_1', 'sumVaep': 'sumVaep_1'})
-
-    #Merge on relate ids to obtain a dataframe with atributes of main eventId and relatedEventId in same observation
-    joined_df = pd.merge(df, df_events_related_ids, how = 'left', on='relatedEventId')
-
-    #Remove missing values
-    joined_df = joined_df[ (joined_df['playerId_1'].notna()) & (joined_df['playerId_2'].notna()) & (joined_df['teamId_1'].notna())& (joined_df['teamId_2'].notna()) & (joined_df['matchId_1'].notna()) & (joined_df['matchId_2'].notna())]
-
-    #Remplace missing vaep values with zero-values
-    joined_df['sumVaep_1'] = joined_df['sumVaep_1'].fillna(0)
-    joined_df['sumVaep_2'] = joined_df['sumVaep_2'].fillna(0)
-
-    '''
-    Make a filter that extracts only observatoins where;
-    1: The same team is represented in both main eventId and relatedEventID
-    2: The same match is represented in both main eventId and relatedEventID
-    3: It is not a sequence of events produced by the same player
-    4 & 5: Not relevant events ar removed from both typePrimary and related events
-    '''
-    joined_df_filtered = joined_df[(joined_df.teamId_1 == joined_df.teamId_2)
-                                   & (joined_df.matchId_1 == joined_df.matchId_2)
-                                   & (joined_df.playerId_1 != joined_df.playerId_2)
-                                   & (~joined_df.typePrimary.isin(['interception', 'clearence', 'goal_kick', 'infraction', 'offside', 'shot_against']))
-                                   & (~joined_df.related_event.isin(['interception', 'clearence', 'goal_kick', 'infraction', 'offside', 'shot_against']))]
-
-    #Order player ids such that the player with the lowest Id will be represented in the p1 attribute
-    joined_df_filtered['p1'] = np.where(joined_df_filtered['playerId_1'] > joined_df_filtered['playerId_2'], joined_df_filtered['playerId_2'], joined_df_filtered['playerId_1'])
-    joined_df_filtered['p2'] = np.where(joined_df_filtered['playerId_1'] == joined_df_filtered['p1'],joined_df_filtered['playerId_2'], joined_df_filtered['playerId_1'])
-
-    # Drop unnecessary columns
-    joined_df_filtered = joined_df_filtered.drop(['playerId_1', 'playerId_2'], axis=1)
-    joined_df_filtered['joi'] = joined_df_filtered['sumVaep_1'] + joined_df_filtered['sumVaep_2']
-
-    #Compute jois as a sum of the sumVaep values related to the main event and related event
-    joi_df = joined_df_filtered.groupby(['matchId_1', 'matchId_2', 'p1', 'p2', 'teamId_1', 'teamId_2'], as_index=False)[
-        'joi'].sum()
-    return  joi_df
 
 
 def compute_relative_player_impact(df_player, df_team):
@@ -253,18 +208,48 @@ def compute_jdi (df):
     df['jdi'] = df.jdi_zone_1 + df.jdi_zone_2 + df.jdi_zone_3 + df.jdi_zone_4 + df.jdi_zone_5 + df.jdi_zone_6
     return df
 
-def compute_jdi_v3 (df):
+def compute_jdi (df):
     df['total_actions'] = df['zones_total'] = df.zone_1_team + df.zone_2_team + df.zone_3_team + df.zone_4_team + df.zone_5_team + df.zone_6_team
-    df['jdi_zone_1'] = np.where(df.zone_1_team > 3, (((df.zone_1_net_oi * df.zone_1_imp1) / df.distance ) + ((df.zone_1_team* df.zone_1_imp2) / df.distance))*(df.zone_1_team/df.zones_total), 0)
+    df['jdi_zone_1'] = np.where(df.zone_1_team > 3, (((df.zone_1_net_oi * df.zone_1_imp1) / df.distance ) + ((df.zone_1_team* df.zone_1_imp2) / df.distance)), 0)
+    df['jdi_zone_2'] = np.where(df.zone_2_team > 3, ((df.zone_2_net_oi * df.zone_2_imp1) / df.distance ) + ((df.zone_2_team* df.zone_2_imp2) / df.distance) , 0)
+    df['jdi_zone_3'] = np.where(df.zone_3_team > 3, ((df.zone_3_net_oi * df.zone_3_imp1) / df.distance ) + ((df.zone_3_team* df.zone_3_imp2) / df.distance), 0)
+    df['jdi_zone_4'] = np.where(df.zone_4_team > 3, ((df.zone_4_net_oi * df.zone_4_imp1) / df.distance ) + ((df.zone_4_team* df.zone_4_imp2) / df.distance), 0)
+    df['jdi_zone_5'] = np.where(df.zone_5_team > 3, ((df.zone_5_net_oi * df.zone_5_imp1) / df.distance ) + ((df.zone_5_team* df.zone_5_imp2) / df.distance), 0)
+    df['jdi_zone_6'] = np.where(df.zone_6_team > 3, ((df.zone_6_net_oi * df.zone_6_imp1) / df.distance ) + ((df.zone_6_team* df.zone_6_imp2) / df.distance), 0)
+
+    #Compute total jdi across zones for pairs of players
+    df['jdi'] = df.jdi_zone_1 + df.jdi_zone_2 + df.jdi_zone_3 + df.jdi_zone_4 + df.jdi_zone_5 + df.jdi_zone_6
+    return df
+
+#Zone game importance included
+'''
+ df['jdi_zone_1'] = np.where(df.zone_1_team > 3, (((df.zone_1_net_oi * df.zone_1_imp1) / df.distance ) + ((df.zone_1_team* df.zone_1_imp2) / df.distance))*(df.zone_1_team/df.zones_total), 0)
     df['jdi_zone_2'] = np.where(df.zone_2_team > 3, ((df.zone_2_net_oi * df.zone_2_imp1) / df.distance ) + ((df.zone_2_team* df.zone_2_imp2) / df.distance)*(df.zone_2_team/df.zones_total) , 0)
     df['jdi_zone_3'] = np.where(df.zone_3_team > 3, ((df.zone_3_net_oi * df.zone_3_imp1) / df.distance ) + ((df.zone_3_team* df.zone_3_imp2) / df.distance)*(df.zone_3_team/df.zones_total), 0)
     df['jdi_zone_4'] = np.where(df.zone_4_team > 3, ((df.zone_4_net_oi * df.zone_4_imp1) / df.distance ) + ((df.zone_4_team* df.zone_4_imp2) / df.distance)*(df.zone_4_team/df.zones_total), 0)
     df['jdi_zone_5'] = np.where(df.zone_5_team > 3, ((df.zone_5_net_oi * df.zone_5_imp1) / df.distance ) + ((df.zone_5_team* df.zone_5_imp2) / df.distance)*(df.zone_5_team/df.zones_total), 0)
     df['jdi_zone_6'] = np.where(df.zone_6_team > 3, ((df.zone_6_net_oi * df.zone_6_imp1) / df.distance ) + ((df.zone_6_team* df.zone_6_imp2) / df.distance)*(df.zone_6_team/df.zones_total), 0)
+'''
 
-    #Compute total jdi across zones for pairs of players
+def compute_jdi_v2 (df):
+    df['zones_total'] = (df.zone_1_team + df.zone_2_team + df.zone_3_team + df.zone_4_team + df.zone_5_team + df.zone_6_team)
+    df['p1_sum'] = (df.zone_1_pl1 + df.zone_2_pl1 + df.zone_3_pl1 + df.zone_4_pl1 + df.zone_5_pl1 + df.zone_6_pl1)
+    df['p2_sum'] = df.zone_1_pl2 + df.zone_2_pl2 + df.zone_3_pl2 + df.zone_4_pl2 + df.zone_5_pl2 + df.zone_6_pl2
+    df['pairwise_involvement'] = (df.p1_sum/df.zones_total) + (df.p2_sum/df.zones_total)
+    df['jdi_zone_1'] = np.where(df.zone_1_team > 3, ((((((df.zone_1_net_oi * df.zone_1_imp1)) + ((df.zone_1_team* df.zone_1_imp2))))*(1/df.distance))) * df.pairwise_involvement, 0)
+    df['jdi_zone_2'] = np.where(df.zone_2_team > 3, (((((df.zone_2_net_oi * df.zone_2_imp1) ) + ((df.zone_2_team* df.zone_2_imp2)))*(1/df.distance))) * df.pairwise_involvement, 0)
+    df['jdi_zone_3'] = np.where(df.zone_3_team > 3, (((((df.zone_3_net_oi * df.zone_3_imp1) ) + ((df.zone_3_team* df.zone_3_imp2)))*(1/df.distance))) * df.pairwise_involvement, 0)
+    df['jdi_zone_4'] = np.where(df.zone_4_team > 3, (((((df.zone_4_net_oi * df.zone_4_imp1)) + ((df.zone_4_team* df.zone_4_imp2)))*(1/df.distance)))* df.pairwise_involvement, 0)
+    df['jdi_zone_5'] = np.where(df.zone_5_team > 3, (((((df.zone_5_net_oi * df.zone_5_imp1)) + ((df.zone_5_team* df.zone_5_imp2)))*(1/df.distance))) * df.pairwise_involvement, 0)
+    df['jdi_zone_6'] = np.where(df.zone_6_team > 3, (((((df.zone_6_net_oi * df.zone_6_imp1)) + ((df.zone_6_team* df.zone_6_imp2)))*(1/df.distance))) * df.pairwise_involvement, 0)
     df['jdi'] = df.jdi_zone_1 + df.jdi_zone_2 + df.jdi_zone_3 + df.jdi_zone_4 + df.jdi_zone_5 + df.jdi_zone_6
     return df
+
+
+#Compute total jdi across zones for pairs of players
+
+
+
 
 def generate_chemistry_ability(df):
     df1 = df[['p1','shortName_x', 'role_name_x','areaName_x', 'df_jdi90', 'df_joi90', 'chemistry']].rename(columns={'p1':'playerId', 'shortName_x': 'shortName', 'role_name_x': 'role_name' ,'areaName_x': 'areaName'})
@@ -273,25 +258,14 @@ def generate_chemistry_ability(df):
     players_and_chemistry_season = players_and_chemistry.groupby(['playerId', 'shortName',  'role_name' , 'areaName'], as_index=False)['chemistry'].sum().reset_index(drop=True)
 
     return players_and_chemistry_season
+def generate_chemistry_ability_v2(df):
+    df1 = df[['p1','shortName_x', 'role_name_x','areaName_x', 'df_jdi90', 'df_joi90', 'chemistry']].rename(columns={'p1':'playerId', 'shortName_x': 'shortName', 'role_name_x': 'role_name' ,'areaName_x': 'areaName'})
+    df2 = df[['p2', 'shortName_y', 'role_name_y','areaName_y', 'df_jdi90', 'df_joi90', 'chemistry']].rename(columns={'p2':'playerId','shortName_y': 'shortName', 'role_name_y': 'role_name' ,'areaName_y': 'areaName'})
+    players_and_chemistry = pd.concat([df1, df2])
+    players_and_chemistry_season = players_and_chemistry.groupby(['playerId', 'shortName',  'role_name' , 'areaName'], as_index=False)['chemistry'].mean().reset_index(drop=True)
 
-def compute_jdi_v2(df):
-    # Compute jdi per zone per pair of players
-    df['jdi_zone_1_unW'] = np.where(df.zone_1_t > 3, df.zone_1_net_oi * df.zone_1_imp * (1 / df.distance), 0)
-    df['jdi_zone_2_unW'] = np.where(df.zone_2_t > 3, df.zone_2_net_oi * df.zone_2_imp * (1 / df.distance), 0)
-    df['jdi_zone_3_unW'] = np.where(df.zone_3_t > 3, df.zone_3_net_oi * df.zone_3_imp * (1 / df.distance), 0)
-    df['jdi_zone_4_unW'] = np.where(df.zone_4_t > 3, df.zone_4_net_oi * df.zone_4_imp * (1 / df.distance), 0)
-    df['jdi_zone_5_unW'] = np.where(df.zone_5_t > 3, df.zone_5_net_oi * df.zone_5_imp * (1 / df.distance), 0)
-    df['jdi_zone_6_unW'] = np.where(df.zone_6_t > 3, df.zone_6_net_oi * df.zone_6_imp * (1 / df.distance), 0)
-    df = df.assign(jdi_zone_1 = df.jdi_zone_1_unW * df.zone_1_weight,
-                    jdi_zone_2 = df.jdi_zone_2_unW * df.zone_2_weight,
-                    jdi_zone_3 = df.jdi_zone_3_unW * df.zone_3_weight,
-                    jdi_zone_4 = df.jdi_zone_4_unW * df.zone_4_weight,
-                    jdi_zone_5 = df.jdi_zone_5_unW * df.zone_5_weight,
-                    jdi_zone_6 = df.jdi_zone_6_unW * df.zone_6_weight)
+    return players_and_chemistry_season
 
-    # Compute total jdi across zones for pairs of players
-    df['jdi'] = df.jdi_zone_1 + df.jdi_zone_2 + df.jdi_zone_3 + df.jdi_zone_4 + df.jdi_zone_5 + df.jdi_zone_6
-    return df
 
 
 def compute_distances(df_full):
@@ -452,7 +426,12 @@ def compute_pairwise_playing_time (df):
 
 def compute_normalized_values(df_joi_game, df_jdi_game, df_pairwise_time):
     # Aggregate sum of 'joi' for each player pair in each team for the season
-    df_joi_season = df_joi_game.groupby(['p1', 'p2', 'teamId_1'], as_index = False)['joi'].sum()
+    df_joi_season = df_joi_game.groupby(['p1', 'p2', 'teamId'], as_index = False).agg({
+                                                                                     'joi': 'sum',
+                                                                                     'goals': 'sum',
+                                                                                     'assists': 'sum',
+                                                                                     'second_assists': 'sum',
+                                                                                     })
 
     # Aggregate sum of 'jdi' for each player pair in each team for the season
     df_jdi_season = df_jdi_game.groupby(['p1', 'p2', 'teamId'], as_index = False)['jdi'].sum()
@@ -460,15 +439,14 @@ def compute_normalized_values(df_joi_game, df_jdi_game, df_pairwise_time):
     df_merged = (pd.merge(df_joi_season, df_jdi_season, on=(['p1', 'p2']))).merge(df_pairwise_time, on= (['p1', 'p2']))
 
     # Compute the normalized value of 'joi' and 'jdi' by dividing them by the norm90 value
-    df_merged['df_joi90'] = df_merged.joi * 90/df_merged.minutes
+    df_merged['winners90'] =  (df_merged.second_assists + df_merged.assists + df_merged.goals) * 90/df_merged.minutes
+    df_merged['df_joi90'] = (df_merged.joi * 90/df_merged.minutes) * df_merged.winners90
     df_merged['df_jdi90'] = df_merged.jdi * 90/df_merged.minutes
 
-    # Rename the column 'teamId_1' to 'teamId' and select relevant columns
-    df_merged = df_merged.rename(columns={'teamId_1': 'teamId'})
-    df_merged = df_merged[['p1', 'p2', 'teamId', 'joi', 'jdi', 'minutes', 'norm90', 'df_jdi90', 'df_joi90']]
+    df_merged = df_merged[['p1', 'p2', 'teamId', 'joi', 'jdi', 'minutes', 'df_jdi90', 'df_joi90', 'winners90']]
 
     # Filter out player pairs who have played less than 300 minutes together
-    df_merged = df_merged[df_merged['minutes'] >= 720]
+    df_merged = df_merged.query('minutes >= 900')
     return df_merged
 
 def get_TVP(df_vaep, squad, stamps):

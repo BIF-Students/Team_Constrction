@@ -7,6 +7,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
 
+from helpers.student_bif_code import load_db_to_pd
+
+
 #Helper function
 def perform_regression(model, input_train, input_test, target_train, target_test, label):
     # Fit model for each position
@@ -31,6 +34,8 @@ def perform_regression(model, input_train, input_test, target_train, target_test
     print(classification_report(target_test, target_pred))
 
 
+df = load_db_to_pd(sql_query="SELECT * FROM [Development].[dbo].[sd_tableF]",
+                   db_name='Development')
 
 # Load dataset
 DEF = pd.read_csv('C:/ITU/ITU_Research_Project/clustered_data/DEF.csv', sep=",", encoding='unicode_escape')
