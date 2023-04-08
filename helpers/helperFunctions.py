@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 from sklearn.mixture import GaussianMixture
+from sklearn.decomposition import FactorAnalysis
+from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 from sklearn import metrics
 import matplotlib.cm as cm
@@ -364,15 +366,49 @@ def get_weight_dicts(X, clusters):
         for feature in X.columns:
             feature_name = feature.replace("_tendency", "_vaep")
             feature_mean = X[feature].mean()
+            cluster_feature_mean = X.iloc[cluster_indices][feature].mean()
 
-            other_clusters = np.unique(clusters[clusters != cluster_label])
-            other_cluster_means = X[clusters.isin(other_clusters)].mean()
+            other_cluster_means = X[clusters != cluster_label].mean()
             other_cluster_feature_mean = other_cluster_means[feature]
 
-            weight = (cluster_means[feature] - other_cluster_feature_mean) * np.abs(cluster_means[feature] - 0.5)
+            weight = ((cluster_feature_mean - feature_mean) + (cluster_feature_mean - other_cluster_feature_mean)) * np.abs(cluster_feature_mean - 0.5)
             weight_dicts[f'Cluster {cluster_label}'][feature_name] = weight
 
     return weight_dicts
+
+
+def get_weight_dicts2(X, cluster_labels, num_factors=10):
+    # Split data into subsets based on cluster labels
+    subsets = {}
+    for label in set(cluster_labels):
+        mask = (cluster_labels == label)
+        subsets[label] = X[mask]
+
+    # Calculate feature weights for each subset
+    feature_weights = {}
+    for label, subset in subsets.items():
+        if num_factors is None:
+            num_factors = min(subset.shape[0], subset.shape[1])
+
+        # Perform factor analysis to extract latent factors
+        fa = FactorAnalysis(n_components=num_factors, svd_method='lapack')
+        fa.fit(subset)
+
+        # Get real feature names from factor analysis
+        feature_names = fa.feature_names_in_
+
+        # Calculate feature weights using factor loadings
+        weights = np.abs(fa.components_)
+        weights /= np.sum(weights, axis=1, keepdims=True)
+
+        # Store feature weights for this cluster label
+        cluster_weights = {}
+        for i, feature_name in enumerate(feature_names):
+            cluster_weights[feature_name] = np.mean(weights[:, i])
+
+        feature_weights[f'Cluster {label}'] = cluster_weights
+
+    return feature_weights
 
 
 def cluster_to_dataframe(weight_dicts, cluster_name):
@@ -397,6 +433,7 @@ def plot_sorted_bar_chart(df):
 
 
 def calculate_weighted_scores(data, weight_dicts):
+    data.columns = [col.replace('_vaep', '_tendency') for col in data.columns]
     score_data = pd.DataFrame()  # create a new dataframe to store the scores
     for name, weights in weight_dicts.items():
         scores = []
@@ -406,5 +443,37 @@ def calculate_weighted_scores(data, weight_dicts):
         score_data[f'{name} Weighted Score'] = pd.Series(scores)
     return pd.concat([data, score_data], axis=1)
 
+
+def calculate_weighted_scores2(data, weight_dicts):
+    penalization = {
+        'Cluster -1': {'CB': 0, 'FB': 0, 'MC': 0, 'AM': 0, 'W': 0, 'ST': 0},
+        'Cluster 0': {'CB': 0, 'FB': 0.1, 'MC': 0.3, 'AM': 0.5, 'W': 0.5, 'ST': 0.5},
+        'Cluster 1': {'CB': 0, 'FB': 0.1, 'MC': 0.3, 'AM': 0.5, 'W': 0.5, 'ST': 0.5},
+        'Cluster 2': {'CB': 0, 'FB': 0.1, 'MC': 0.3, 'AM': 0.5, 'W': 0.5, 'ST': 0.5},
+        'Cluster 3': {'CB': 0.5, 'FB': 0.3, 'MC': 0, 'AM': 0, 'W': 0, 'ST': 0.3},
+        'Cluster 4': {'CB': 0.3, 'FB': 0.1, 'MC': 0, 'AM': 0.1, 'W': 0.3, 'ST': 0.5},
+        'Cluster 5': {'CB': 0.5, 'FB': 0.3, 'MC': 0, 'AM': 0, 'W': 0.1, 'ST': 0.3},
+        'Cluster 6': {'CB': 0.25, 'FB': 0.15, 'MC': 0.05, 'AM': 0.05, 'W': 0, 'ST': 0},
+        'Cluster 7': {'CB': 0.25, 'FB': 0.15, 'MC': 0.05, 'AM': 0.05, 'W': 0.05, 'ST': 0},
+        'Cluster 8': {'CB': 0.25, 'FB': 0.15, 'MC': 0.05, 'AM': 0, 'W': 0, 'ST': 0},
+        'Cluster 9': {'CB': 0.05, 'FB': 0, 'MC': 0.05, 'AM': 0.05, 'W': 0.05, 'ST': 0.25},
+        'Cluster 10': {'CB': 0.15, 'FB': 0, 'MC': 0.05, 'AM': 0.05, 'W': 0, 'ST': 0.15},
+        'Cluster 11': {'CB': 0.05, 'FB': 0, 'MC': 0.05, 'AM': 0.05, 'W': 0.05, 'ST': 0.25},
+        'Cluster 12': {'CB': 0.25, 'FB': 0.05, 'MC': 0.05, 'AM': 0, 'W': 0, 'ST': 0.05},
+        'Cluster 13': {'CB': 0.25, 'FB': 0.15, 'MC': 0.15, 'AM': 0.05, 'W': 0, 'ST': 0},
+        'Cluster 14': {'CB': 0.25, 'FB': 0.15, 'MC': 0.15, 'AM': 0.05, 'W': 0, 'ST': 0},
+        'Cluster 15': {'CB': 0.15, 'FB': 0.05, 'MC': 0, 'AM': 0.05, 'W': 0.15, 'ST': 0.25},
+        'Cluster 16': {'CB': 0.15, 'FB': 0.05, 'MC': 0, 'AM': 0.05, 'W': 0.15, 'ST': 0.25},
+        'Cluster 17': {'CB': 0.15, 'FB': 0.05, 'MC': 0, 'AM': 0.15, 'W': 0.25, 'ST': 0.25}
+    }
+
+    score_data = pd.DataFrame()  # create a new dataframe to store the scores
+    for name, weights in weight_dicts.items():
+        scores = []
+        for index, row in data.iterrows():
+            weighted_score = sum((row[feature] * weight * (1 - penalization[name][row['pos_group']])) for feature, weight in weights.items())
+            scores.append(weighted_score)
+        score_data[f'{name} Weighted Score'] = pd.Series(scores)
+    return pd.concat([data, score_data], axis=1)
 
 

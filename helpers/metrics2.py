@@ -17,7 +17,6 @@ passingE = [
     "under_pressure_tendency",
     "forward_pass_tendency",
     "lateral_pass_tendency",
-    "linkup_play_tendency",
     "long_pass_tendency",
     "pass_to_final_third_tendency",
     "progressive_pass_tendency",
@@ -32,7 +31,13 @@ passingA = [
     "third_assist_tendency",
     "key_pass_tendency",
     "smart_pass_tendency",
+    "linkup_play_tendency",
     "through_pass_tendency",
+    "ip_cluster"
+]
+
+# PASSING ATTACKING PLAY ATTRIBUTES --------------------------------------------------------
+crossing = [
     "deep_completed_cross_tendency",
     "ws_cross_tendency",
     "hs_cross_tendency",

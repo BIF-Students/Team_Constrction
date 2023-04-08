@@ -17,8 +17,10 @@ df_vaep = df.drop(df.filter(like='_tendency').columns, axis=1)
 # creating weight dictionaries as input
 clusters = df_vaep['ip_cluster']
 ids = df_vaep[['playerId', 'seasonId', 'pos_group']]
-df_input = df_vaep.drop(['ip_cluster', 'playerId', 'seasonId', 'pos_group'], axis=1)
+df_input = df_tendency.drop(['ip_cluster', 'playerId', 'seasonId', 'pos_group'], axis=1)
+df_input2 = df_vaep.drop(['ip_cluster', 'playerId', 'seasonId', 'pos_group'], axis=1)
 weight_dicts = get_weight_dicts(df_input, clusters)
+weight_dicts = get_weight_dicts2(df_input, clusters)
 
 # testing
 cluster_name = 'Cluster 0'
@@ -29,15 +31,14 @@ plot_sorted_bar_chart(cluster_df)
 # ids = df_vaep[['playerId', 'seasonId', 'pos_group']]
 # df_vaep = df_vaep.drop(['playerId', 'seasonId', 'pos_group', 'ip_cluster'], axis=1)
 
-dfp = calculate_weighted_scores(df_vaep, weight_dicts)
+dfp = calculate_weighted_scores2(df_vaep, weight_dicts)
+# dfp = calculate_weighted_scores3(df_input, df_input2, clusters)
 dfp = dfp[dfp.filter(like='Weighted Score').columns]
-# scale = MinMaxScaler(feature_range=(0,100))
-# dfp[dfp.columns] = scale.fit_transform(dfp)
 dfp = dfp.rank(pct = True) # use for presentation
-dfp = round(dfp*100, 0) # same as line above
+dfp = round(dfp*100, 0) # use for presentation
 
 # validating
-dfp = pd.concat([ids.reset_index(drop=True),dfp.reset_index(drop=True)], axis=1)
+dfp = pd.concat([ids.reset_index(drop=True),dfp.reset_index(drop=True)], axis=1) #sort index first
 players = load_db_to_pd(sql_query = "SELECT * FROM Wyscout_Players", db_name='Scouting')
 players = players[['playerId', 'shortName']]
 dfp = pd.merge(players, dfp, on='playerId')

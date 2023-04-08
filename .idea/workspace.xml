@@ -4,13 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="clusters done. for real">
+    <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="performance v0.1">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cluster.py" beforeDir="false" afterPath="$PROJECT_DIR$/Cluster.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Performance.py" beforeDir="false" afterPath="$PROJECT_DIR$/Performance.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/helpers/helperFunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/helperFunctions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/helpers/metrics2.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/metrics2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helpers/visualizations.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/visualizations.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,7 +72,7 @@
       <workItem from="1675856214182" duration="670000" />
       <workItem from="1675932219925" duration="79309000" />
       <workItem from="1678960506760" duration="22224000" />
-      <workItem from="1679045903240" duration="118671000" />
+      <workItem from="1679045903240" duration="143388000" />
     </task>
     <task id="LOCAL-00001" summary="første prepross af SQL udtræk">
       <created>1676646533461</created>
@@ -181,7 +179,14 @@
       <option name="project" value="LOCAL" />
       <updated>1679669654419</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="performance v0.1">
+      <created>1680277556252</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1680277556252</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -208,6 +213,7 @@
     <MESSAGE value="clusters done" />
     <MESSAGE value="clusters done." />
     <MESSAGE value="clusters done. for real" />
-    <option name="LAST_COMMIT_MESSAGE" value="clusters done. for real" />
+    <MESSAGE value="performance v0.1" />
+    <option name="LAST_COMMIT_MESSAGE" value="performance v0.1" />
   </component>
 </project>
