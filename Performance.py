@@ -27,20 +27,11 @@ cluster_name = 'Cluster 0'
 cluster_df = cluster_to_dataframe(weight_dicts, cluster_name)
 plot_sorted_bar_chart(cluster_df)
 
-# applying weights
-# ids = df_vaep[['playerId', 'seasonId', 'pos_group']]
-# df_vaep = df_vaep.drop(['playerId', 'seasonId', 'pos_group', 'ip_cluster'], axis=1)
-
 dfp = calculate_weighted_scores2(df_vaep, weight_dicts)
-# dfp = calculate_weighted_scores3(df_input, df_input2, clusters)
-dfp = dfp[dfp.filter(like='Weighted Score').columns]
-dfp = dfp.rank(pct = True) # use for presentation
-dfp = round(dfp*100, 0) # use for presentation
-
-# validating
-dfp = pd.concat([ids.reset_index(drop=True),dfp.reset_index(drop=True)], axis=1) #sort index first
 players = load_db_to_pd(sql_query = "SELECT * FROM Wyscout_Players", db_name='Scouting')
-players = players[['playerId', 'shortName']]
-dfp = pd.merge(players, dfp, on='playerId')
+players = players[['playerId', 'shortName', 'birthDate']]
+test = perf(dfp, players, mode='scaled', cluster=None, age=None) # use for presentation
+plot_sorted_bar_chart_p(test, "K. De Bruyne")
 
-# merging with player value
+# to be merged with transfer values from transfermarkt at a later point
+tm = load_db_to_pd(sql_query = "SELECT * FROM Wyscout_Transfermarkt_Players", db_name='Scouting_Raw')

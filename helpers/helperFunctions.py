@@ -3,11 +3,12 @@ import numpy as np
 from sklearn.mixture import GaussianMixture
 from sklearn.decomposition import FactorAnalysis
 from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 from sklearn import metrics
 import matplotlib.cm as cm
-from sklearn.ensemble import RandomForestClassifier
-import warnings
+from datetime import datetime
+from helpers.student_bif_code import *
 
 
 # Filter to determine where an  occured
@@ -361,47 +362,43 @@ def get_weight_dicts(X, clusters):
 
     for cluster_label in np.unique(clusters):
         cluster_indices = np.where(clusters == cluster_label)[0]
-        cluster_means = X.iloc[cluster_indices].mean()
+        cluster_means = X.iloc[cluster_indices].median()
 
         for feature in X.columns:
-            feature_name = feature.replace("_tendency", "_vaep")
-            feature_mean = X[feature].mean()
-            cluster_feature_mean = X.iloc[cluster_indices][feature].mean()
+            # feature_name = feature.replace("_tendency", "_vaep")
+            feature_name = feature # fjern
+            feature_mean = X[feature].median()
+            cluster_feature_mean = X.iloc[cluster_indices][feature].median()
 
-            other_cluster_means = X[clusters != cluster_label].mean()
+            other_cluster_means = X[clusters != cluster_label].median()
             other_cluster_feature_mean = other_cluster_means[feature]
 
-            weight = ((cluster_feature_mean - feature_mean) + (cluster_feature_mean - other_cluster_feature_mean)) * np.abs(cluster_feature_mean - 0.5)
+            # weight = ((cluster_feature_mean - feature_mean) + (cluster_feature_mean - other_cluster_feature_mean)) * np.abs(cluster_feature_mean -
+            weight = (cluster_feature_mean - feature_mean)
             weight_dicts[f'Cluster {cluster_label}'][feature_name] = weight
 
     return weight_dicts
 
 
 def get_weight_dicts2(X, cluster_labels, num_factors=10):
-    # Split data into subsets based on cluster labels
     subsets = {}
     for label in set(cluster_labels):
         mask = (cluster_labels == label)
         subsets[label] = X[mask]
 
-    # Calculate feature weights for each subset
     feature_weights = {}
     for label, subset in subsets.items():
         if num_factors is None:
             num_factors = min(subset.shape[0], subset.shape[1])
 
-        # Perform factor analysis to extract latent factors
         fa = FactorAnalysis(n_components=num_factors, svd_method='lapack')
         fa.fit(subset)
 
-        # Get real feature names from factor analysis
         feature_names = fa.feature_names_in_
 
-        # Calculate feature weights using factor loadings
         weights = np.abs(fa.components_)
         weights /= np.sum(weights, axis=1, keepdims=True)
 
-        # Store feature weights for this cluster label
         cluster_weights = {}
         for i, feature_name in enumerate(feature_names):
             cluster_weights[feature_name] = np.mean(weights[:, i])
@@ -429,6 +426,22 @@ def plot_sorted_bar_chart(df):
     plt.gca().spines['right'].set_visible(False)
     plt.title('Feature Weight Pareto', fontsize=14, fontweight='bold')
     plt.grid(color='lightgray', alpha=0.25, zorder=1)
+    plt.tight_layout()
+    plt.show()
+
+def plot_sorted_bar_chart_p(df, player):
+    player_df = df[df['shortName'] == player]
+    weights = player_df.iloc[0, 5:]  # Get the weights for the player
+    weights_sorted = weights.sort_values(ascending=False)  # Sort the weights in descending order
+    weights_normalized = pd.to_numeric(weights_sorted) / float(max(weights_sorted))
+    ax = weights_sorted.plot(kind='bar', figsize=(12, 6), color=cm.viridis_r(weights_normalized))
+    ax.set_xlabel('Features')
+    ax.set_ylabel('Weights')
+    plt.gca().spines['top'].set_visible(False)
+    plt.gca().spines['right'].set_visible(False)
+    plt.title('Feature Weight Pareto for {}'.format(player), fontsize=14, fontweight='bold')
+    plt.grid(color='lightgray', alpha=0.25, zorder=1)
+    plt.tight_layout()
     plt.show()
 
 
@@ -453,18 +466,18 @@ def calculate_weighted_scores2(data, weight_dicts):
         'Cluster 3': {'CB': 0.5, 'FB': 0.3, 'MC': 0, 'AM': 0, 'W': 0, 'ST': 0.3},
         'Cluster 4': {'CB': 0.3, 'FB': 0.1, 'MC': 0, 'AM': 0.1, 'W': 0.3, 'ST': 0.5},
         'Cluster 5': {'CB': 0.5, 'FB': 0.3, 'MC': 0, 'AM': 0, 'W': 0.1, 'ST': 0.3},
-        'Cluster 6': {'CB': 0.25, 'FB': 0.15, 'MC': 0.05, 'AM': 0.05, 'W': 0, 'ST': 0},
-        'Cluster 7': {'CB': 0.25, 'FB': 0.15, 'MC': 0.05, 'AM': 0.05, 'W': 0.05, 'ST': 0},
-        'Cluster 8': {'CB': 0.25, 'FB': 0.15, 'MC': 0.05, 'AM': 0, 'W': 0, 'ST': 0},
-        'Cluster 9': {'CB': 0.05, 'FB': 0, 'MC': 0.05, 'AM': 0.05, 'W': 0.05, 'ST': 0.25},
-        'Cluster 10': {'CB': 0.15, 'FB': 0, 'MC': 0.05, 'AM': 0.05, 'W': 0, 'ST': 0.15},
-        'Cluster 11': {'CB': 0.05, 'FB': 0, 'MC': 0.05, 'AM': 0.05, 'W': 0.05, 'ST': 0.25},
-        'Cluster 12': {'CB': 0.25, 'FB': 0.05, 'MC': 0.05, 'AM': 0, 'W': 0, 'ST': 0.05},
-        'Cluster 13': {'CB': 0.25, 'FB': 0.15, 'MC': 0.15, 'AM': 0.05, 'W': 0, 'ST': 0},
-        'Cluster 14': {'CB': 0.25, 'FB': 0.15, 'MC': 0.15, 'AM': 0.05, 'W': 0, 'ST': 0},
-        'Cluster 15': {'CB': 0.15, 'FB': 0.05, 'MC': 0, 'AM': 0.05, 'W': 0.15, 'ST': 0.25},
-        'Cluster 16': {'CB': 0.15, 'FB': 0.05, 'MC': 0, 'AM': 0.05, 'W': 0.15, 'ST': 0.25},
-        'Cluster 17': {'CB': 0.15, 'FB': 0.05, 'MC': 0, 'AM': 0.15, 'W': 0.25, 'ST': 0.25}
+        'Cluster 6': {'CB': 0.5, 'FB': 0.2, 'MC': 0.15, 'AM': 0.1, 'W': 0, 'ST': 0},
+        'Cluster 7': {'CB': 0.5, 'FB': 0.2, 'MC': 0.15, 'AM': 0.1, 'W': 0.1, 'ST': 0},
+        'Cluster 8': {'CB': 0.5, 'FB': 0.2, 'MC': 0.1, 'AM': 0, 'W': 0, 'ST': 0},
+        'Cluster 9': {'CB': 0.05, 'FB': 0, 'MC': 0.1, 'AM': 0.1, 'W': 0.1, 'ST': 0.3},
+        'Cluster 10': {'CB': 0.2, 'FB': 0, 'MC': 0.15, 'AM': 0.1, 'W': 0.05, 'ST': 0.2},
+        'Cluster 11': {'CB': 0.05, 'FB': 0, 'MC': 0.15, 'AM': 0.2, 'W': 0.1, 'ST': 0.3},
+        'Cluster 12': {'CB': 0.5, 'FB': 0.1, 'MC': 0.1, 'AM': 0, 'W': 0, 'ST': 0.1},
+        'Cluster 13': {'CB': 0.5, 'FB': 0.2, 'MC': 0.2, 'AM': 0.05, 'W': 0, 'ST': 0},
+        'Cluster 14': {'CB': 0.5, 'FB': 0.2, 'MC': 0.2, 'AM': 0.05, 'W': 0, 'ST': 0},
+        'Cluster 15': {'CB': 0.1, 'FB': 0.05, 'MC': 0, 'AM': 0.05, 'W': 0.2, 'ST': 0.3},
+        'Cluster 16': {'CB': 0.1, 'FB': 0, 'MC': 0, 'AM': 0, 'W': 0.15, 'ST': 0.3},
+        'Cluster 17': {'CB': 0.05, 'FB': 0.05, 'MC': 0, 'AM': 0.2, 'W': 0.3, 'ST': 0.5}
     }
 
     score_data = pd.DataFrame()  # create a new dataframe to store the scores
@@ -475,5 +488,115 @@ def calculate_weighted_scores2(data, weight_dicts):
             scores.append(weighted_score)
         score_data[f'{name} Weighted Score'] = pd.Series(scores)
     return pd.concat([data, score_data], axis=1)
+
+
+def perf(df, df2, mode, cluster=None, age=None):
+    df = pd.merge(df2, df, on='playerId')
+    df['birthDate'] = pd.to_datetime(df['birthDate']).dt.year
+    df['birthDate'] = df['birthDate'].apply(calculate_age_bracket)
+    df = df.rename(columns={'birthDate': 'ageBracket'})
+
+    trend = perf_trend(df)
+    trend = trend[trend.filter(like='Weighted Score Trend').columns]
+
+    df_ids = df.iloc[:, : 6]
+    stats = df[df.filter(like='Weighted Score').columns]
+    stats = stats.drop(['Cluster -1 Weighted Score'], axis=1)
+
+    if mode == "scaled":
+        custom_scaler = MinMaxScaler(feature_range=(1, 100))
+        stats[stats.columns] = custom_scaler.fit_transform(stats[stats.columns])
+    if mode == "percentiles":
+        stats = round(stats.rank(pct = True)*100, 0)
+    if mode == "cluster":
+        clus = pd.concat([df_ids.reset_index(drop=True), stats.reset_index(drop=True)], axis=1)
+        clus = clus[clus['ip_cluster'] == cluster]
+        clus_ids = clus.iloc[:, : 6]
+        clus = round(clus[clus.filter(like='Weighted Score').columns].rank(pct = True)*100, 0)
+        clus = clus[f'Cluster {cluster} Weighted Score']
+        clus = pd.concat([clus_ids.reset_index(drop=True), clus.reset_index(drop=True)], axis=1)
+        return clus
+    if mode == "age":
+        bracket = pd.concat([df_ids.reset_index(drop=True), stats.reset_index(drop=True)], axis=1)
+        bracket = bracket[bracket['ageBracket'] == age]
+        bracket_ids = bracket.iloc[:, : 6]
+        bracket = round(bracket[bracket.filter(like='Weighted Score').columns].rank(pct = True)*100, 0)
+        bracket = pd.concat([bracket_ids.reset_index(drop=True), bracket.reset_index(drop=True)], axis=1)
+        return bracket
+
+    dfp = pd.concat([df_ids.reset_index(drop=True), stats.reset_index(drop=True)], axis=1)
+    dfp = pd.concat([dfp.reset_index(drop=True), trend.reset_index(drop=True)], axis=1)
+
+    return dfp
+
+
+def perf2(df, df2):
+    df.drop(['Cluster -1 Weighted Score'], axis=1)
+    df = df.drop(columns=df.columns[df.columns.get_loc('aerial_duel_tendency'):df.columns.get_loc('Zone 6 Actions_tendency') + 1])
+    df.loc[:, ['Cluster 0 Weighted Score', 'Cluster 17 Weighted Score']] *= 100
+    custom_scaler = MinMaxScaler(feature_range=(1, 100))
+    for i in range(0, 18):
+        min = df[df['ip_cluster'] == 1][f'Cluster {i} Weighted Score'].min()
+        df.loc[df[f'Cluster {i} Weighted Score'] <= min, f'Cluster {i} Weighted Score'] = 1
+        df.loc[(df[f'Cluster {i} Weighted Score'] >= min), f'Cluster {i} Weighted Score'] = custom_scaler.fit_transform(df.loc[(df[f'Cluster {i} Weighted Score'] >= min), [f'Cluster {i} Weighted Score']])
+
+    dfp = pd.merge(df2, df, on='playerId')
+    return dfp
+
+
+def calculate_age_bracket(birth_year):
+    today = datetime.today()
+    age = today.year - birth_year
+
+    if age <= 19:
+        return "Youth"
+    elif age <= 24:
+        return "Rising to Prime"
+    elif age <= 30:
+        return "Prime"
+    elif age <= 34:
+        return "Falling from Prime"
+    elif age >= 35:
+        return "Veteran"
+    else:
+        "NA"
+
+
+def perf_trend(df):
+    # df = pd.merge(df2, df, on='playerId')
+    # df = df.drop(['Cluster -1 Weighted Score'], axis=1)
+    ssn_name = load_db_to_pd(sql_query="SELECT seasonId, startDate FROM Wyscout_Seasons", db_name='Scouting')
+    df = pd.merge(df, ssn_name, on='seasonId')
+    df['startDate'] = pd.to_datetime(df['startDate']).dt.year
+
+    grouped = df.groupby(['playerId', 'shortName'])
+    pct_change = {}
+    for i in range(18):
+        col_name = f'Cluster {i} Weighted Score'
+        pct_change[col_name] = grouped.apply(lambda x: (x.loc[x['startDate'] == 2021, col_name].iloc[0] / x.loc[x['startDate'] == 2020, col_name].iloc[0] - 1) if (2020 in x['startDate'].values and 2021 in x['startDate'].values) else np.nan)
+
+    def get_trend(pct_change):
+        return np.where(pct_change >= 0.02, 'Increase',
+                        np.where(pct_change <= -0.02, 'Decrease',
+                                 np.where(abs(pct_change) < 0.02, 'Stable', '')))
+
+    trend_dfs = []
+    for i in range(18):
+        col_name = f'Cluster {i} Weighted Score'
+        trend_name = f'{col_name} Trend'
+        trend = pct_change[col_name].groupby(['playerId', 'shortName']).apply(get_trend).reset_index(name=trend_name)
+        trend.drop_duplicates(subset=['playerId', 'shortName'], inplace=True)
+        trend['startDate'] = 2021
+        trend_dfs.append(trend)
+
+    trend_df = pd.concat(trend_dfs, axis=1)
+    trend_df.drop_duplicates(subset=['playerId', 'shortName'], keep='last', inplace=True)
+    trend_df = trend_df.loc[:, ~trend_df.columns.duplicated()]
+    df = pd.merge(df, trend_df, on=['playerId', 'shortName', 'startDate'], how='left')
+    # df.drop(df.filter(like='_tendency').columns, axis=1)
+    df = df.sort_values('playerId')
+
+    return df
+
 
 
