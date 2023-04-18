@@ -5,13 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="soft clustering v2">
-      <change afterPath="$PROJECT_DIR$/archive/dr_joi.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chemistry/chemistry_v2.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chemistry_v2/chemistry.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chemistry_v2/chemistry_helpers.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chemistry_v2/distance.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chemistry_v2/jdi.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chemistry_v2/joi.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chemistry_v2/netoi.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chemistry_v2/responsibility_share.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chemistry_v2/smallTest.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/chemistry_v2/sql_statements.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chemistry/chemistry.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chemistry/jdi.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/jdi.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chemistry/joi.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/joi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/netoi.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/netoi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/responsibility_share.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/responsibility_share.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chemistry/sql_statements.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/sql_statements.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helpers/visualizations.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/visualizations.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sql_script.txt" beforeDir="false" afterPath="$PROJECT_DIR$/sql_script.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,7 +75,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/jhs/Teamconstruction/Team_Construction&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/jhs/Powerplant/Powerplant&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -73,6 +86,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\jhs\Teamconstruction\Team_Construction" />
       <recent name="C:\Users\mll\OneDrive - Brøndbyernes IF Fodbold\Dokumenter\TC\Team_Constrction" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -81,7 +95,7 @@
       <recent name="C:\Users\mll\OneDrive - Brøndbyernes IF Fodbold\Dokumenter\TC\Team_Constrction" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.chemistry_helpers (1)">
+  <component name="RunManager" selected="Python.chemistry_v2">
     <configuration name="chemistry_helpers (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Team_Construction" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -127,13 +141,37 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="chemistry_v2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Team_Construction" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/chemistry" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/chemistry/chemistry_v2.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="Python.teamconstruction" />
       <item itemvalue="Python.chemistry_helpers" />
+      <item itemvalue="Python.chemistry_v2" />
       <item itemvalue="Python.chemistry_helpers (1)" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.chemistry_v2" />
         <item itemvalue="Python.chemistry_helpers (1)" />
       </list>
     </recent_temporary>
@@ -189,7 +227,31 @@
       <workItem from="1680453295774" duration="8593000" />
       <workItem from="1680535082698" duration="4313000" />
       <workItem from="1680546406489" duration="8088000" />
-      <workItem from="1680622571339" duration="11928000" />
+      <workItem from="1680622571339" duration="12342000" />
+      <workItem from="1680678412741" duration="10098000" />
+      <workItem from="1680689173696" duration="16011000" />
+      <workItem from="1680717616525" duration="663000" />
+      <workItem from="1680721261359" duration="645000" />
+      <workItem from="1680769225753" duration="3628000" />
+      <workItem from="1680809589957" duration="233000" />
+      <workItem from="1680858785535" duration="2185000" />
+      <workItem from="1680879904391" duration="668000" />
+      <workItem from="1680891333044" duration="5155000" />
+      <workItem from="1680936017980" duration="6630000" />
+      <workItem from="1680950046258" duration="620000" />
+      <workItem from="1680971114871" duration="1224000" />
+      <workItem from="1680974082999" duration="2938000" />
+      <workItem from="1681023769268" duration="12327000" />
+      <workItem from="1681104901329" duration="5607000" />
+      <workItem from="1681196579811" duration="647000" />
+      <workItem from="1681229546797" duration="22310000" />
+      <workItem from="1681312973558" duration="18577000" />
+      <workItem from="1681388868881" duration="24112000" />
+      <workItem from="1681464327588" duration="2949000" />
+      <workItem from="1681468032030" duration="3000" />
+      <workItem from="1681468120041" duration="11595000" />
+      <workItem from="1681483554784" duration="32714000" />
+      <workItem from="1681761221732" duration="20130000" />
     </task>
     <task id="LOCAL-00001" summary="første prepross af SQL udtræk">
       <created>1676646533461</created>
@@ -257,5 +319,6 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Team_Construction$chemistry_helpers__1_.coverage" NAME="chemistry_helpers (1) Coverage Results" MODIFIED="1680455673063" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/chemistry" />
+    <SUITE FILE_PATH="coverage/Team_Construction$chemistry_v2.coverage" NAME="chemistry_v2 Coverage Results" MODIFIED="1681839992178" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/chemistry" />
   </component>
 </project>

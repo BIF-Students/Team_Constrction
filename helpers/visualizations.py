@@ -345,3 +345,27 @@ def createPitchWithZones():
     plt.scatter(x, y)
     plt.show()
 '''
+
+def find_zone_chemistry(row):
+    s = ""  # Initialize variable s to an empty string
+    x = row['x']  # Extract the value of x from the input row
+    y = row['y']  # Extract the value of y from the input row
+
+    # Check which zone the (x, y) pair belongs to
+    if x >= 0 and x < 50 and y >= 0 and y < 33:
+        s = 1  # Assign s to 1 if the pair belongs to zone 1
+    elif x >= 50 and x <= 100 and y >= 0 and y < 33:
+        s = 4  # Assign s to 4 if the pair belongs to zone 4
+    elif x >= 0 and x < 50 and y >= 33 and y < 66:
+        s = 2  # Assign s to 2 if the pair belongs to zone 2
+    elif x >= 50 and x <= 100 and y >= 33 and y < 66:
+        s = 5  # Assign s to 5 if the pair belongs to zone 5
+    elif x >= 0 and x < 50 and y >= 66 and y <= 100:
+        s = 3  # Assign s to 3 if the pair belongs to zone 3
+    elif x >= 50 and x <= 100 and y >= 66 and y <= 100:
+        s = 6  # Assign s to 6 if the pair belongs to zone 6
+    else:
+        s = 0  # Assign s to 0 if the (x, y) pair doesn't belong to any zone
+
+    return s
+

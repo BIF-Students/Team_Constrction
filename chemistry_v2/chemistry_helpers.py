@@ -3,8 +3,6 @@ import numpy as np
 import math
 from sklearn.preprocessing import MinMaxScaler
 
-from helpers.student_bif_code import load_db_to_pd
-
 
 def find_zones_and_vaep(df):
     # create dummy variables for the zone column
@@ -41,34 +39,6 @@ def find_zone_chemistry(row):
 
     return s  # Return the zone number that the (x, y) pair belongs to
 
-def find_zone_chemistry_v2(row):
-    s = ""
-    #  id = row['id']
-    # print(row)
-    x = row['x']
-    y = row['y']
-    if (x >= 0 and x <= 33 and y >= 0 and y <= 33):
-        s = 1
-    elif (x >= 0 and x <= 33 and y > 33 and y <= 67):
-        s = 2
-    elif (x >= 0 and x <= 33 and y > 67 and y <= 100):
-        s = 3
-    elif (x > 33 and x <= 67 and y >= 0 and y <= 33):
-        s = 4
-    elif (x > 33 and x <= 67 and y > 33 and y <= 67):
-        s = 5
-    elif (x > 33 and x <= 67 and y > 67 and y <= 100):
-        s = 6
-    elif (x > 67 and x <= 100 and y >= 0 and y <= 33):
-        s = 7
-    elif (x > 67 and x <= 100 and y > 33 and y <= 67):
-        s = 8
-    elif (x >= 67 and x <= 100 and y >= 67 and y <= 100):
-        s = 9
-    else:
-        s = 0
-    return s
-
 
 
 def get_average_positions(key_values, newDict):
@@ -78,6 +48,8 @@ def get_average_positions(key_values, newDict):
         newDict[key] = {'matchId': key_values[key]['matchId'],
                         'playerId': key_values[key]['playerId'],
                         'teamId': key_values[key]['teamId'],
+                        'competitionId': key_values[key]['competitionId'],
+                        'seasonId': key_values[key]['seasonId'],
                         'avg_x': sum(key_values[key]['x'])/len(key_values[key]['x']),
                         'avg_y': sum(key_values[key]['y'])/len(key_values[key]['y'])}
     # Return the new dictionary
@@ -91,21 +63,23 @@ def allocate_position(row, matches_positions):
     mId = row['matchId']
     pId = row['playerId']
     tId = row['teamId']
+    sId = row['seasonId']
+    cId = row['competitionId']
 
     # check if the (matchId, playerId) pair is already in the dictionary
-    if (mId, pId) in matches_positions:
+    if (sId, mId, pId) in matches_positions:
         # if it is, add the new x and y values to the existing list
-        matches_positions[(mId, pId)]['x'].append(x)
-        matches_positions[(mId, pId)]['y'].append(y)
+        matches_positions[(cId, sId, mId, pId)]['x'].append(x)
+        matches_positions[(cId, sId, mId, pId)]['y'].append(y)
     else:
         # if it isn't, create a new entry in the dictionary with the matchId, teamId, playerId, and the x and y values
-        matches_positions[(mId, pId)] = {'matchId': mId, 'teamId': tId, 'playerId': pId, 'x': [x], 'y': [y]}
+        matches_positions[(cId, sId, mId, pId)] = {'competitionId': cId,  'seasonId': sId, 'matchId': mId, 'teamId': tId, 'playerId': pId, 'x': [x], 'y': [y]}
 
 
 
 def compute_relative_player_impact(df_player, df_team):
     # Merge two dataframes based on matchId and teamId using inner join
-    df_full = pd.merge(df_player, df_team, on=['matchId', 'teamId'], how='inner')
+    df_full = pd.merge(df_player, df_team, on=['matchId', 'teamId', 'competitionId', 'seasonId'], how='inner')
 
     # Compute relative player impact for each of the six zones
     # If the number of passes in a zone is greater than 0, compute the impact as the ratio of passes completed to passes attempted in that zone
@@ -116,27 +90,6 @@ def compute_relative_player_impact(df_player, df_team):
     df_full['zone_4_imp'] = np.where(df_full.zone_4_pl > 0, df_full.zone_4_pl / df_full.zone_4_t, 0)
     df_full['zone_5_imp'] = np.where(df_full.zone_5_pl > 0, df_full.zone_5_pl / df_full.zone_5_t, 0)
     df_full['zone_6_imp'] = np.where(df_full.zone_6_pl > 0, df_full.zone_6_pl / df_full.zone_6_t, 0)
-
-    # Return the dataframe with the relative player impact for each zone
-    return df_full
-
-
-def compute_relative_player_impact_v4(df_player, df_team):
-    # Merge two dataframes based on matchId and teamId using inner join
-    df_full = pd.merge(df_player, df_team, on=['matchId', 'teamId'], how='inner')
-
-    # Compute relative player impact for each of the six zones
-    # If the number of passes in a zone is greater than 0, compute the impact as the ratio of passes completed to passes attempted in that zone
-    # If the number of passes in a zone is 0, set the impact for that zone to 0
-    df_full['zone_1_imp'] = np.where(df_full.zone_1_pl > 0, df_full.zone_1_pl / df_full.zone_1_t, 0)
-    df_full['zone_2_imp'] = np.where(df_full.zone_2_pl > 0, df_full.zone_2_pl / df_full.zone_2_t, 0)
-    df_full['zone_3_imp'] = np.where(df_full.zone_3_pl > 0, df_full.zone_3_pl / df_full.zone_3_t, 0)
-    df_full['zone_4_imp'] = np.where(df_full.zone_4_pl > 0, df_full.zone_4_pl / df_full.zone_4_t, 0)
-    df_full['zone_5_imp'] = np.where(df_full.zone_5_pl > 0, df_full.zone_5_pl / df_full.zone_5_t, 0)
-    df_full['zone_6_imp'] = np.where(df_full.zone_6_pl > 0, df_full.zone_6_pl / df_full.zone_6_t, 0)
-    df_full['zone_7_imp'] = np.where(df_full.zone_7_pl > 0, df_full.zone_7_pl / df_full.zone_7_t, 0)
-    df_full['zone_8_imp'] = np.where(df_full.zone_8_pl > 0, df_full.zone_8_pl / df_full.zone_8_t, 0)
-    df_full['zone_9_imp'] = np.where(df_full.zone_9_pl > 0, df_full.zone_9_pl / df_full.zone_9_t, 0)
 
     # Return the dataframe with the relative player impact for each zone
     return df_full
@@ -183,7 +136,7 @@ def compute_relative_player_impact_v2(df_player, df_team):
 
 
 
-def find_zones_and_counts_pl(df):
+def get_zones_count_pl(df):
     # Use the pandas "get_dummies" method to create dummy variables for each "zone" category,
     # prefixing them with "zone_" in the column names.
     zone_dummies = pd.get_dummies(df['zone'], prefix='zone')
@@ -193,7 +146,7 @@ def find_zones_and_counts_pl(df):
 
     # Group the DataFrame by playerId, matchId, and teamId columns, and calculate the sum of each zone column.
     # Reset the index to create a flat DataFrame with the original columns and aggregated zone columns.
-    df = df.groupby([df.playerId, df.matchId, df.teamId], as_index=False).agg({
+    df = df.groupby([df.playerId, df.matchId, df.teamId, df.competitionId, df.seasonId], as_index=False).agg({
         'zone_1': 'sum',
         'zone_2': 'sum',
         'zone_3': 'sum',
@@ -216,47 +169,9 @@ def find_zones_and_counts_pl(df):
     # Return the modified DataFrame with aggregated zone counts.
     return df
 
-def find_zones_and_counts_pl_v2(df):
-    # Use the pandas "get_dummies" method to create dummy variables for each "zone" category,
-    # prefixing them with "zone_" in the column names.
-    zone_dummies = pd.get_dummies(df['zone'], prefix='zone')
-
-    # Concatenate the "zone_dummies" DataFrame with the input DataFrame "df" column-wise (axis=1).
-    df = pd.concat([df, zone_dummies], axis=1)
-
-    # Group the DataFrame by playerId, matchId, and teamId columns, and calculate the sum of each zone column.
-    # Reset the index to create a flat DataFrame with the original columns and aggregated zone columns.
-    df = df.groupby([df.playerId, df.matchId, df.teamId], as_index=False).agg({
-        'zone_1': 'sum',
-        'zone_2': 'sum',
-        'zone_3': 'sum',
-        'zone_4': 'sum',
-        'zone_5': 'sum',
-        'zone_6': 'sum',
-        'zone_7': 'sum',
-        'zone_8': 'sum',
-        'zone_9': 'sum'
-    })
-
-    # Rename the aggregated zone columns, appending "_pl" to each column name to denote that the counts
-    # represent the number of times each player appeared in each zone.
-    df = df.rename(columns={
-        'zone_1': 'zone_1_pl',
-        'zone_2': 'zone_2_pl',
-        'zone_3': 'zone_3_pl',
-        'zone_4': 'zone_4_pl',
-        'zone_5': 'zone_5_pl',
-        'zone_6': 'zone_6_pl',
-        'zone_7': 'zone_7_pl',
-        'zone_8': 'zone_8_pl',
-        'zone_9': 'zone_9_pl'
-    })
-
-    # Return the modified DataFrame with aggregated zone counts.
-    return df
 
 
-def find_zones_and_counts_t(df):
+def get_zones_count_t(df):
     #extact dummies from zone columns
     zone_dummies = pd.get_dummies(df['zone'], prefix='zone')
 
@@ -265,7 +180,7 @@ def find_zones_and_counts_t(df):
 
     #Groupby statement to compute counts for the amount of times a teams has
     #engaged in actoins within a zone
-    df = df.groupby([df.matchId, df.teamId], as_index=False).agg({
+    df = df.groupby([df.matchId, df.teamId, df.competitionId, df.seasonId], as_index=False).agg({
         'zone_1': 'sum',
         'zone_2': 'sum',
         'zone_3': 'sum',
@@ -282,38 +197,7 @@ def find_zones_and_counts_t(df):
 
     return df
 
-def find_zones_and_counts_t_v2(df):
-    #extact dummies from zone columns
-    zone_dummies = pd.get_dummies(df['zone'], prefix='zone')
 
-    #Append zone dummies to original dataframe - columnswise
-    df = pd.concat([df, zone_dummies], axis=1)
-
-    #Groupby statement to compute counts for the amount of times a teams has
-    #engaged in actoins within a zone
-    df = df.groupby([df.matchId, df.teamId], as_index=False).agg({
-        'zone_1': 'sum',
-        'zone_2': 'sum',
-        'zone_3': 'sum',
-        'zone_4': 'sum',
-        'zone_5': 'sum',
-        'zone_6': 'sum',
-        'zone_7': 'sum',
-        'zone_8': 'sum',
-        'zone_9': 'sum'
-    })
-    df = df.rename(columns={'zone_1': 'zone_1_t',
-                            'zone_2': 'zone_2_t',
-                            'zone_3': 'zone_3_t',
-                            'zone_4': 'zone_4_t',
-                            'zone_5': 'zone_5_t',
-                            'zone_6': 'zone_6_t',
-                            'zone_7': 'zone_7_t',
-                            'zone_8': 'zone_8_t',
-                            'zone_9': 'zone_9_t'
-                            })
-
-    return df
 
 def compute_jdi (df):
     #Compute jdi per zone per pair of players
@@ -351,37 +235,21 @@ def compute_jdi (df):
     df['jdi_zone_6'] = np.where(df.zone_6_team > 3, ((df.zone_6_net_oi * df.zone_6_imp1) / df.distance ) + ((df.zone_6_team* df.zone_6_imp2) / df.distance)*(df.zone_6_team/df.zones_total), 0)
 '''
 
-def jdi_compute(df):
-    df['zones_total'] = np.sum(df[['zone_1_team', 'zone_2_team', 'zone_3_team', 'zone_4_team', 'zone_5_team', 'zone_6_team']], axis=1)
-    df['p1_sum'] = np.sum(df[['zone_1_pl1', 'zone_2_pl1', 'zone_3_pl1', 'zone_4_pl1', 'zone_5_pl1', 'zone_6_pl1']], axis=1)
-    df['p2_sum'] = np.sum(df[['zone_1_pl2', 'zone_2_pl2', 'zone_3_pl2', 'zone_4_pl2', 'zone_5_pl2', 'zone_6_pl2']], axis=1)
-    df['pairwise_involvement'] = ((df.p1_sum +df.p2_sum)/df.zones_total)
-    df['jdi_zone_1'] = np.where(df.zone_1_team > 10, (((((((df.zone_6_net_oi * df.zone_1_imp1)) + ((df.zone_6_net_oi* df.zone_1_imp2))))))), 0)
-    df['jdi_zone_2'] = np.where(df.zone_2_team > 10, ((((((df.zone_5_net_oi * df.zone_2_imp1) ) + ((df.zone_5_net_oi* df.zone_2_imp2)))))), 0)
-    df['jdi_zone_3'] = np.where(df.zone_3_team > 10, ((((((df.zone_4_net_oi * df.zone_3_imp1) ) + ((df.zone_4_net_oi* df.zone_3_imp2)))))), 0)
-    df['jdi_zone_4'] = np.where(df.zone_4_team > 10, ((((((df.zone_3_net_oi * df.zone_4_imp1)) + ((df.zone_3_net_oi* df.zone_4_imp2)))))), 0)
-    df['jdi_zone_5'] = np.where(df.zone_5_team > 10, ((((((df.zone_2_net_oi * df.zone_5_imp1)) + ((df.zone_2_net_oi* df.zone_5_imp2)))))), 0)
-    df['jdi_zone_6'] = np.where(df.zone_6_team > 10, ((((((df.zone_1_net_oi * df.zone_6_imp1)) + ((df.zone_1_net_oi* df.zone_6_imp2)))))), 0)
-    df['jdi'] = (df.jdi_zone_1 + df.jdi_zone_2 + df.jdi_zone_3 + df.jdi_zone_4 + df.jdi_zone_5 + df.jdi_zone_6) * df.pairwise_involvement
+def compute_jdi_v2 (df):
+    df['zones_total'] = (df.zone_1_team + df.zone_2_team + df.zone_3_team + df.zone_4_team + df.zone_5_team + df.zone_6_team)
+    df['p1_sum'] = (df.zone_1_pl1 + df.zone_2_pl1 + df.zone_3_pl1 + df.zone_4_pl1 + df.zone_5_pl1 + df.zone_6_pl1)
+    df['p2_sum'] = df.zone_1_pl2 + df.zone_2_pl2 + df.zone_3_pl2 + df.zone_4_pl2 + df.zone_5_pl2 + df.zone_6_pl2
+    df['pairwise_involvement'] = (df.p1_sum/df.zones_total) + (df.p2_sum/df.zones_total)
+    df['jdi_zone_1'] = np.where(df.zone_1_team > 3, ((((((df.zone_1_net_oi * df.zone_1_imp1)) + ((df.zone_1_team* df.zone_1_imp2))))*(1/df.distance))) * df.pairwise_involvement, 0)
+    df['jdi_zone_2'] = np.where(df.zone_2_team > 3, (((((df.zone_2_net_oi * df.zone_2_imp1) ) + ((df.zone_2_team* df.zone_2_imp2)))*(1/df.distance))) * df.pairwise_involvement, 0)
+    df['jdi_zone_3'] = np.where(df.zone_3_team > 3, (((((df.zone_3_net_oi * df.zone_3_imp1) ) + ((df.zone_3_team* df.zone_3_imp2)))*(1/df.distance))) * df.pairwise_involvement, 0)
+    df['jdi_zone_4'] = np.where(df.zone_4_team > 3, (((((df.zone_4_net_oi * df.zone_4_imp1)) + ((df.zone_4_team* df.zone_4_imp2)))*(1/df.distance)))* df.pairwise_involvement, 0)
+    df['jdi_zone_5'] = np.where(df.zone_5_team > 3, (((((df.zone_5_net_oi * df.zone_5_imp1)) + ((df.zone_5_team* df.zone_5_imp2)))*(1/df.distance))) * df.pairwise_involvement, 0)
+    df['jdi_zone_6'] = np.where(df.zone_6_team > 3, (((((df.zone_6_net_oi * df.zone_6_imp1)) + ((df.zone_6_team* df.zone_6_imp2)))*(1/df.distance))) * df.pairwise_involvement, 0)
+    df['jdi'] = df.jdi_zone_1 + df.jdi_zone_2 + df.jdi_zone_3 + df.jdi_zone_4 + df.jdi_zone_5 + df.jdi_zone_6
     return df
 
-def jdi_computed_v2(df):
-    df['zones_total'] = np.sum(df[['zone_1_team', 'zone_2_team', 'zone_3_team', 'zone_4_team', 'zone_5_team', 'zone_6_team', 'zone_7_team', 'zone_8_team', 'zone_9_team']], axis=1)
-    df['p1_sum'] = np.sum(df[['zone_1_pl1', 'zone_2_pl1', 'zone_3_pl1', 'zone_4_pl1', 'zone_5_pl1', 'zone_6_pl1', 'zone_7_pl1', 'zone_8_pl1', 'zone_9_pl1']], axis=1)
-    df['p2_sum'] = np.sum(df[['zone_1_pl2', 'zone_2_pl2', 'zone_3_pl2', 'zone_4_pl2', 'zone_5_pl2', 'zone_6_pl2', 'zone_7_pl2', 'zone_8_pl2', 'zone_9_pl2']], axis=1)
-    df['pairwise_involvement'] = ((df.p1_sum +df.p2_sum)/df.zones_total)
-    df[['zone_1_weight', 'zone_2_weight', 'zone_3_weight', 'zone_4_weight', 'zone_5_weight', 'zone_6_weight', 'zone_7_weight', 'zone_8_weight', 'zone_9_weight']] = df[['zone_1_team', 'zone_2_team', 'zone_3_team', 'zone_4_team', 'zone_5_team', 'zone_6_team', 'zone_7_team', 'zone_8_team', 'zone_9_team']] / df[ 'zones_total'].values[:,None]
-    df['jdi_zone_1'] = np.where(df.zone_1_team > 10, (((((((df.zone_1_net_oi * df.zone_1_imp1)) + ((df.zone_1_net_oi* df.zone_1_imp2))))*(1/df.distance))) * df.pairwise_involvement), 0)
-    df['jdi_zone_2'] = np.where(df.zone_2_team > 10, ((((((df.zone_2_net_oi * df.zone_2_imp1) ) + ((df.zone_2_net_oi* df.zone_2_imp2)))*(1/df.distance))) * df.pairwise_involvement), 0)
-    df['jdi_zone_3'] = np.where(df.zone_3_team > 10, ((((((df.zone_3_net_oi * df.zone_3_imp1) ) + ((df.zone_3_net_oi* df.zone_3_imp2)))*(1/df.distance))) * df.pairwise_involvement), 0)
-    df['jdi_zone_4'] = np.where(df.zone_4_team > 10, ((((((df.zone_4_net_oi * df.zone_4_imp1)) + ((df.zone_4_net_oi* df.zone_4_imp2)))*(1/df.distance)))* df.pairwise_involvement), 0)
-    df['jdi_zone_5'] = np.where(df.zone_5_team > 10, ((((((df.zone_5_net_oi * df.zone_5_imp1)) + ((df.zone_5_net_oi* df.zone_5_imp2)))*(1/df.distance))) * df.pairwise_involvement), 0)
-    df['jdi_zone_6'] = np.where(df.zone_6_team > 10, ((((((df.zone_6_net_oi * df.zone_6_imp1)) + ((df.zone_6_net_oi* df.zone_6_imp2)))*(1/df.distance))) * df.pairwise_involvement), 0)
-    df['jdi_zone_7'] = np.where(df.zone_7_team > 10, ((((((df.zone_7_net_oi * df.zone_7_imp1)) + ((df.zone_7_net_oi* df.zone_7_imp2)))*(1/df.distance))) * df.pairwise_involvement), 0)
-    df['jdi_zone_8'] = np.where(df.zone_8_team > 10, ((((((df.zone_8_net_oi * df.zone_8_imp1)) + ((df.zone_8_net_oi* df.zone_8_imp2)))*(1/df.distance))) * df.pairwise_involvement), 0)
-    df['jdi_zone_9'] = np.where(df.zone_9_team > 10, ((((((df.zone_9_net_oi * df.zone_9_imp1)) + ((df.zone_9_net_oi* df.zone_9_imp2)))*(1/df.distance))) * df.pairwise_involvement), 0)
-    df['jdi'] = df.jdi_zone_1 + df.jdi_zone_2 + df.jdi_zone_3 + df.jdi_zone_4 + df.jdi_zone_5 + df.jdi_zone_6+ df.jdi_zone_7 + df.jdi_zone_8 + df.jdi_zone_9
-    return df
+
 #Compute total jdi across zones for pairs of players
 
 
@@ -396,18 +264,17 @@ def generate_chemistry_ability(df):
     return players_and_chemistry_season
 def generate_chemistry_ability_v2(df):
     df1 = df[['p1','shortName_x', 'role_name_x','areaName_x', 'df_jdi90', 'df_joi90', 'chemistry']].rename(columns={'p1':'playerId', 'shortName_x': 'shortName', 'role_name_x': 'role_name' ,'areaName_x': 'areaName'})
-    df1  = df1.drop_duplicates()
     df2 = df[['p2', 'shortName_y', 'role_name_y','areaName_y', 'df_jdi90', 'df_joi90', 'chemistry']].rename(columns={'p2':'playerId','shortName_y': 'shortName', 'role_name_y': 'role_name' ,'areaName_y': 'areaName'})
-    df2  = df2.drop_duplicates()
     players_and_chemistry = pd.concat([df1, df2])
     players_and_chemistry_season = players_and_chemistry.groupby(['playerId', 'shortName',  'role_name' , 'areaName'], as_index=False)['chemistry'].mean().reset_index(drop=True)
+
     return players_and_chemistry_season
 
 
 
 def compute_distances(df_full):
     #Merge dataframw with itself to obtain pairing of players
-    merged = df_full.merge(df_full, on=['matchId', 'teamId'], suffixes=('1', '2'))
+    merged = df_full.merge(df_full, on=['matchId', 'teamId', 'seasonId', 'competitionId'], suffixes=('1', '2'))
 
     #Extract observatoins where players are not paired with itself and
     #Ensure that the player with the lowest playerId is always found on the 'playerId1' column
@@ -449,45 +316,6 @@ def compute_net_oi_game(df):
     # return the updated dataframe with net offensive impact for each zone
     return copy
 
-
-def compute_net_oi_game_v2(df):
-    # make a copy of the input dataframe to avoid modifying it directly
-    copy = df
-
-    # compute net offensive impact for each zone based on number of games played
-    copy['zone_1_net_oi'] = np.where(copy.games_played <= 3,
-                                     (copy.zone_1_expected_vaep - copy.zone_1_prior_avg),
-                                     (copy.zone_1_expected_vaep - copy.zone_1))
-    copy['zone_2_net_oi'] = np.where(copy.games_played <= 3,
-                                     (copy.zone_2_expected_vaep - copy.zone_2_prior_avg),
-                                     (copy.zone_2_expected_vaep - copy.zone_2))
-    copy['zone_3_net_oi'] = np.where(copy.games_played <= 3,
-                                     (copy.zone_3_expected_vaep - copy.zone_3_prior_avg),
-                                     (copy.zone_3_expected_vaep - copy.zone_3))
-    copy['zone_4_net_oi'] = np.where(copy.games_played <= 3,
-                                     (copy.zone_4_expected_vaep - copy.zone_4_prior_avg),
-                                     (copy.zone_4_expected_vaep - copy.zone_4))
-    copy['zone_5_net_oi'] = np.where(copy.games_played <= 3,
-                                     (copy.zone_5_expected_vaep - copy.zone_5_prior_avg),
-                                     (copy.zone_5_expected_vaep - copy.zone_5))
-    copy['zone_6_net_oi'] = np.where(copy.games_played <= 3,
-                                     (copy.zone_6_expected_vaep - copy.zone_6_prior_avg),
-                                     (copy.zone_6_expected_vaep - copy.zone_6))
-    copy['zone_7_net_oi'] = np.where(copy.games_played <= 3,
-                                     (copy.zone_7_expected_vaep - copy.zone_7_prior_avg),
-                                     (copy.zone_7_expected_vaep - copy.zone_7))
-
-    copy['zone_8_net_oi'] = np.where(copy.games_played <= 3,
-                                     (copy.zone_8_expected_vaep - copy.zone_8_prior_avg),
-                                     (copy.zone_8_expected_vaep - copy.zone_8))
-    copy['zone_9_net_oi'] = np.where(copy.games_played <= 3,
-                                     (copy.zone_9_expected_vaep - copy.zone_9_prior_avg),
-                                     (copy.zone_9_expected_vaep - copy.zone_9))
-
-    # return the updated dataframe with net offensive impact for each zone
-    return copy
-
-
 #Method for computing running aver vaep using observatoins as input and with a label input
 def compute_running_avg_team_vaep (row, label):
     #If it is the first game of the season, we use the current cumulative sum
@@ -497,17 +325,26 @@ def compute_running_avg_team_vaep (row, label):
         return row[label] / (row['games_played'] +1)
 
 def team_vaep_game(df):
-    # Sort the data by teamId and matchId
-    df = df.sort_values(by=['teamId', 'matchId'])
+    # Group data by matchId and teamId, summing the values of the zones
+    df = df.groupby(['matchId', 'teamId', 'competitionId', 'seasonId'])[
+        'zone_1', 'zone_2', 'zone_3', 'zone_4', 'zone_5', 'zone_6'].sum().reset_index()
+    return df
+def get_running_tvg_v2(df):
+    # Group data by matchId and teamId, summing the values of the zones
+    df = df.groupby(['matchId', 'teamId', 'competitionId', 'seasonId'])[
+        'zone_1', 'zone_2', 'zone_3', 'zone_4', 'zone_5', 'zone_6'].sum().reset_index()
 
+    # Sort the data by teamId and matchId
+    df = df.sort_values(by=['teamId', 'matchId','competitionId', 'seasonId'])
+    print("ramt")
     # Compute the cumulative sum of each zone for each team
     df[['zone_1_cumsum', 'zone_2_cumsum',
         'zone_3_cumsum', 'zone_4_cumsum',
         'zone_5_cumsum', 'zone_6_cumsum'
-        ]] = df.groupby('teamId')[['zone_1', 'zone_2', 'zone_3', 'zone_4', 'zone_5', 'zone_6']].cumsum()
+        ]] = df.groupby(['teamId', 'competitionId', 'seasonId'], as_index = False)[['zone_1', 'zone_2', 'zone_3', 'zone_4', 'zone_5', 'zone_6']].cumsum()
 
     # Compute the number of games played by each team
-    df['games_played'] = df.groupby(['teamId']).cumcount()
+    df['games_played'] = df.groupby(['teamId','competitionId', 'seasonId'], as_index = False).cumcount()
 
     # Compute the running average of expected VAEP for each zone
     df['zone_1_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_1_cumsum'), axis=1)
@@ -516,42 +353,7 @@ def team_vaep_game(df):
     df['zone_4_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_4_cumsum'), axis=1)
     df['zone_5_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_5_cumsum'), axis=1)
     df['zone_6_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_6_cumsum'), axis=1)
-
-    # Return the updated dataframe
     return df
-
-def team_vaep_game_v2(df):
-    # Group data by matchId and teamId, summing the values of the zones
-    df = df.groupby(['matchId', 'teamId'])[
-        'zone_1', 'zone_2', 'zone_3', 'zone_4', 'zone_5', 'zone_6', 'zone_7','zone_8','zone_9', ].sum().reset_index()
-
-    # Sort the data by teamId and matchId
-    df = df.sort_values(by=['teamId', 'matchId'])
-
-    # Compute the cumulative sum of each zone for each team
-    df[['zone_1_cumsum', 'zone_2_cumsum',
-        'zone_3_cumsum', 'zone_4_cumsum',
-        'zone_5_cumsum', 'zone_6_cumsum',
-        'zone_7_cumsum', 'zone_8_cumsum', 'zone_9_cumsum'
-        ]] = df.groupby('teamId')[['zone_1', 'zone_2', 'zone_3', 'zone_4', 'zone_5', 'zone_6' , 'zone_7', 'zone_8', 'zone_9']].cumsum()
-
-    # Compute the number of games played by each team
-    df['games_played'] = df.groupby(['teamId']).cumcount()
-
-    # Compute the running average of expected VAEP for each zone
-    df['zone_1_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_1_cumsum'), axis=1)
-    df['zone_2_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_2_cumsum'), axis=1)
-    df['zone_3_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_3_cumsum'), axis=1)
-    df['zone_4_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_4_cumsum'), axis=1)
-    df['zone_5_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_5_cumsum'), axis=1)
-    df['zone_6_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_6_cumsum'), axis=1)
-    df['zone_7_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_7_cumsum'), axis=1)
-    df['zone_8_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_8_cumsum'), axis=1)
-    df['zone_9_expected_vaep'] = df.apply(lambda row: compute_running_avg_team_vaep(row, 'zone_9_cumsum'), axis=1)
-
-    # Return the updated dataframe
-    return df
-
 
 
 def process_for_jdi (df_net_oi, matches_all, distances_df, df_player_share):
@@ -601,48 +403,50 @@ def process_for_jdi (df_net_oi, matches_all, distances_df, df_player_share):
     return df_share_dist_final
 
 
-def pairwise_playing_time (df):
+def compute_pairwise_playing_time (df):
     # Merge the DataFrame with itself based on the matchId and teamId columns
-    paired = df.merge(df, on=(['matchId', 'teamId']), how='inner', suffixes=('1', '2'))
+    paired = df.merge(df, on=(['matchId', 'teamId', 'seasonId']), how='inner', suffixes=('1', '2'))
+
     # Remove any rows where playerId1 is equal to playerId2
     paired = paired[paired.playerId1 != paired.playerId2]
     # Create new columns 'p1' and 'p2' to keep the IDs of the two paired players
-    paired['id'] = paired.apply(lambda row: tuple(sorted([row['matchId'], row['playerId1'], row['playerId2']])), axis=1)
-    paired = paired.drop_duplicates(subset=['id'], keep='first')
-    paired = paired.drop(['id'], axis=1)
+
     paired['p1'] = np.where(paired.playerId1 < paired.playerId2, paired.playerId1, paired.playerId2)
     paired['p2'] = np.where(paired.playerId2 > paired.playerId1, paired.playerId2, paired.playerId1)
 
     # Set the 'minutes' column to the smaller of minutes1 and minutes2
     paired['minutes'] = np.where(paired.minutes1 < paired.minutes2, paired.minutes1, paired.minutes2)
+
     # Keep only the relevant columns in the resulting DataFrame
-    paired = paired[['teamId', 'matchId','p1', 'p2', 'minutes']]
+    paired = paired[['teamId', 'matchId', 'seasonId', 'p1', 'p2', 'minutes']]
+
     # Remove any duplicate rows in the DataFrame
     paired = paired.drop_duplicates()
-    # Group the DataFrame by teamId, p1, and p2, and sum the minutes column
-    paired = paired.groupby(['teamId', 'p1','p2'], as_index=False )['minutes'].sum()
 
+    # Group the DataFrame by teamId, p1, and p2, and sum the minutes column
+    paired = paired.groupby(['seasonId', 'teamId', 'p1','p2'], as_index=False )['minutes'].sum()
     return paired
 
 
 def compute_normalized_values(df_joi_game, df_jdi_game, df_pairwise_time):
     # Aggregate sum of 'joi' for each player pair in each team for the season
-    df_joi_season = df_joi_game.groupby(['p1', 'p2', 'teamId'], as_index = False).agg({
+    df_joi_season = df_joi_game.groupby(['p1', 'p2', 'teamId', 'seasonId'], as_index = False).agg({
                                                                                      'joi': 'sum',
                                                                                      'goals': 'sum',
                                                                                      'assists': 'sum',
-                                                                                     'second_assists': 'sum'
+                                                                                     'second_assists': 'sum',
                                                                                      })
+
     # Aggregate sum of 'jdi' for each player pair in each team for the season
-    df_jdi_season = df_jdi_game.groupby(['p1', 'p2', 'teamId'], as_index = False)['jdi'].sum()
+    df_jdi_season = df_jdi_game.groupby(['p1', 'p2', 'teamId', 'seasonId'], as_index = False)['jdi'].sum()
     # Merge the two dataframes based on the player pairs
-    df_merged = pd.merge(df_joi_season, df_jdi_season, on=['p1', 'p2'])
-    df_merged = df_merged.merge(df_pairwise_time, on=['p1', 'p2'])
+    df_merged = (pd.merge(df_joi_season, df_jdi_season, on=(['p1', 'p2', 'seasonId']))).merge(df_pairwise_time, on= (['p1', 'p2']))
 
     # Compute the normalized value of 'joi' and 'jdi' by dividing them by the norm90 value
-    df_merged['winners90'] =  (df_merged.assists + df_merged.goals) * 90/df_merged.minutes
+    df_merged['winners90'] =  (df_merged.second_assists + df_merged.assists + df_merged.goals) * 90/df_merged.minutes
     df_merged['df_joi90'] = (df_merged.joi * 90/df_merged.minutes) * df_merged.winners90
     df_merged['df_jdi90'] = df_merged.jdi * 90/df_merged.minutes
+
     df_merged = df_merged[['p1', 'p2', 'teamId', 'joi', 'jdi', 'minutes', 'df_jdi90', 'df_joi90', 'winners90']]
 
     # Filter out player pairs who have played less than 300 minutes together
@@ -678,11 +482,12 @@ def get_TVP(df_vaep, squad, stamps):
 
 
 def get_league_vaep(df):
-    df = df.groupby(['matchId'], as_index =False)['sumVaep'].sum()#Compute vaep values for eacg game in a season
+    df = df.groupby(['competitionId','seasonId'], as_index =False).agg({'sumVaep':'mean'})
     league_vaep =  df['sumVaep'].mean() # compute mean of match vaep values
     return league_vaep #Return league vaep
 
-def prepare_for_scaling(df, squad, stamps):
+
+def compute_chemistry(df, squad, stamps, df_joi90_jdi90):
     tvp = get_TVP(df, squad, stamps)
     league_avg_vaep = get_league_vaep(df)
     tvp['league_vaep'] = league_avg_vaep  # Place league vaep as column
@@ -695,121 +500,33 @@ def prepare_for_scaling(df, squad, stamps):
     merged = merged[(merged.playerId1 != merged.playerId2) & (merged.playerId1 < merged.playerId2)]
     merged = merged.rename(columns={'playerId1': 'p1', 'playerId2': 'p2'})  # Rename player columns
     merged = merged.sort_values(by=['p1', 'p2', 'teamId'])  # Sort dataframe in ascending order(default)
-    return merged
+    dfm_id = merged[['p1', 'p2', 'teamId']]  # Extract columns that should not be scaled
+    mask_m = ~merged.columns.isin(['p1', 'p2', 'teamId'])  # Extract column names for scaling
 
-#def scale()
-
-def add_pos(df, df_players):
-    df_player_1_added = pd.merge(df, df_players, left_on='p1', right_on="playerId")
-    df_player_2_added = pd.merge(df_player_1_added, df_players, left_on='p2', right_on="playerId")
-    cols = df.columns
-    columns = np.concatenate((['role_name_x', 'role_name_y'], cols))
-    df_filtered = df_player_2_added[columns]
-    return df_filtered
-
-
-def get_weighted_chemistry(df_chem):
-    df_chem['chemistry'] = np.where((df_chem.role_name_x == 'Forward') & (df_chem.role_name_y == 'Forward'),
-                                    ((df_chem.df_joi90 * 0.75) * (df_chem.df_jdi90 * 0.25)) * (
-                                                df_chem.factor1 + df_chem.factor2),
-                                    np.where((df_chem.role_name_x == 'Defender') & (df_chem.role_name_y == 'Defender'),
-                                             ((df_chem.df_joi90 * 0.25) * (df_chem.df_jdi90 * 0.75)) * (
-                                                         df_chem.factor1 + df_chem.factor2),
-                                             np.where(((df_chem.role_name_x == 'Midfielder') & (
-                                                         df_chem.role_name_y == 'Forward')) |
-                                                      ((df_chem.role_name_x == 'Forward') & (
-                                                                  df_chem.role_name_y == 'Midfielder')),
-                                                      ((df_chem.df_joi90 * 0.60) * (df_chem.df_jdi90 * 0.40)) * (
-                                                                  df_chem.factor1 + df_chem.factor2),
-                                                      np.where(((df_chem.role_name_x == 'Midfielder') & (
-                                                                  df_chem.role_name_y == 'Defender')) |
-                                                               ((df_chem.role_name_x == 'Defender') & (
-                                                                           df_chem.role_name_y == 'Midfielder')),
-                                                               ((df_chem.df_joi90 * 0.40) * (
-                                                                           df_chem.df_jdi90 * 0.60)) * (
-                                                                           df_chem.factor1 + df_chem.factor2),
-                                                               ((df_chem.df_joi90 * 0.50) * (
-                                                                           df_chem.df_jdi90 * 0.50)) * (
-                                                                           df_chem.factor1 + df_chem.factor2)
-                                                               )
-                                                      )
-                                             )
-                                    )
-    return df_chem
-
-def get_chemistry(df_factor_values, df_joi90_jdi90, df_players_teams):
-    dfm_id = df_factor_values[['p1', 'p2', 'teamId', 'seasonId']]  # Extract columns that should not be scaled
-    mask_m = ~df_factor_values.columns.isin(['p1', 'p2', 'teamId', 'seasonId'])  # Extract column names for scaling
-    df_scale_m = df_factor_values.loc[:, mask_m]
-    scale1 = MinMaxScaler(feature_range=(0.9, 1.1 ))
+    df_scale_m = merged.loc[:, mask_m]
+    scale1 = MinMaxScaler(feature_range=(0.9, 1.1))
     df_scale_m[df_scale_m.columns] = scale1.fit_transform(df_scale_m[df_scale_m.columns])  # Perform min/max scaling
     df_factors_scaled = pd.concat([dfm_id.reset_index(drop=True), df_scale_m.reset_index(drop=True)], axis=1)
 
     # Merge with joi and jdi dataframes
-    dfc = pd.merge(df_joi90_jdi90, df_factors_scaled, on=['teamId', 'p1', 'p2', 'seasonId'], how='inner')
+    dfc = pd.merge(df_joi90_jdi90, df_factors_scaled, on=['teamId', 'p1', 'p2'], how='inner')
     dfc = dfc.sort_values(by=['p1', 'p2', 'teamId'])  # Sort dataframe in ascending order(default)
-    df_id = dfc[['p1', 'p2', 'teamId','seasonId', 'minutes', 'factor1', 'factor2']]  # Extract columns that should not be scaled
-    mask = ~dfc.columns.isin( ['p1', 'p2', 'teamId', 'seasonId', 'minutes', 'factor1', 'factor2'])  # Extract column names for scaling
+    df_id = dfc[['p1', 'p2', 'teamId', 'minutes', 'factor1', 'factor2']]  # Extract columns that should not be scaled
+    mask = ~dfc.columns.isin( ['p1', 'p2', 'teamId', 'minutes', 'factor1', 'factor2'])  # Extract column names for scaling
     df_scale = dfc.loc[:, mask]  # Extract columns for scaling
 
     scale2 = MinMaxScaler()  # Initiate sclaing instance
     df_scale[df_scale.columns] = scale2.fit_transform(df_scale[df_scale.columns])  # Perform min/max scaling
     # Re-establosh dataframe with id's
     df_chemistry = pd.concat([df_id.reset_index(drop=True), df_scale.reset_index(drop=True)], axis=1)
-
-    df_chemistry_pos = add_pos(df_chemistry, df_players_teams)
     # Compute chemistry columns based on formula
-    df_chem_final = get_weighted_chemistry(df_chemistry_pos)
+    df_chemistry['chemistry'] = df_chemistry.df_joi90 * df_chemistry.df_jdi90 * df_chemistry.factor1 * df_chemistry.factor2
 
-    return df_chem_final
+    return df_chemistry
 
 
 def get_overview_frame(df_chem, df_players):
     df_player_1_added = pd.merge(df_chem, df_players, left_on ='p1', right_on="playerId")
     df_player_2_added = pd.merge(df_player_1_added, df_players, left_on ='p2', right_on="playerId")
-    df_filtered = df_player_2_added[['p1','p2', 'seasonId', 'shortName_x', 'shortName_y', 'minutes', 'teamId_x', 'role_name_x', 'role_name_y', 'areaName_x', 'areaName_y', 'df_jdi90', 'df_joi90','chemistry']]
-    df_teams = load_db_to_pd(sql_query="SELECT * FROM [Scouting_Raw].[dbo].[Wyscout_Teams]", db_name = 'Scouting_Raw')
-    df_filtered = df_filtered.merge(df_teams[['teamId', 'name']], left_on="teamId_x", right_on="teamId")
+    df_filtered = df_player_2_added[['p1','p2', 'shortName_x', 'shortName_y', 'minutes', 'role_name_x', 'role_name_y', 'areaName_x', 'areaName_y', 'df_jdi90', 'df_joi90','chemistry']]
     return df_filtered
-
-def get_overview_frame_fac(df_chem, df_players):
-    df_player_1_added = pd.merge(df_chem, df_players, left_on ='p1', right_on="playerId")
-    df_player_2_added = pd.merge(df_player_1_added, df_players, left_on ='p2', right_on="playerId")
-    df_filtered = df_player_2_added[['p1','p2', 'seasonId', 'shortName_x', 'shortName_y', 'minutes', 'teamId_x', 'role_name_x', 'role_name_y', 'areaName_x', 'areaName_y', 'factor1', 'factor2', 'df_jdi90', 'df_joi90','chemistry']]
-    df_teams = load_db_to_pd(sql_query="SELECT * FROM [Scouting_Raw].[dbo].[Wyscout_Teams]", db_name = 'Scouting_Raw')
-    df_filtered = df_filtered.merge(df_teams[['teamId', 'name']], left_on="teamId_x", right_on="teamId")
-    df1 = df_filtered[['p1', 'shortName_x', 'role_name_x', 'areaName_x', 'factor1', 'df_jdi90', 'df_joi90', 'chemistry']].rename(
-        columns={'p1': 'playerId', 'shortName_x': 'shortName', 'role_name_x': 'role_name','factor1':'factor', 'areaName_x': 'areaName'})
-    df1 = df1.drop_duplicates()
-    df2 = df_filtered[['p2', 'shortName_y', 'role_name_y', 'areaName_y', 'factor2', 'df_jdi90', 'df_joi90', 'chemistry']].rename(
-        columns={'p2': 'playerId', 'shortName_y': 'shortName', 'role_name_y': 'role_name', 'factor2':'factor', 'areaName_y': 'areaName'})
-    df2 = df2.drop_duplicates()
-    players_and_chemistry = pd.concat([df1, df2])
-
-    return players_and_chemistry
-
-def get_overview_frame_jdi(df_chem, df_players):
-    df_player_1_added = pd.merge(df_chem, df_players, left_on ='p1', right_on="playerId")
-    df_player_2_added = pd.merge(df_player_1_added, df_players, left_on ='p2', right_on="playerId")
-    df_filtered = df_player_2_added[['p1','p2', 'shortName_x', 'shortName_y', 'teamId_x', 'role_name_x', 'role_name_y', 'areaName_x', 'areaName_y', 'seasonId', 'jdi']]
-    df_teams = load_db_to_pd(sql_query="SELECT * FROM [Scouting_Raw].[dbo].[Wyscout_Teams]", db_name = 'Scouting_Raw')
-    df_filtered = df_filtered.merge(df_teams[['teamId', 'name']], left_on="teamId_x", right_on="teamId")
-    return df_filtered
-
-def get_overview_frame_jdi_oi(jdi_frame_t, df_players):
-    df_player_1_added = pd.merge(jdi_frame_t, df_players, left_on ='p1', right_on="playerId")
-    df_player_2_added = pd.merge(df_player_1_added, df_players, left_on ='p2', right_on="playerId")
-    cols = jdi_frame_t.columns
-    columns = np.concatenate(([ 'shortName_x', 'shortName_y', 'role_name_x', 'role_name_y'], cols))
-
-    df_filtered = df_player_2_added[columns]
-    #df_filtered = df_filtered.merge(share, left_on=['matchId','p2'], right_on=['matchId', 'playerId'])
-    #df_filtered = df_player_2_added[['p1','p2', 'shortName_x', 'shortName_y', 'teamId_x', 'role_name_x', 'role_name_y', 'areaName_x', 'areaName_y', 'jdi']]
-    #df_teams = load_db_to_pd(sql_query="SELECT * FROM [Scouting_Raw].[dbo].[Wyscout_Teams]", db_name = 'Scouting_Raw')
-    #df_filtered = df_filtered.merge(df_teams[['teamId', 'name']], left_on="teamId_x", right_on="teamId")
-    return df_filtered
-
-
-
-
-

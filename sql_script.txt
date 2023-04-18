@@ -95,7 +95,20 @@ FROM Scouting.dbo.Wyscout_Matches
 WHERE Scouting.dbo.Wyscout_Matches.seasonId in (187530)));
 
 
-SELECT  *
-INTO    sd_table_re
-FROM    (select sd.*, re.relatedEventId from sd_table as sd
-		left join related_events as re on sd.eventId = re.eventId) as new;
+    SELECT  *
+    INTO    sd_table_re
+    FROM    (select sd.*, re.relatedEventId from sd_table as sd
+            left join related_events as re on sd.eventId = re.eventId) as new;
+
+
+create view sd_pos_view as (
+SELECT t.* , me.playerId, me.teamId, p.possessionId, p.possessionEventIndex, v.sumVaep
+                                                             FROM [Scouting_Raw].[dbo].[Wyscout_Events_Possession] as p
+                                                             JOIN Scouting_Raw.dbo.Wyscout_Events_TypeSecondary as t ON t.eventId = p.eventId
+                                                             JOIN Scouting.dbo.Wyscout_Matches AS m ON m.matchId = t.matchId
+                                                             join scouting_raw_staging.dbo.Vaep as v on t.eventId = v.eventId
+                                                             join Scouting_Raw.dbo.Wyscout_Events_Main_Info as me on me.eventId = t.eventId
+                                                             where m.seasonId in (186210, 186212, 186213, 186215, 186222, 186229, 186230, 186232, 186237, 186243, 186248, 186249, 186250, 186265, 186267, 186290, 186291, 186352, 186353, 186370, 186393, 186693, 186707, 186720, 186810, 187141, 187142, 187276, 187322, 187373, 187374, 187376, 187379, 187389, 187401, 187409, 187420, 187425, 187450, 187452, 187453, 187475, 187483, 187502, 187511, 187523, 187526, 187528, 187530, 187533, 187534, 187555, 187844)
+
+
+)
