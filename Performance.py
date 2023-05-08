@@ -27,7 +27,7 @@ cluster_name = 'Cluster 0'
 cluster_df = cluster_to_dataframe(weight_dicts, cluster_name)
 plot_sorted_bar_chart(cluster_df)
 
-# calculating scores and visualizing
+# calculating scores and visualizing.
 dfp = calculate_weighted_scores2(df_vaep, weight_dicts)
 players = load_db_to_pd(sql_query = "SELECT * FROM Wyscout_Players", db_name='Scouting')
 players = players[['playerId', 'shortName', 'birthDate']]
