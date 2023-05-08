@@ -276,6 +276,7 @@ def opt_clus(dr):
     plt.gca().spines['right'].set_visible(False)
     plt.title('Evaluation Scores Per Number Of Clusters', fontsize=14, fontweight='bold')
     plt.grid(color='lightgray', alpha=0.25, zorder=1)
+    plt.savefig('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/clustMetrics.png')
     plt.show()
 
 
@@ -398,7 +399,6 @@ def get_weight_dicts2(X, cluster_labels, num_factors=10):
 
         weights = np.abs(fa.components_)
         weights /= np.sum(weights, axis=1, keepdims=True)
-
         cluster_weights = {}
         for i, feature_name in enumerate(feature_names):
             cluster_weights[feature_name] = np.mean(weights[:, i])
@@ -431,17 +431,20 @@ def plot_sorted_bar_chart(df):
 
 def plot_sorted_bar_chart_p(df, player):
     player_df = df[df['shortName'] == player]
+    player_df = player_df.loc[:, ~player_df.columns.str.contains('Trend')]
+    player_df = player_df.loc[:, ~player_df.columns.str.contains('ip_cluster')]
     weights = player_df.iloc[0, 5:]  # Get the weights for the player
     weights_sorted = weights.sort_values(ascending=False)  # Sort the weights in descending order
     weights_normalized = pd.to_numeric(weights_sorted) / float(max(weights_sorted))
     ax = weights_sorted.plot(kind='bar', figsize=(12, 6), color=cm.viridis_r(weights_normalized))
     ax.set_xlabel('Features')
-    ax.set_ylabel('Weights')
+    ax.set_ylabel('Score')
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
-    plt.title('Feature Weight Pareto for {}'.format(player), fontsize=14, fontweight='bold')
+    plt.title('Cluster Score Pareto for {}'.format(player), fontsize=14, fontweight='bold')
     plt.grid(color='lightgray', alpha=0.25, zorder=1)
     plt.tight_layout()
+    plt.savefig('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/perf/DR_perf1.png')
     plt.show()
 
 

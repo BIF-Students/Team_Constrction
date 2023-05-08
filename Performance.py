@@ -27,11 +27,12 @@ cluster_name = 'Cluster 0'
 cluster_df = cluster_to_dataframe(weight_dicts, cluster_name)
 plot_sorted_bar_chart(cluster_df)
 
+# calculating scores and visualizing
 dfp = calculate_weighted_scores2(df_vaep, weight_dicts)
 players = load_db_to_pd(sql_query = "SELECT * FROM Wyscout_Players", db_name='Scouting')
 players = players[['playerId', 'shortName', 'birthDate']]
 test = perf(dfp, players, mode='scaled', cluster=None, age=None) # use for presentation
-plot_sorted_bar_chart_p(test, "K. De Bruyne")
+plot_sorted_bar_chart_p(test, "Rafael Leão")
 
 # to be merged with transfer values from transfermarkt at a later point
 tm = load_db_to_pd(sql_query = "SELECT * FROM Wyscout_Transfermarkt_Players", db_name='Scouting_Raw')
