@@ -5,7 +5,7 @@ from chemistry.chemistry_helpers import *
 
 
 
-def get_jdi(player_shares, player_distances, df_net_oi, matches_all):
+def get_jdi(player_shares, player_distances, df_net_oi, matches_all, def_suc):
     df_player_share = player_shares.merge(player_shares, on=['matchId', 'teamId'], suffixes=(1, 2))
     df_player_share = df_player_share[df_player_share['playerId1'] != df_player_share['playerId2'] ]
     df_player_share['id'] = df_player_share.apply( lambda row: tuple(sorted([row['matchId'], row['playerId1'], row['playerId2']])), axis=1)
@@ -31,7 +31,7 @@ def get_jdi(player_shares, player_distances, df_net_oi, matches_all):
     mno = mno.drop(['teamId'], axis=1)
     mno = mno.merge(matches_noi_opp_m, on=['matchId', 'opposingTeam'])
     df_jdi = df_player_share_dist.merge(mno, on=['matchId', 'teamId'])
-    df_jdi_v2 = jdi_compute(df_jdi)
+    df_jdi_v2 = jdi_compute(df_jdi, def_suc)
     df_jdi_v2 = df_jdi_v2[['matchId', 'teamId', 'playerId1', 'playerId2', 'pairwise_involvement', 'jdi_zone_1', 'jdi_zone_2','jdi_zone_3', 'jdi_zone_4', 'jdi_zone_5', 'jdi_zone_6', 'jdi']]
     df_jdi_v2['p1'] = np.where(df_jdi_v2.playerId1 < df_jdi_v2.playerId2, df_jdi_v2.playerId1, df_jdi_v2.playerId2)
     df_jdi_v2['p2'] = np.where(df_jdi_v2.playerId2 > df_jdi_v2.playerId1, df_jdi_v2.playerId2, df_jdi_v2.playerId1)

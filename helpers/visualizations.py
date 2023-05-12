@@ -369,3 +369,13 @@ def find_zone_chemistry(row):
 
     return s
 
+
+#Shows roc curve for each class and labels the class and teh auc score
+def plot_ROC_curve(model, xtrain, ytrain, xtest, ytest):
+        # Creating visualization with the readable labels
+        visualizer = ROCAUC(model)
+
+        # Fitting to the training data first then scoring with the test data
+        visualizer.fit(xtrain, ytrain)
+        visualizer.score(xtest, ytest)
+        visualizer.show()

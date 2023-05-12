@@ -9,25 +9,23 @@ def getOi(df):
 
     # Add column with zones related to each action
     df_vaep_zone_match['zone'] = df_vaep_zone_match.apply(lambda row: find_zone_chemistry(row), axis=1)
-
     df_vaep_zone_match = df_vaep_zone_match[(~df_vaep_zone_match.typePrimary.isin(
         ['interception', 'clearence', 'goal_kick', 'infraction', 'offside', 'shot_against']))]
-
 
     # Method used to make zone column to columns marking each zone and computing vaep per action in a particular zone
     df_zones_vaep = find_zones_and_vaep(df_vaep_zone_match)
 
     df_20_21 = df_zones_vaep[df_zones_vaep['seasonId'] == min(df_zones_vaep.seasonId)]
-    df_21_22 = df_zones_vaep[df_zones_vaep['seasonId'] == max(df_zones_vaep.seasonId)]
 
-    #Sum values per game per zone
+    df_21_22 = df_zones_vaep[df_zones_vaep['seasonId'] == max(df_zones_vaep.seasonId)]
+    
     def_zones_vaep_team_season = df_20_21.groupby(['teamId', 'seasonId'], as_index=False).agg({
                                                                         'zone_1':'mean',
                                                                         'zone_2':'mean',
                                                                         'zone_3': 'mean',
                                                                         'zone_4': 'mean',
                                                                         'zone_5': 'mean',
-                                                                       'zone_6': 'mean'})
+                                                                        'zone_6': 'mean'})
     def_zones_vaep_team_season = def_zones_vaep_team_season.rename(columns = {
                                                                    'zone_1': 'zone_1_prior_avg' ,
                                                                    'zone_2': 'zone_2_prior_avg' ,
@@ -87,7 +85,6 @@ def getOi_v2(df):
     print('asd')
     df_zones_vaep = find_zones_and_vaep(df_vaep_zone_match)
 
-    print('asd')
     df_20_21 = df_zones_vaep[df_zones_vaep['seasonId'] == min(df_zones_vaep.seasonId)]
     print('asd')
     df_21_22 = df_zones_vaep[df_zones_vaep['seasonId'] == max(df_zones_vaep.seasonId)]

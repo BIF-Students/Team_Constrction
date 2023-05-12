@@ -4,17 +4,18 @@ import math
 from sklearn.preprocessing import MinMaxScaler
 
 from helpers.student_bif_code import load_db_to_pd
+from datetime import date, datetime
 
 
 def find_zones_and_vaep(df):
     # create dummy variables for the zone column
-    zone_dummies = pd.get_dummies(df['zone'], prefix='zone')
+    df['zone_1'] = np.where(df.zone == 1, df.sumVaep, 0)
+    df['zone_2'] = np.where(df.zone == 2, df.sumVaep, 0)
+    df['zone_3'] = np.where(df.zone == 3, df.sumVaep, 0)
+    df['zone_4'] = np.where(df.zone == 4, df.sumVaep, 0)
+    df['zone_5'] = np.where(df.zone == 5, df.sumVaep, 0)
+    df['zone_6'] = np.where(df.zone == 6, df.sumVaep, 0)
 
-    # multiply the dummy variables by the sumVaep column
-    zone_vaep = zone_dummies.mul(df['sumVaep'], axis=0)
-
-    # concatenate the original dataframe with the zone_vaep dataframe
-    df = pd.concat([df, zone_vaep], axis=1)
     return df
 
 
@@ -40,6 +41,29 @@ def find_zone_chemistry(row):
         s = 0  # Assign s to 0 if the (x, y) pair doesn't belong to any zone
 
     return s  # Return the zone number that the (x, y) pair belongs to
+def find_zone_chemistry_pred(row):
+    s = ""  # Initialize variable s to an empty string
+    x = (row['spatial_pos_y'])[0]  # Extract the value of x from the input row
+    y = (row['spatial_pos_y'])[1]  # Extract the value of y from the input row
+
+    # Check which zone the (x, y) pair belongs to
+    if x >= 0 and x < 50 and y >= 0 and y < 33:
+        s = 1  # Assign s to 1 if the pair belongs to zone 1
+    elif x >= 50 and x <= 100 and y >= 0 and y < 33:
+        s = 4  # Assign s to 4 if the pair belongs to zone 4
+    elif x >= 0 and x < 50 and y >= 33 and y < 66:
+        s = 2  # Assign s to 2 if the pair belongs to zone 2
+    elif x >= 50 and x <= 100 and y >= 33 and y < 66:
+        s = 5  # Assign s to 5 if the pair belongs to zone 5
+    elif x >= 0 and x < 50 and y >= 66 and y <= 100:
+        s = 3  # Assign s to 3 if the pair belongs to zone 3
+    elif x >= 50 and x <= 100 and y >= 66 and y <= 100:
+        s = 6  # Assign s to 6 if the pair belongs to zone 6
+    else:
+        s = 0  # Assign s to 0 if the (x, y) pair doesn't belong to any zone
+
+    return s  # Return the zone number that the (x, y) pair belongs to
+
 
 def find_zone_chemistry_v2(row):
     s = ""
@@ -351,18 +375,34 @@ def compute_jdi (df):
     df['jdi_zone_6'] = np.where(df.zone_6_team > 3, ((df.zone_6_net_oi * df.zone_6_imp1) / df.distance ) + ((df.zone_6_team* df.zone_6_imp2) / df.distance)*(df.zone_6_team/df.zones_total), 0)
 '''
 
-def jdi_compute(df):
+def create_def_succes_frame(ground_duels, air_duels):
+    ground_duels_suc_rec = ground_duels[['eventId', 'matchId', 'groundDuel_recoveredPossession']]
+    ground_duels_suc_stop = ground_duels[['eventId', 'matchId', 'groundDuel_stoppedProgress']]
+    ground_duels_suc_rec_1 = (ground_duels_suc_rec[ground_duels_suc_rec['groundDuel_recoveredPossession'] == True]).rename(columns = {'groundDuel_recoveredPossession': 'def_action'})
+    ground_duels_suc_stop_1 = (ground_duels_suc_stop[ground_duels_suc_stop['groundDuel_stoppedProgress'] == True]).rename(columns = {'groundDuel_stoppedProgress': 'def_action'})
+    air_duels_suc = (air_duels[(air_duels['aerialDuel_firstTouch'] == True)]).rename(columns={'aerialDuel_firstTouch': 'def_action'})
+    df_succes_tot = pd.concat([ground_duels_suc_rec_1, ground_duels_suc_stop_1, air_duels_suc[['eventId', 'matchId', 'def_action']] ])
+    df_succes_tot['def_action'] = df_succes_tot['def_action'].replace(True, 1)
+    return df_succes_tot
+
+
+
+def jdi_compute(df, def_suc):
     df['zones_total'] = np.sum(df[['zone_1_team', 'zone_2_team', 'zone_3_team', 'zone_4_team', 'zone_5_team', 'zone_6_team']], axis=1)
     df['p1_sum'] = np.sum(df[['zone_1_pl1', 'zone_2_pl1', 'zone_3_pl1', 'zone_4_pl1', 'zone_5_pl1', 'zone_6_pl1']], axis=1)
     df['p2_sum'] = np.sum(df[['zone_1_pl2', 'zone_2_pl2', 'zone_3_pl2', 'zone_4_pl2', 'zone_5_pl2', 'zone_6_pl2']], axis=1)
     df['pairwise_involvement'] = ((df.p1_sum +df.p2_sum)/df.zones_total)
-    df['jdi_zone_1'] = np.where(df.zone_1_team > 10, (((((((df.zone_6_net_oi * df.zone_1_imp1)) + ((df.zone_6_net_oi* df.zone_1_imp2))))))), 0)
-    df['jdi_zone_2'] = np.where(df.zone_2_team > 10, ((((((df.zone_5_net_oi * df.zone_2_imp1) ) + ((df.zone_5_net_oi* df.zone_2_imp2)))))), 0)
-    df['jdi_zone_3'] = np.where(df.zone_3_team > 10, ((((((df.zone_4_net_oi * df.zone_3_imp1) ) + ((df.zone_4_net_oi* df.zone_3_imp2)))))), 0)
-    df['jdi_zone_4'] = np.where(df.zone_4_team > 10, ((((((df.zone_3_net_oi * df.zone_4_imp1)) + ((df.zone_3_net_oi* df.zone_4_imp2)))))), 0)
-    df['jdi_zone_5'] = np.where(df.zone_5_team > 10, ((((((df.zone_2_net_oi * df.zone_5_imp1)) + ((df.zone_2_net_oi* df.zone_5_imp2)))))), 0)
-    df['jdi_zone_6'] = np.where(df.zone_6_team > 10, ((((((df.zone_1_net_oi * df.zone_6_imp1)) + ((df.zone_1_net_oi* df.zone_6_imp2)))))), 0)
-    df['jdi'] = (df.jdi_zone_1 + df.jdi_zone_2 + df.jdi_zone_3 + df.jdi_zone_4 + df.jdi_zone_5 + df.jdi_zone_6) * df.pairwise_involvement
+    df['jdi_zone_1'] = np.where(df.zone_1_team > 15, (((((((df.zone_6_net_oi * df.zone_1_imp1)) + ((df.zone_6_net_oi* df.zone_1_imp2))))))), 0)
+    df['jdi_zone_2'] = np.where(df.zone_2_team > 15, ((((((df.zone_5_net_oi * df.zone_2_imp1)) + ((df.zone_5_net_oi* df.zone_2_imp2)))))), 0)
+    df['jdi_zone_3'] = np.where(df.zone_3_team > 15, ((((((df.zone_4_net_oi * df.zone_3_imp1)) + ((df.zone_4_net_oi* df.zone_3_imp2)))))), 0)
+    df['jdi_zone_4'] = np.where(df.zone_4_team > 15, ((((((df.zone_3_net_oi * df.zone_4_imp1)) + ((df.zone_3_net_oi* df.zone_4_imp2)))))), 0)
+    df['jdi_zone_5'] = np.where(df.zone_5_team > 15, ((((((df.zone_2_net_oi * df.zone_5_imp1)) + ((df.zone_2_net_oi* df.zone_5_imp2)))))), 0)
+    df['jdi_zone_6'] = np.where(df.zone_6_team > 15, ((((((df.zone_1_net_oi * df.zone_6_imp1)) + ((df.zone_1_net_oi* df.zone_6_imp2)))))), 0)
+    df = df.merge(def_suc, left_on=['playerId1', 'matchId'], right_on= ['playerId', 'matchId'], how='left')
+    df = df.merge(def_suc, left_on=['playerId2', 'matchId'], right_on= ['playerId', 'matchId'], how='left')
+    df['def_action_x'] = df['def_action_x'].fillna(0)
+    df['def_action_y'] = df['def_action_y'].fillna(0)
+    df['jdi'] = (((df.jdi_zone_1 + df.jdi_zone_2 + df.jdi_zone_3 + df.jdi_zone_4 + df.jdi_zone_5 + df.jdi_zone_6) * (df.def_action_x + df.def_action_y)) /df.distance)
     return df
 
 def jdi_computed_v2(df):
@@ -401,7 +441,19 @@ def generate_chemistry_ability_v2(df):
     df2  = df2.drop_duplicates()
     players_and_chemistry = pd.concat([df1, df2])
     players_and_chemistry_season = players_and_chemistry.groupby(['playerId', 'shortName',  'role_name' , 'areaName'], as_index=False)['chemistry'].mean().reset_index(drop=True)
+    players_and_chemistry_season = players_and_chemistry_season.rename(columns = {'chemistry': 'chem_ability'})
     return players_and_chemistry_season
+
+def generate_chemistry_ability_v3(df):
+    df1 = (df[[ 'seasonId', 'p1', 'df_jdi90', 'df_joi90', 'chemistry']]).rename(columns ={'p1': 'playerId'})
+    df1  = df1.drop_duplicates()
+    df2 = (df[['seasonId', 'p2', 'df_jdi90', 'df_joi90', 'chemistry']]).rename(columns ={'p2': 'playerId'})
+    df2  = df2.drop_duplicates()
+    players_and_chemistry = pd.concat([df1, df2])
+    players_and_chemistry_season = (players_and_chemistry.groupby(['playerId', 'seasonId'], as_index=False)['chemistry'].mean().reset_index(drop=True)).rename(columns = {'chemistry': 'chem_ability'})
+    return players_and_chemistry_season
+
+
 
 
 
@@ -601,7 +653,7 @@ def process_for_jdi (df_net_oi, matches_all, distances_df, df_player_share):
     return df_share_dist_final
 
 
-def pairwise_playing_time (df):
+def pairwise_playing_time(df):
     # Merge the DataFrame with itself based on the matchId and teamId columns
     paired = df.merge(df, on=(['matchId', 'teamId']), how='inner', suffixes=('1', '2'))
     # Remove any rows where playerId1 is equal to playerId2
@@ -621,7 +673,6 @@ def pairwise_playing_time (df):
     paired = paired.drop_duplicates()
     # Group the DataFrame by teamId, p1, and p2, and sum the minutes column
     paired = paired.groupby(['teamId', 'p1','p2'], as_index=False )['minutes'].sum()
-
     return paired
 
 
@@ -641,12 +692,12 @@ def compute_normalized_values(df_joi_game, df_jdi_game, df_pairwise_time):
 
     # Compute the normalized value of 'joi' and 'jdi' by dividing them by the norm90 value
     df_merged['winners90'] =  (df_merged.assists + df_merged.goals) * 90/df_merged.minutes
-    df_merged['df_joi90'] = (df_merged.joi * 90/df_merged.minutes) * df_merged.winners90
+    df_merged['df_joi90'] = (df_merged.joi * 90/df_merged.minutes) #* df_merged.winners90
     df_merged['df_jdi90'] = df_merged.jdi * 90/df_merged.minutes
     df_merged = df_merged[['p1', 'p2', 'teamId', 'joi', 'jdi', 'minutes', 'df_jdi90', 'df_joi90', 'winners90']]
 
     # Filter out player pairs who have played less than 300 minutes together
-    df_merged = df_merged.query('minutes >= 900')
+    df_merged = df_merged.query('minutes >= 500')
     return df_merged
 
 def get_TVP(df_vaep, squad, stamps):
@@ -671,22 +722,22 @@ def get_TVP(df_vaep, squad, stamps):
     # Create a new dataframe 'frame' with columns and data from 'player_TVG'
     frame = pd.DataFrame(data=player_TVG, columns=['playerId', 'matchId', 'teamId', 'minutes_played', 'seconds_in_minute', 'in_game_team_vaep'])
     # Group 'frame' dataframe by 'teamId' and 'playerId' and calculate mean of 'in_game_team_vaep' for each group
-    team_vaep_p_in_game = frame.groupby(['teamId', 'playerId'], as_index=False)['in_game_team_vaep'].mean()
-
-    # Return the new dataframe
+    team_vaep_p_in_game = frame.groupby(['teamId', 'playerId'], as_index=False).agg({'minutes_played': 'sum', 'seconds_in_minute': 'sum', 'in_game_team_vaep': 'sum'})
+    team_vaep_p_in_game['seconds_to_minutes'] = team_vaep_p_in_game['seconds_in_minute'] / 60
+    team_vaep_p_in_game['total_minutes'] = team_vaep_p_in_game['minutes_played'] + team_vaep_p_in_game['seconds_to_minutes']
+    team_vaep_p_in_game['in_game_team_vape_per_90'] = team_vaep_p_in_game['in_game_team_vaep'] / (team_vaep_p_in_game['total_minutes'] / 90)
     return team_vaep_p_in_game
 
 
-def get_league_vaep(df):
-    df = df.groupby(['matchId'], as_index =False)['sumVaep'].sum()#Compute vaep values for eacg game in a season
-    league_vaep =  df['sumVaep'].mean() # compute mean of match vaep values
-    return league_vaep #Return league vaep
 
-def prepare_for_scaling(df, squad, stamps):
+
+
+
+def prepare_for_scaling(df, squad, stamps, match_duration):
     tvp = get_TVP(df, squad, stamps)
-    league_avg_vaep = get_league_vaep(df)
-    tvp['league_vaep'] = league_avg_vaep  # Place league vaep as column
-    tvp['factor'] = tvp['in_game_team_vaep'] / tvp['league_vaep']  # Compute global factor values
+    league_avg_vaep_per_90 = get_league_vaep(df, match_duration)
+    tvp['league_vaep_per_90'] = league_avg_vaep_per_90  # Place league vaep as column
+    tvp['factor'] = tvp['in_game_team_vape_per_90'] / tvp['league_vaep_per_90']  # Compute global factor values
 
     merged = tvp.merge(tvp, on='teamId', suffixes=('1', '2'))  # Pair players
     merged = merged[['teamId', 'playerId1', 'playerId2', 'factor1', 'factor2']]
@@ -695,7 +746,10 @@ def prepare_for_scaling(df, squad, stamps):
     merged = merged[(merged.playerId1 != merged.playerId2) & (merged.playerId1 < merged.playerId2)]
     merged = merged.rename(columns={'playerId1': 'p1', 'playerId2': 'p2'})  # Rename player columns
     merged = merged.sort_values(by=['p1', 'p2', 'teamId'])  # Sort dataframe in ascending order(default)
+    merged['combined_factor'] = merged['factor1'] + merged['factor2']
     return merged
+
+
 
 #def scale()
 
@@ -710,34 +764,70 @@ def add_pos(df, df_players):
 
 def get_weighted_chemistry(df_chem):
     df_chem['chemistry'] = np.where((df_chem.role_name_x == 'Forward') & (df_chem.role_name_y == 'Forward'),
-                                    ((df_chem.df_joi90 * 0.75) * (df_chem.df_jdi90 * 0.25)) * (
-                                                df_chem.factor1 + df_chem.factor2),
+                                    ((df_chem.df_joi90 * 0.75) + (df_chem.df_jdi90 * 0.25)) * (df_chem.combined_factor),
                                     np.where((df_chem.role_name_x == 'Defender') & (df_chem.role_name_y == 'Defender'),
-                                             ((df_chem.df_joi90 * 0.25) * (df_chem.df_jdi90 * 0.75)) * (
-                                                         df_chem.factor1 + df_chem.factor2),
-                                             np.where(((df_chem.role_name_x == 'Midfielder') & (
-                                                         df_chem.role_name_y == 'Forward')) |
-                                                      ((df_chem.role_name_x == 'Forward') & (
-                                                                  df_chem.role_name_y == 'Midfielder')),
-                                                      ((df_chem.df_joi90 * 0.60) * (df_chem.df_jdi90 * 0.40)) * (
-                                                                  df_chem.factor1 + df_chem.factor2),
-                                                      np.where(((df_chem.role_name_x == 'Midfielder') & (
-                                                                  df_chem.role_name_y == 'Defender')) |
-                                                               ((df_chem.role_name_x == 'Defender') & (
-                                                                           df_chem.role_name_y == 'Midfielder')),
-                                                               ((df_chem.df_joi90 * 0.40) * (
-                                                                           df_chem.df_jdi90 * 0.60)) * (
-                                                                           df_chem.factor1 + df_chem.factor2),
-                                                               ((df_chem.df_joi90 * 0.50) * (
-                                                                           df_chem.df_jdi90 * 0.50)) * (
-                                                                           df_chem.factor1 + df_chem.factor2)
+                                             ((df_chem.df_joi90 * 0.25) + (df_chem.df_jdi90 * 0.75)) * (df_chem.combined_factor),
+                                             np.where(((df_chem.role_name_x == 'Midfielder') & (df_chem.role_name_y == 'Forward'))
+                                             | ((df_chem.role_name_x == 'Forward') & ( df_chem.role_name_y == 'Midfielder')),
+                                                      ((df_chem.df_joi90 * 0.60) + (df_chem.df_jdi90 * 0.40)) * (df_chem.combined_factor),
+                                                      np.where(((df_chem.role_name_x == 'Midfielder') & (df_chem.role_name_y == 'Defender')) |
+                                                               ((df_chem.role_name_x == 'Defender') & (df_chem.role_name_y == 'Midfielder')),
+                                                               ((df_chem.df_joi90 * 0.40) + (df_chem.df_jdi90 * 0.60)) * (df_chem.combined_factor),
+                                                               ((df_chem.df_joi90 * 0.50) + ( df_chem.df_jdi90 * 0.50)) * (df_chem.combined_factor)
                                                                )
                                                       )
                                              )
                                     )
     return df_chem
 
+def get_weighted_chemistry_t(df_chem):
+    df_chem['chemistry'] = np.where((df_chem.role_name_x == 'Forward') & (df_chem.role_name_y == 'Forward'),
+                                    ((df_chem.df_joi90 * 0.75) + (df_chem.df_jdi90 * 0.25)) * (df_chem.factor1 + df_chem.factor2),
+                                    np.where((df_chem.role_name_x == 'Defender') & (df_chem.role_name_y == 'Defender'),
+                                             ((df_chem.df_joi90 * 0.25) + (df_chem.df_jdi90 * 0.75)) * (df_chem.factor1 + df_chem.factor2),
+                                             np.where(((df_chem.role_name_x == 'Midfielder') & (
+                                                         df_chem.role_name_y == 'Forward')) |
+                                                      ((df_chem.role_name_x == 'Forward') & (df_chem.role_name_y == 'Midfielder')),
+                                                      ((df_chem.df_joi90 * 0.60) + (df_chem.df_jdi90 * 0.40)) * (df_chem.factor1 + df_chem.factor2),
+                                                      np.where(((df_chem.role_name_x == 'Midfielder') & (
+                                                                  df_chem.role_name_y == 'Defender')) |
+                                                               ((df_chem.role_name_x == 'Defender') & ( df_chem.role_name_y == 'Midfielder')),
+                                                               ((df_chem.df_joi90 * 0.40) + (df_chem.df_jdi90 * 0.60)) * (df_chem.factor1 + df_chem.factor2),
+                                                               ((df_chem.df_joi90 * 0.50) + (df_chem.df_jdi90 * 0.50)) * (df_chem.factor1 + df_chem.factor2)
+                                                               )
+                                                      )
+                                             )
+                                    )
+    return df_chem
+
+
 def get_chemistry(df_factor_values, df_joi90_jdi90, df_players_teams):
+    dfm_id = df_factor_values[['p1', 'p2', 'teamId', 'seasonId']]  # Extract columns that should not be scaled
+    mask_m = ~df_factor_values.columns.isin(['p1', 'p2', 'teamId', 'seasonId'])  # Extract column names for scaling
+    df_scale_m = df_factor_values.loc[:, mask_m]
+    scale1 = MinMaxScaler(feature_range=(0.8, 1.2 ))
+    df_scale_m[df_scale_m.columns] = scale1.fit_transform(df_scale_m[df_scale_m.columns])  # Perform min/max scaling
+    df_factors_scaled = pd.concat([dfm_id.reset_index(drop=True), df_scale_m.reset_index(drop=True)], axis=1)
+
+    # Merge with joi and jdi dataframes
+    dfc = pd.merge(df_joi90_jdi90, df_factors_scaled, on=['teamId', 'p1', 'p2', 'seasonId'], how='inner')
+    dfc = dfc.sort_values(by=['p1', 'p2', 'teamId'])  # Sort dataframe in ascending order(default)
+    df_id = dfc[['p1', 'p2', 'teamId','seasonId', 'minutes', 'factor1', 'factor2', 'combined_factor']]  # Extract columns that should not be scaled
+    mask = ~dfc.columns.isin( ['p1', 'p2', 'teamId', 'seasonId', 'minutes', 'factor1', 'factor2', 'combined_factor'])  # Extract column names for scaling
+    df_scale = dfc.loc[:, mask]  # Extract columns for scaling
+
+    scale2 = MinMaxScaler()  # Initiate sclaing instance
+    df_scale[df_scale.columns] = scale2.fit_transform(df_scale[df_scale.columns])  # Perform min/max scaling
+    # Re-establosh dataframe with id's
+    df_chemistry = pd.concat([df_id.reset_index(drop=True), df_scale.reset_index(drop=True)], axis=1)
+
+    df_chemistry_pos = add_pos(df_chemistry, df_players_teams)
+    # Compute chemistry columns based on formula
+    df_chem_final = get_weighted_chemistry(df_chemistry_pos)
+
+    return df_chem_final
+
+def get_chemistry_t(df_factor_values, df_joi90_jdi90, df_players_teams):
     dfm_id = df_factor_values[['p1', 'p2', 'teamId', 'seasonId']]  # Extract columns that should not be scaled
     mask_m = ~df_factor_values.columns.isin(['p1', 'p2', 'teamId', 'seasonId'])  # Extract column names for scaling
     df_scale_m = df_factor_values.loc[:, mask_m]
@@ -759,7 +849,7 @@ def get_chemistry(df_factor_values, df_joi90_jdi90, df_players_teams):
 
     df_chemistry_pos = add_pos(df_chemistry, df_players_teams)
     # Compute chemistry columns based on formula
-    df_chem_final = get_weighted_chemistry(df_chemistry_pos)
+    df_chem_final = get_weighted_chemistry_t(df_chemistry_pos)
 
     return df_chem_final
 
@@ -808,6 +898,78 @@ def get_overview_frame_jdi_oi(jdi_frame_t, df_players):
     #df_teams = load_db_to_pd(sql_query="SELECT * FROM [Scouting_Raw].[dbo].[Wyscout_Teams]", db_name = 'Scouting_Raw')
     #df_filtered = df_filtered.merge(df_teams[['teamId', 'name']], left_on="teamId_x", right_on="teamId")
     return df_filtered
+
+def get_age(birthdate):
+    today = date.today()
+    birthdate_formatted = datetime.strptime(birthdate, '%Y-%m-%d').date()
+    age = today.year - birthdate_formatted.year - ((today.month, today.day) < (birthdate_formatted.month, birthdate_formatted.day))
+    return age
+
+
+def restructure_matches(df):
+    df1 = df[['seasonId', 'competitionId', 'home_teamId']]
+    df2 = df[['seasonId', 'competitionId', 'away_teamId']]
+    df1 = df1.rename(columns={'home_teamId': 'teamId'})
+    df2 = df1.rename(columns={'away_teamId': 'teamId'})
+    df_all = pd.concat([df1, df2])
+    df_all = df_all.drop_duplicates()
+    return df_all
+
+def find_countries(df):
+    fromCountry_x = df['areaName_x'].unique()
+    fromCountry_y = df['areaName_y'].unique()
+    all = fromCountry_x + fromCountry_y
+    all_distinct = all.uniwue()
+
+
+
+
+def get_league_vaep(df, match_duration):
+    vaep = df['sumVaep'].sum()
+    total_minutes = match_duration['minutes'].sum()
+    league_vaep_per_90 = vaep/(total_minutes/90)
+    return league_vaep_per_90
+
+def get_adaptability(df):
+    print('tester')
+
+def get_new_arrivals(df_transfers, df_chem):
+    df_transfers = df_transfers[df_transfers['startDate'] != '0000-00-00']
+    df_transfers['date'] = df_transfers.apply(lambda row: (datetime.strptime(row['startDate'], '%Y-%m-%d').date()).year, axis = 1)
+    df_transfers = df_transfers[(df_transfers['date'] > 2020) & (df_transfers['date'] < 2023)]
+    df_arrivals_1 = (df_transfers.merge(df_chem, left_on='playerId', right_on='p1')).rename(columns = {'playerId': 'arrival'})
+    df_arrivals_2 = df_transfers.merge(df_chem, left_on='playerId', right_on='p2' ).rename(columns = {'playerId': 'arrival'})
+    df_arrivals = pd.concat([df_arrivals_1, df_arrivals_2])
+
+    return df_arrivals
+
+def get_chem_profficiency(arrivals, chemistries):
+    test_lists = []
+    arrival_ids = arrivals['arrival'].unique()
+    training_set = chemistries[~((chemistries['p1'].isin(arrival_ids)) | (chemistries['p2'].isin(arrival_ids)))]
+    unique_training_ids = pd.concat([training_set['p1'], training_set['p2']]).unique()
+    training_lists = []
+    for id in arrival_ids:
+        df_a = chemistries[(chemistries['p1'] == id) | (chemistries['p2'] == id)]
+        for i, row in df_a.iterrows():
+            adap_rows = df_a[df_a.index != i]
+            adpt_p = adap_rows['chemistry'].mean()
+            new_row = [id, adpt_p, row['chemistry'], row['seasonId'],row['teamId'],row['df_joi90'], row['df_jdi90'], row['p1'] if id != row['p1'] else row['p2']]
+            test_lists.append(new_row)
+    for e_id in unique_training_ids:
+        df_a_2 = training_set[(training_set['p1'] == e_id) | (training_set['p2'] == e_id)]
+        e_id_chem_ability = df_a_2['chemistry'].mean()
+        training_lists.append([e_id, e_id_chem_ability])
+
+    test_set = pd.DataFrame(test_lists, columns=['new_player', 'chem_coef', 'chemistry','seasonId','teamId','df_joi90', 'df_jdi90', 'existing_player'])
+    ability_set = pd.DataFrame(training_lists, columns=['player', 'chem_coef'])
+    test_set_abilities = test_set.merge(ability_set, left_on='existing_player', right_on='player')
+    training_set_final_1 = training_set.merge(ability_set, left_on='p1', right_on='player')
+    training_set_final_2 = training_set_final_1.merge(ability_set, left_on='p2', right_on='player')
+    return training_set_final_2, test_set_abilities
+
+
+
 
 
 

@@ -2,6 +2,7 @@ import math
 
 import pandas as pd
 import numpy as np
+from sklearn.metrics import f1_score, cohen_kappa_score, accuracy_score, classification_report
 from sklearn.mixture import GaussianMixture
 import matplotlib.pyplot as plt
 from sklearn import metrics
@@ -323,8 +324,11 @@ def opp_space(df, cols):
             df = df.drop([i], axis=1)
     return df
 
+def evaluate_model(target_pred, target_test, modelType):
+    f1 = f1_score(target_test, target_pred, average='weighted')
+    cohen_kappa = cohen_kappa_score(target_test, target_pred)
+    print('Model accuracy score ' + modelType + ': {0:0.4f}'. format(accuracy_score(target_test, target_pred)))
+    print('F1 Score: ', "%.2f" % (f1*100))
+    print('Cohen Kappa: ', "%.2f" % cohen_kappa)
+    #print(classification_report(target_test, target_pred))
 
-
-(3/4) * 3
-
-(math.pow(3,2)/4)

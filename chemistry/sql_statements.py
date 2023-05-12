@@ -47,10 +47,7 @@ def load_data(competitionIds):
                                                      "WHERE Scouting.dbo.Wyscout_Matches.seasonId in %s) and goal = 1" % seasons,
                                                       db_name='Scouting_Raw')
 
-    df_possesion_sequences_ordered = load_db_to_pd(sql_query="SELECT pos.*, competitionId, seasonId "
-                                                             "from sd_table_pos as pos "
-                                                             "join Scouting_Raw.dbo.Wyscout_Matches_All as m "
-                                                             "on pos.matchId = m.matchId where competitionId in %s" % competitionIds_str,
+    df_possesion_sequences_ordered = load_db_to_pd(sql_query="SELECT pos.*, competitionId, seasonId from sd_table_pos as pos join Scouting_Raw.dbo.Wyscout_Matches_All as m on pos.matchId = m.matchId where competitionId in %s" % competitionIds_str,
                                                               db_name='Development')
 
 
@@ -89,6 +86,38 @@ def get_sd_table(competitionIds):
                                  "where t.seasonId in "
                                  "(SELECT distinct(seasonId) FROM [Development].[dbo].[sd_tableF] as t"
                                  " where t.competitionId in %s)" % competitionIds_str,
+                                  db_name='Development')
+    return df
+
+def get_all_players():
+    df = load_db_to_pd(sql_query="SELECT * FROM [Scouting_Raw].[dbo].[Wyscout_Players]", db_name='Scouting_Raw')
+    return df
+def get_all_teams():
+    df = load_db_to_pd(sql_query="SELECT * FROM [Scouting_Raw].[dbo].[Wyscout_Teams]", db_name='Scouting_Raw')
+    return df
+def get_players_and_teams():
+    df = load_db_to_pd(sql_query = "SELECT * FROM [Scouting_Raw].[dbo].[Wyscout_Players] as p join Wyscout_Teams as t on t.teamId = p.currentTeamId", db_name='Scouting_Raw')
+    return df
+
+def get_transfers():
+    df = load_db_to_pd(sql_query = "SELECT * FROM [Scouting_Raw].[dbo].[Wyscout_Player_Transfer]", db_name='Scouting_Raw')
+    return df
+
+def get_seasons_and_competitions():
+    df = load_db_to_pd(sql_query = "SELECT * FROM [Scouting_Raw].[dbo].[Wyscout_Seasons]", db_name='Scouting_Raw')
+    return df
+
+def get_all_matches():
+    df = load_db_to_pd( sql_query="select * from [Scouting_Raw].[dbo].[Wyscout_Matches_All]", db_name='Development')
+    return df
+
+def get_pos():
+    df_possesion_sequences_ordered = load_db_to_pd(
+        sql_query="SELECT pos.*, competitionId, seasonId from sd_table_pos as pos join Scouting_Raw.dbo.Wyscout_Matches_All as m on pos.matchId = m.matchId", db_name='Development')
+    return df_possesion_sequences_ordered
+
+def get_sd_table(competitionIds):
+    df = load_db_to_pd(sql_query="SELECT * FROM [Development].[dbo].[sd_tableF] as t",
                                   db_name='Development')
     return df
 
