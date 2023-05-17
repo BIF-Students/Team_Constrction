@@ -37,6 +37,13 @@ air_suc = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebo
 def_suc_tot = create_def_succes_frame(def_suc, air_suc)
 off_suc = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/off_success.csv", decimal=",", sep=(','))
 
+comp_ids = sd_table.competitionId.unique()
+seasons = []
+for i in comp_ids:
+    df_a = sd_table[sd_table['competitionId'] == i]
+    seasons.append(max(df_a.seasonId))
+
+
 
 df_successes = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/df_success.csv")
 
@@ -267,7 +274,6 @@ def generate_chemistry(df_keepers, squad, league_df, pos, df_matches_all, def_su
     df_players_teams_c = df_players_teams[df_players_teams['teamId'].isin(df_joi90_and_jdi90['teamId'].unique())]
     df_chemistry = (get_chemistry(ready_for_scaling, df_joi90_and_jdi90, df_players_teams_c))[['p1', 'p2', 'teamId', 'seasonId', 'minutes', 'factor1', 'factor2', 'combined_factor', 'joi', 'jdi', 'df_jdi90', 'df_joi90', 'winners90', 'chemistry']]
     return df_chemistry, df_process_21_22
-print("hej")
 def prepare_data_for_chemistry(df_keepers, squad, league_df, pos, df_matches_all, def_suc):
     #Remove keepers from all used dataframes
     keepers = (df_keepers.playerId.values).tolist()
@@ -373,7 +379,9 @@ def plot_relationship(df, label):
     ax2.scatter(df['chemistry'], df['expected_losses'])
     ax2.set_xlabel('Chemistry')
     ax2.set_ylabel('Expected Losses')
-
+    plt.gca().spines['top'].set_visible(False)
+    plt.gca().spines['right'].set_visible(False)
+    plt.grid(color='lightgray', alpha=0.25, zorder=1)
     # Show the figure
     plt.show()
 
@@ -671,6 +679,30 @@ league_df_ger = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Sk
 
 
 df_dk, df_process_21_22_dk = generate_chemistry(df_keepers, df_squad, league_df_dk, df_pos, df_matches_all, def_suc_tot)
+df_dk_bif = df_dk[df_dk['teamId'] == 7453]
+df_overview_bif = get_overview_frame(df_dk_bif, df_players_teams)
+df_overview_bif = df_overview_bif.loc[:, [ 'seasonId', 'shortName_x', 'shortName_y', 'df_jdi90', 'df_joi90', 'chemistry']]
+df_overview_bif = df_overview_bif.loc[:, [ 'p1', 'p2', 'minutes', 'seasonId', 'shortName_x', 'shortName_y', 'df_jdi90', 'df_joi90', 'chemistry']]
+
+print("asd")
+bif_events = sd_table[(sd_table['seasonId'] == 187483) & (sd_table['teamId'] == 7453) ]
+bif_players = bif_events.playerId.unique()
+
+def get_avg_chenm_p(df):
+    p1 =( df[['p1', 'chemistry']]).rename(columns={'p1': 'playerId'})
+    p2 = (df[['p2', 'chemistry']]).rename(columns={'p1': 'playerId'})
+    players = pd.concat([p1,p2])
+    players = players.groupby('playerId', as_index = False)['chemistry'].mean()
+    return players
+df_overview_bif_avg = get_avg_chenm_p(df_overview_bif)
+
+p1_unique_p1_bif = df_dk_bif['p1'].unique()
+p1_unique_p2_bif = df_dk_bif['p2'].unique()
+all_bif = np.unique(np.concatenate((p1_unique_p1_bif, p1_unique_p2_bif)))
+
+df_dk, df_process_21_22_dk = generate_chemistry(df_keepers, df_squad, league_df_dk, df_pos, df_matches_all, def_suc_tot)
+print("hej")
+
 df_eng, df_process_21_22_eng = generate_chemistry(df_keepers, df_squad, league_df_eng, df_pos,df_matches_all, def_suc_tot)
 df_fr, df_process_21_22_fr = generate_chemistry(df_keepers, df_squad, league_df_fr, df_pos,df_matches_all, def_suc_tot)
 df_it, df_process_21_22_it = generate_chemistry(df_keepers, df_squad, league_df_it, df_pos,df_matches_all, def_suc_tot)
@@ -781,6 +813,9 @@ df_expected_ice = compute_expected_outputs(df_process_21_22_ice)
 df_expected_nor = compute_expected_outputs(df_process_21_22_nor)
 df_expected_sl = compute_expected_outputs(df_process_21_22_sl)
 
+
+
+
 df_actual_dk = compute_äctual_outputs(df_process_21_22_dk, df_matches_all)
 df_actual_au = compute_äctual_outputs(df_process_21_22_au, df_matches_all)
 df_tot_au = df_actual_au.merge(df_expected_au, on='teamId')
@@ -876,8 +911,8 @@ f_all = pd.concat([df_merged_it, df_merged_fr, df_merged_eng, df_merged_dk,
                    df_merged_sk
                    ])
 
-f_all['chemistry'].corr(f_all['expected_wins'], method='spearman')
-
+#0,52
+print("{:.2f}".format((f_all['chemistry'].corr(f_all['expected_wins'], method='spearman'))))
 
 
 def make_boxplot(df):
@@ -935,7 +970,7 @@ plot_relationship(df_merged_ned, 'NED')
 plot_relationship(df_merged_bel, 'BEL')
 plot_relationship(df_merged_esp, 'ESP')
 plot_relationship(df_merged_tur, 'TUR')
-plot_relationship(f_all, 'All')
+plot_relationship(f_all, 'Relationship Chemistry & xW')
 plot_relationship(df_merged_au, 'AU')
 
 
@@ -1139,3 +1174,18 @@ chem_ability_all_with_performance_metrics.to_csv("C:/Users/jhs/OneDrive - Brønd
 
 
 sd_table_and_succ['tester'] = sd_table_and_succ['playerId_x'] == sd_table_and_succ['playerId_y']
+df_overview_bif.to_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/bif_chemistry.csv", decimal=',', sep=(';'), index=False)
+df_overview_bif_avg.to_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/bif_chemistry_avg.csv", decimal=',', sep=(';'), index=False)
+h.to_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/cluster_and_chem_AVG.csv", decimal=',', sep=(';'), index=False)
+
+h =  results_df.merge(df_overview_bif_avg, on='playerId')
+
+df_chem_all = pd.concat([
+                   df_dk, df_fr, df_eng, df_dk,
+                   df_ger, df_ned, df_por, df_esp,
+                   df_tur, df_swi, df_gre, df_cro,
+                   df_cze, df_rus, df_hun, df_ice,
+                   df_sl, df_sk])
+df_chem = (get_chemistry(for_scaling, joi_jdi, ptc))[['p1', 'p2', 'teamId', 'seasonId', 'minutes', 'factor1', 'factor2', 'joi', 'jdi', 'df_jdi90', 'df_joi90', 'winners90', 'chemistry']]
+df_chem_all = df_chem_all[['p1', 'p2', 'teamId', 'seasonId', 'minutes', 'factor1', 'factor2', 'joi', 'jdi', 'df_jdi90', 'df_joi90', 'winners90', 'chemistry']]
+df_chem_all.to_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/players_chemistry_10.csv", index=False)

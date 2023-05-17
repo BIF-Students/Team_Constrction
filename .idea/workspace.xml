@@ -4,20 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="soft clustering v2">
-      <change afterPath="$PROJECT_DIR$/chemistry/prediction.py" afterDir="false" />
+    <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="performance v1">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catboost_info/catboost_training.json" beforeDir="false" afterPath="$PROJECT_DIR$/catboost_info/catboost_training.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catboost_info/learn/events.out.tfevents" beforeDir="false" afterPath="$PROJECT_DIR$/catboost_info/learn/events.out.tfevents" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catboost_info/learn_error.tsv" beforeDir="false" afterPath="$PROJECT_DIR$/catboost_info/learn_error.tsv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catboost_info/time_left.tsv" beforeDir="false" afterPath="$PROJECT_DIR$/catboost_info/time_left.tsv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chemistry/chemistry_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry_v2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/distance.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/distance.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/jdi.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/jdi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/joi.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/joi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/netoi.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/netoi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/responsibility_share.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/responsibility_share.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/prediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/prediction.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chemistry/sql_statements.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/sql_statements.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helpers/helperFunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/helperFunctions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helpers/visualizations.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/visualizations.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/regression.py" beforeDir="false" afterPath="$PROJECT_DIR$/regression.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/temp-plot.html" beforeDir="false" afterPath="$PROJECT_DIR$/temp-plot.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,21 +60,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "C:/Users/jhs/Powerplant/Powerplant",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "preferences.keymap",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/jhs/Powerplant/Powerplant&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\jhs\Teamconstruction\Team_Construction" />
@@ -295,6 +293,7 @@
       <workItem from="1683646867880" duration="23183000" />
       <workItem from="1683718391200" duration="15170000" />
       <workItem from="1683754037597" duration="41169000" />
+      <workItem from="1684092369165" duration="44057000" />
     </task>
     <task id="LOCAL-00001" summary="første prepross af SQL udtræk">
       <created>1676646533461</created>
@@ -365,7 +364,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="NONE" type="python-line">
           <url>file://$PROJECT_DIR$/chemistry/chemistry_v2.py</url>
-          <line>225</line>
+          <line>232</line>
           <log-expression expression="= s_21_22&#10;    df_players_teams_c = df_players_teams[df_players_teams['teamId'].isin(df_joi90_and_jdi90['teamId'].unique())]&#10;&#10;    return ready_for_scaling, df_joi90_and_jdi90, df_players_teams_c" language="Python" />
           <option name="timeStamp" value="1" />
         </line-breakpoint>

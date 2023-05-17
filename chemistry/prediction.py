@@ -1,3 +1,4 @@
+import pandas as pd
 from chemistry.chemistry_helpers import *
 from datetime import datetime
 import sys
@@ -9,23 +10,22 @@ sys.path.append('C:/Users/jhs/umap/\pynndescent')
 sys.path.append('C:/Users/jhs/\pynndescent/umap-master')
 from factor_analyzer import FactorAnalyzer'''
 from sklearn.multiclass import OneVsRestClassifier, OneVsOneClassifier
-from sklearn.model_selection import cross_val_score, r2_score
+from sklearn.model_selection import cross_val_score
 from sklearn.dummy import DummyRegressor
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score
 import numpy as np
 import xgboost as xgb
 import lightgbm as lgb
-from sklearn.ensemble import RandomForestRegressor
+from catboost import CatBoostRegressor, Pool
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score
 
 
 
 #Load data from csv files
 #players_chemistry = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/players_chemistry_v2.csv")
-players_chemistry = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/players_chemistry_new_formula.csv")
-players_chemistry_v2 = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/players_chemistry_new_formula_v2.csv")
+#players_chemistry = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/players_chemistry_new_formula.csv")
+#players_chemistry_v2 = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/players_chemistry_new_formula_v2.csv")
+players_chemistry_v2 = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/players_chemistry_10.csv")
 players_roles = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/players_clusters.csv")
 df_transfer = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/df_transfer.csv")
 df_players = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/df_players.csv")
@@ -33,13 +33,39 @@ df_teams = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skriveb
 df_seasons_competitions = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/df_seasons_competitions.csv")
 df_matches_all = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/df_matches_all.csv")
 df_areas = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/area_db.csv")
-df_act_suc = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/players_actions_success_v2.csv")
+df_positions_and_formations = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/player_positions.csv")
+#df_act_suc = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/players_actions_success_v2.csv")
 df_performance_stats = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/performance_stats_v2.csv")
-df_act_suc = df_act_suc[df_act_suc['playerId'] != 0]
-df_chem_power_and_strength = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/sd_table_and_performance_and_chemi_power.csv")
+#df_act_suc = df_act_suc[df_act_suc['playerId'] != 0]
+#df_chem_power_and_strength = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/sd_table_and_performance_and_chemi_power.csv")
 
-new_arrivals = get_new_arrivals(df_transfer, players_chemistry_v2)
-training_set, test_set = get_chem_profficiency(new_arrivals, players_chemistry_v2)
+'''
+air_suc = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/air_suc.csv")
+pass_suc = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/pass_suc.csv")
+off_suc = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/off_success.csv")
+def_suc = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/def_success.csv")
+air_suc['accurate'] = np.where(air_suc.aerialDuel_firstTouch == True, 1, 0)
+off_suc['accurate'] = np.where((off_suc.groundDuel_keptPossession == True) | (off_suc.groundDuel_progressedWithBall == 1 ), 1, 0)
+pass_suc['accurate'] = np.where(pass_suc.passAccurate == True, 1, 0)
+def_suc['accurate'] = np.where((def_suc.groundDuel_stoppedProgress == True) | (def_suc.groundDuel_recoveredPossession == True), 1, 0)
+sd_table_filtered = sd_table[sd_table.seasonId.isin(players_chemistry_v2.seasonId.unique())]
+tot_suc = pd.concat([air_suc[['eventId', 'accurate']], off_suc[['eventId', 'accurate']], pass_suc[['eventId', 'accurate']], def_suc[['eventId', 'accurate']]])
+tot_suc_1 = tot_suc.merge(sd_table_filtered[[ 'eventId', 'playerId', 'teamId', 'matchId', 'seasonId']], on='eventId')
+
+sd_table = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/sd_table.csv", decimal=",", sep=(';'))
+seasons = []
+comps = players_chemistry_v2.competitionId.unique()
+'''
+
+adaptability_scores_computed = compute_adaptability_per_pair(players_chemistry_v2)
+new_arrivals = get_new_arrivals(df_transfer, adaptability_scores_computed)
+# Assuming 'adaptability_scores_computed' and 'new_arrivals' are your two datasets
+train_full = pd.merge(adaptability_scores_computed, new_arrivals, how='left', indicator=True)
+filtered_df = train_full[train_full['_merge'] == 'left_only']
+training_set = filtered_df.drop('_merge', axis=1)
+len(new_arrivals)
+len(training_set)
+#training_set, test_set = get_chem_profficiency(new_arrivals, players_chemistry_v2)
 
 
 #SQL
@@ -50,6 +76,7 @@ df_teams = get_all_teams()
 df_seasons_competitions = get_seasons_and_competitions()
 df_matches_all = get_all_matches()
 '''
+
 df_players = df_players.dropna(subset=['birthDate'])
 df_players = df_players.dropna(subset=['passportArea_name'])
 df_transfer = df_transfer[df_transfer['startDate'] != '0000-00-00']
@@ -61,13 +88,13 @@ df_matches_restructured = restructure_matches(df_matches_all_filtered)
 df_players = df_players.merge(df_areas,left_on='passportArea_name', right_on='name')
 df_players_filtered = (df_players[['playerId', 'shortName', 'birthDate', 'height', 'weight', 'birthArea_name', 'passportArea_name', 'role_name', 'currentTeamId']]).rename(columns={'role_name': 'position'})
 df_players_filtered['age'] = df_players_filtered.apply(lambda row: get_age(row['birthDate']), axis=1)
-
+'''
 #Fix countries - at another time
 #df_playerssdf['passportArea_name'].unique()
 
 #Not used at this time 26.04.2023
 #df_transfers_players_curr_team = df_transfer.merge(df_players[['playerId', 'currentTeamId']], on='playerId')
-
+'''
 
 
 def find_players_and_countries(df, transfer, teams):
@@ -90,8 +117,9 @@ def find_players_and_countries(df, transfer, teams):
     df_created = pd.DataFrame.from_dict(p_dict, orient='index').reset_index(drop=True)
     return df_created
 
+
 def create_indicators(df):
-    df = df[['p1', 'p2', 'teamId', 'seasonId', 'chemistry', 'df_joi90','df_jdi90', 'countries_x', 'shortName_x', 'birthDate_x', 'height_x',
+    df = df[['p1', 'p2', 'teamId', 'seasonId', 'chemistry', 'countries_x', 'shortName_x', 'birthDate_x', 'height_x',
        'weight_x', 'birthArea_name_x', 'passportArea_name_x', 'position_x',
        'currentTeamId_x', 'age_x', 'pos_group_x', 'ip_cluster_x','zone_1_pl_x', 'zone_2_pl_x', 'zone_3_pl_x',
        'zone_4_pl_x', 'zone_5_pl_x', 'zone_6_pl_x', 'minutes_played_season_x', 'match appearances_x', 'chem_coef_x',
@@ -105,7 +133,7 @@ def create_indicators(df):
     df['same_country'] = np.where(df['passportArea_name_x'] == df['passportArea_name_y'], 1, 0 )
     df['played_in_same_country'] = df.apply(lambda row: 1 if (len((check_country(row['countries_x'], row['countries_y']))) > 0) else 0, axis=1)
 
-    df = df[['p1', 'p2', 'teamId', 'seasonId', 'chemistry', 'df_joi90','df_jdi90', 'same_origin', 'same_country', 'played_in_same_country', 'height_x',
+    df = df[['p1', 'p2', 'teamId', 'seasonId', 'chemistry', 'same_origin', 'same_country', 'played_in_same_country', 'height_x',
        'weight_x', 'position_x', 'age_x', 'pos_group_x', 'ip_cluster_x', 'minutes_played_season_x', 'match appearances_x', 'zone_1_pl_x',
        'zone_2_pl_x', 'zone_3_pl_x', 'zone_4_pl_x', 'zone_5_pl_x', 'zone_6_pl_x', 'chem_coef_x',
        'height_y','weight_y', 'position_y','age_y', 'pos_group_y', 'ip_cluster_y', 'minutes_played_season_y',
@@ -113,6 +141,26 @@ def create_indicators(df):
        'zone_4_pl_y', 'zone_5_pl_y', 'zone_6_pl_y', 'chem_coef_y' ]]
     return df
 
+def create_indicators_2(df):
+    df = df[['p1', 'p2', 'teamId', 'seasonId', 'chemistry', 'countries_x', 'shortName_x', 'birthDate_x', 'height_x',
+       'weight_x', 'birthArea_name_x', 'passportArea_name_x', 'position_x',
+       'currentTeamId_x', 'age_x', 'pos_group_x', 'ip_cluster_x','zone_1_pl_x', 'zone_2_pl_x', 'zone_3_pl_x',
+       'zone_4_pl_x', 'zone_5_pl_x', 'zone_6_pl_x', 'minutes_played_season_x', 'match appearances_x', 'chem_coef_x',
+       'countries_y', 'shortName_y', 'birthDate_y', 'height_y',
+       'weight_y', 'birthArea_name_y', 'passportArea_name_y', 'position_y',
+       'currentTeamId_y', 'age_y', 'pos_group_y', 'ip_cluster_y','minutes_played_season_y',
+       'match appearances_y', 'zone_1_pl_y', 'zone_2_pl_y', 'zone_3_pl_y',
+       'zone_4_pl_y', 'zone_5_pl_y', 'zone_6_pl_y', 'chem_coef_y'
+             ]]
+    df['played_in_same_country'] = df.apply(lambda row: 1 if (len((check_country(row['countries_x'], row['countries_y']))) > 0) else 0, axis=1)
+
+    df = df[['p1', 'p2', 'teamId', 'seasonId', 'chemistry', 'played_in_same_country', 'height_x',
+       'weight_x', 'position_x', 'age_x', 'pos_group_x', 'birthArea_name_x', 'passportArea_name_x',  'ip_cluster_x', 'minutes_played_season_x', 'match appearances_x', 'zone_1_pl_x',
+       'zone_2_pl_x', 'zone_3_pl_x', 'zone_4_pl_x', 'zone_5_pl_x', 'zone_6_pl_x', 'chem_coef_x',
+       'height_y','weight_y', 'position_y','age_y', 'pos_group_y', 'ip_cluster_y', 'minutes_played_season_y',
+       'match appearances_y', 'birthArea_name_y', 'passportArea_name_y', 'zone_1_pl_y', 'zone_2_pl_y', 'zone_3_pl_y',
+       'zone_4_pl_y', 'zone_5_pl_y', 'zone_6_pl_y', 'chem_coef_y' ]]
+    return df
 def elapsed_time(start_date_str, end_date_str):
     if end_date_str != '0000-00-00':
         start = datetime.strptime(start_date_str, '%Y-%m-%d').date()
@@ -145,14 +193,6 @@ def add_roles(df, roles):
 
 def duplicate_and_order_data(df):
     df1 = df.copy()
-    df1 = df1.rename(columns={'height_y': 'height_1','weight_y': 'weight_1', 'position_y': 'position_1', 'age_y': 'age_1', 'pos_group_y': 'pos_group_1' , 'ip_cluster_y': 'ip_cluster_1', 'minutes_played_season_y':  'minutes_played_season_1', 'match appearances_y': 'match appearances_1', 'zone_1_pl_y' : 'zone_1_pl_1',  'zone_2_pl_y': 'zone_2_pl_1', 'zone_3_pl_y': 'zone_3_pl_1', 'zone_4_pl_y': 'zone_4_pl_1', 'zone_5_pl_y': 'zone_5_pl_1', 'zone_6_pl_y': 'zone_6_pl_1', 'chem_coef_y': 'chem_coef_1' })
-
-    df1 = df1.rename(columns={'height_x': 'height_y', 'weight_x': 'weight_y', 'position_x': 'position_y','age_x': 'age_y', 'pos_group_x': 'pos_group_y', 'ip_cluster_x': 'ip_cluster_y', 'minutes_played_season_x':  'minutes_played_season_y', 'match appearances_x': 'match appearances_y', 'zone_1_pl_x' : 'zone_1_pl_y','zone_2_pl_x': 'zone_2_pl_y', 'zone_3_pl_x': 'zone_3_pl_y', 'zone_4_pl_x': 'zone_4_pl_y', 'zone_5_pl_x': 'zone_5_pl_y', 'zone_6_pl_x': 'zone_6_pl_y', 'chem_coef_x': 'chem_coef_y' })
-
-    df1 = df1.rename(columns={'height_1': 'height_x','weight_1': 'weight_x', 'position_1': 'position_x', 'age_1': 'age_x', 'pos_group_1': 'pos_group_x', 'ip_cluster_1': 'ip_cluster_x', 'minutes_played_season_1':  'minutes_played_season_x', 'match appearances_1': 'match appearances_x', 'zone_1_pl_1': 'zone_1_pl_x', 'zone_2_pl_1': 'zone_2_pl_x', 'zone_3_pl_1': 'zone_3_pl_x', 'zone_4_pl_1': 'zone_4_pl_x', 'zone_5_pl_1': 'zone_5_pl_x', 'zone_6_pl_1': 'zone_6_pl_x', 'chem_coef_1': 'chem_coef_x' })
-    return df1
-
-'''
 
     df1 = df1.rename(columns={'height_y': 'height_1','weight_y': 'weight_1', 'position_y': 'position_1', 'age_y': 'age_1', 'pos_group_y': 'pos_group_1' , 'ip_cluster_y': 'ip_cluster_1', 'minutes_played_season_y':  'minutes_played_season_1', 'match appearances_y': 'match appearances_1', 'zone_1_pl_y' : 'zone_1_pl_1',
              'zone_2_pl_y': 'zone_2_pl_1', 'zone_3_pl_y': 'zone_3_pl_1', 'zone_4_pl_y': 'zone_4_pl_1', 'zone_5_pl_y': 'zone_5_pl_1', 'zone_6_pl_y': 'zone_6_pl_1', 'chem_ability_y': 'chem_ability_1', 'aerial_strength_y': 'aerial_strength_1', 'carry_strength_y': 'carry_strength_1','pressing_recovery_strength_y' : 'pressing_recovery_strength_1' , 'defensive_duel_strength_y': 'defensive_duel_strength_1','dribbles_strength_y': 'dribbles_strength_1', 'ground_duel_strength_y': 'ground_duel_strength_1', 'sliding_strength_y': 'sliding_strength_1' ,'deep_crossing_strength_y': 'deep_crossing_strength_1' })
@@ -163,6 +203,19 @@ def duplicate_and_order_data(df):
     df1 = df1.rename(columns={'height_1': 'height_x','weight_1': 'weight_x', 'position_1': 'position_x', 'age_1': 'age_x', 'pos_group_1': 'pos_group_x', 'ip_cluster_1': 'ip_cluster_x', 'posAction_1':'posAction_x', 'nonPosAction_1': 'nonPosAction_x', 'accurate_1': 'accurate_x', 'minutes_played_season_1':  'minutes_played_season_x', 'match appearances_1': 'match appearances_x', 'minutes_played_season_x':  'minutes_played_season_y', 'match appearances_x': 'match appearances_y', 'zone_1_pl_x': 'zone_1_pl_y',
                               'zone_1_pl_1': 'zone_1_pl_x', 'zone_2_pl_1': 'zone_2_pl_x', 'zone_3_pl_1': 'zone_3_pl_x', 'zone_4_pl_1': 'zone_4_pl_x', 'zone_5_pl_1': 'zone_5_pl_x', 'zone_6_pl_1': 'zone_6_pl_x',
                               'chem_ability_1': 'chem_ability_x', 'aerial_strength_1': 'aerial_strength_x', 'carry_strength_1': 'carry_strength_x','pressing_recovery_strength_1' : 'pressing_recovery_strength_x' , 'defensive_duel_strength_1': 'defensive_duel_strength_x','dribbles_strength_1': 'dribbles_strength_x', 'ground_duel_strength_1': 'ground_duel_strength_x', 'sliding_strength_1': 'sliding_strength_x' ,'deep_crossing_strength_1': 'deep_crossing_strength_x' })
+
+    return df1
+
+def duplicate_and_order_data_v2(df):
+    df1 = df.copy()
+    df1 = df1.rename(columns={'height_y': 'height_1','weight_y': 'weight_1', 'position_y': 'position_1', 'age_y': 'age_1', 'pos_group_y': 'pos_group_1' , 'ip_cluster_y': 'ip_cluster_1', 'minutes_played_season_y':  'minutes_played_season_1', 'match appearances_y': 'match appearances_1', 'birthArea_name_y': 'birthArea_name_1', 'passportArea_name_y':'passportArea_name_1', 'zone_1_pl_y' : 'zone_1_pl_1',  'zone_2_pl_y': 'zone_2_pl_1', 'zone_3_pl_y': 'zone_3_pl_1', 'zone_4_pl_y': 'zone_4_pl_1', 'zone_5_pl_y': 'zone_5_pl_1', 'zone_6_pl_y': 'zone_6_pl_1', 'chem_coef_y': 'chem_coef_1' })
+
+    df1 = df1.rename(columns={'height_x': 'height_y', 'weight_x': 'weight_y', 'position_x': 'position_y','age_x': 'age_y', 'pos_group_x': 'pos_group_y', 'ip_cluster_x': 'ip_cluster_y', 'minutes_played_season_x':  'minutes_played_season_y', 'match appearances_x': 'match appearances_y','birthArea_name_x': 'birthArea_name_y', 'passportArea_name_x':'passportArea_name_y', 'zone_1_pl_x' : 'zone_1_pl_y','zone_2_pl_x': 'zone_2_pl_y', 'zone_3_pl_x': 'zone_3_pl_y', 'zone_4_pl_x': 'zone_4_pl_y', 'zone_5_pl_x': 'zone_5_pl_y', 'zone_6_pl_x': 'zone_6_pl_y', 'chem_coef_x': 'chem_coef_y' })
+
+    df1 = df1.rename(columns={'height_1': 'height_x','weight_1': 'weight_x', 'position_1': 'position_x', 'age_1': 'age_x', 'pos_group_1': 'pos_group_x', 'ip_cluster_1': 'ip_cluster_x', 'minutes_played_season_1':  'minutes_played_season_x', 'match appearances_1': 'match appearances_x', 'birthArea_name_1': 'birthArea_name_x', 'passportArea_name_1':'passportArea_name_x', 'zone_1_pl_1': 'zone_1_pl_x', 'zone_2_pl_1': 'zone_2_pl_x', 'zone_3_pl_1': 'zone_3_pl_x', 'zone_4_pl_1': 'zone_4_pl_x', 'zone_5_pl_1': 'zone_5_pl_x', 'zone_6_pl_1': 'zone_6_pl_x', 'chem_coef_1': 'chem_coef_x' })
+    return df1
+
+'''
 
 '''
 
@@ -192,9 +245,10 @@ def check_country(c1, c2):
     return set(c1).intersection(set(c2))
 
 def check_nan(val, area):
-    if not isinstance(val, (list)) and math.isnan (val):
+    if isinstance(val, float):
         return [area]
-    else:return val
+    else: return val
+
 def boxplot(df):
     fig = px.box(df, y="chemistry")
     fig.show()
@@ -211,33 +265,47 @@ def show_target_distribution(df, label):
     plt.xlim(0, 0.06)
     plt.show()
 
-def custom_binning(x):
-    if x == 0:
-        return 0  # assign 0 bin to 0-chemistry values
-    else:
-        quartiles = np.percentile(chem_values[chem_values != 0], [25, 50, 75])
-        if x <= quartiles[0]:
-            return 1
-        elif x <= quartiles[1]:
-            return 2
-        elif x <= quartiles[2]:
-            return 3
-        else:
-            return 4
 
 def produce_overall_cluster(df):
-    df['role_x'] = np.where((df.ip_cluster_x >= 0) & (df.ip_cluster_x <= 2), 1,
-                                     np.where((df.ip_cluster_x >= 3) & (df.ip_cluster_x <= 5), 2,
-                                              np.where((df.ip_cluster_x >= 6) & (df.ip_cluster_x <= 8), 3,
-                                                  np.where((df.ip_cluster_x >= 9) & (df.ip_cluster_x <= 11), 4,
-                                                           np.where((df.ip_cluster_x >= 12) & ( df.ip_cluster_x <= 14), 5,  6)))))
-    df['role_y'] = np.where((df.ip_cluster_y >= 0) & (df.ip_cluster_y <= 2), 1,
-                                     np.where((df.ip_cluster_y >= 3) & (df.ip_cluster_y <= 5), 2,
-                                              np.where( (df.ip_cluster_y >= 6) & (df.ip_cluster_y <= 8), 3,
-                                                  np.where((df.ip_cluster_y >= 9) & ( df.ip_cluster_y <= 11), 4,
-                                                           np.where((df.ip_cluster_y >= 12) & (df.ip_cluster_y <= 14), 5,  6)))))
+    df['role_x'] = np.where((df.ip_cluster_x >= 0) & (df.ip_cluster_x <= 2), '1',
+                                     np.where((df.ip_cluster_x >= 3) & (df.ip_cluster_x <= 5), '2',
+                                              np.where((df.ip_cluster_x >= 6) & (df.ip_cluster_x <= 8), '3',
+                                                  np.where((df.ip_cluster_x >= 9) & (df.ip_cluster_x <= 11), '4',
+                                                           np.where((df.ip_cluster_x >= 12) & ( df.ip_cluster_x <= 14), '5',  '6')))))
+    df['role_y'] = np.where((df.ip_cluster_y >= 0) & (df.ip_cluster_y <= 2), '1',
+                                     np.where((df.ip_cluster_y >= 3) & (df.ip_cluster_y <= 5), '2',
+                                              np.where( (df.ip_cluster_y >= 6) & (df.ip_cluster_y <= 8), '3',
+                                                  np.where((df.ip_cluster_y >= 9) & ( df.ip_cluster_y <= 11), '4',
+                                                           np.where((df.ip_cluster_y >= 12) & (df.ip_cluster_y <= 14), '5',  '6')))))
+
     return df
 
+def produce_overall_cluster_v2(df):
+    df['ip_cluster_x'] =  df['ip_cluster_x'].astype('category')
+    df['ip_cluster_y'] =  df['ip_cluster_y'].astype('category')
+    df['passportArea_name_y'] =  df['passportArea_name_y'].astype('category')
+    df['passportArea_name_x'] =  df['passportArea_name_x'].astype('category')
+    df['pos_group_x'] =  df['pos_group_x'].astype('category')
+    df['pos_group_y'] =  df['pos_group_y'].astype('category')
+    df['birthArea_name_x'] =  df['birthArea_name_x'].astype('category')
+    df['birthArea_name_y'] =  df['birthArea_name_y'].astype('category')
+    df['position_x'] = df['position_x'].astype('category')
+    df['position_y'] = df['position_y'].astype('category')
+    df['played_in_same_country'] = df['played_in_same_country'].astype('category')
+    df['played_in_same_country'] = df['played_in_same_country'].astype('category')
+
+    '''df['role_x'] = np.where((df.ip_cluster_x >= 0) & (df.ip_cluster_x <= 2), '1',
+                                     np.where((df.ip_cluster_x >= 3) & (df.ip_cluster_x <= 5), '2',
+                                              np.where((df.ip_cluster_x >= 6) & (df.ip_cluster_x <= 8), '3',
+                                                  np.where((df.ip_cluster_x >= 9) & (df.ip_cluster_x <= 11), '4',
+                                                           np.where((df.ip_cluster_x >= 12) & ( df.ip_cluster_x <= 14), '5',  '6')))))
+    df['role_y'] = np.where((df.ip_cluster_y >= 0) & (df.ip_cluster_y <= 2), '1',
+                                     np.where((df.ip_cluster_y >= 3) & (df.ip_cluster_y <= 5), '2',
+                                              np.where( (df.ip_cluster_y >= 6) & (df.ip_cluster_y <= 8), '3',
+                                                  np.where((df.ip_cluster_y >= 9) & ( df.ip_cluster_y <= 11), '4',
+                                                           np.where((df.ip_cluster_y >= 12) & (df.ip_cluster_y <= 14), '5',  '6')))))
+    '''
+    return df
 
 
 def show_feature_importances(model, input_train):
@@ -261,11 +329,51 @@ def show_heat_map(features):
     plt.show()
     return corr_matrix
 
-def prepare_set(transfer, teams, roles, performance_stats, ability_set):
+def prepare_set(transfer, teams, roles, performance_stats, ability_set, players_filtered, positions_formations):
     df_transfer_periods = handle_transfer_periods(transfer)
     tf_final = handle_transfer_data(df_transfer_periods, teams)
     players_and_cultures = find_players_and_countries(tf_final, df_transfer_periods, df_teams)
-    df_v3 = df_players_filtered.merge(players_and_cultures, on='playerId', how='left')
+    df_v3 = players_filtered.merge(players_and_cultures, on='playerId', how='left')
+    df_v3['cultures'] = df_v3.apply(lambda row: check_nan(row['countries'], row['passportArea_name']) , axis = 1)
+
+    df_v3 = (df_v3[['playerId', 'shortName', 'birthDate', 'height', 'weight','birthArea_name', 'passportArea_name', 'position', 'currentTeamId', 'age', 'cultures']]).rename(columns= {'cultures': 'countries'})
+    df_v4 = df_v3.merge(roles, on='playerId')
+    df_v4 = df_v4.merge(performance_stats, on='playerId')
+    df_v4 = df_v4.rename(columns = {'minutes': 'minutes_played_season'})
+    #df_v4 = df_v4.merge(df_chem_power_and_strength[['playerId', 'chem_ability', 'aerial_strength', 'carry_strength','pressing_recovery_strength', 'defensive_duel_strength','dribbles_strength', 'ground_duel_strength', 'sliding_strength','deep_crossing_strength']], on='playerId')
+    players_chemistry_1 = ability_set.merge(df_v4, left_on=['p1'], right_on=['playerId'])
+    players_chemistry_t = players_chemistry_1.merge(df_v4, left_on=['p2'], right_on=['playerId'])
+    players_chemistry_t = players_chemistry_t[(players_chemistry_t['ip_cluster_x'] != -1) & (players_chemistry_t['ip_cluster_y'] != -1)]
+    set_1 = players_chemistry_t.drop_duplicates(subset=['p1', 'p2', 'teamId'])
+    with_indicators = create_indicators(set_1)
+    prep = duplicate_and_order_data(with_indicators)
+    prepped = pd.concat([prep, with_indicators])
+    prepped = produce_overall_cluster(prepped)
+    num_transfer_df = count_teams(transfer, players_filtered)
+    num_transfer_df_1 = prepped.merge(num_transfer_df, left_on=['p1'], right_on=['playerId'])
+    num_transfer_df_2 = num_transfer_df_1.merge(num_transfer_df, left_on=['p2'], right_on=['playerId'])
+    positions_formations_1 = num_transfer_df_2.merge(positions_formations, left_on=['p1'], right_on=['playerId'])
+    positions_formations_2 = positions_formations_1.merge(positions_formations, left_on=['p2'], right_on=['playerId'])
+    positions_formations_2 = positions_formations_2.drop_duplicates(subset=['p1', 'p2', 'teamId'])
+    prepped = positions_formations_2
+    pred_prep = prepped.drop(['p1', 'p2', 'teamId', 'seasonId', 'pos_group_x', 'ip_cluster_y', 'ip_cluster_x'], axis=1)
+    pred_prep['same_pos'] = np.where(pred_prep['role_x'] == pred_prep['role_y'], 1, 0)
+    pred_prep['same_role'] = np.where(pred_prep['position_x'] == pred_prep['position_y'], 1, 0)
+    pred_prep = pred_prep.drop(['role_x', 'role_y', 'position_x', 'position_y'], axis = 1)
+    #df_for_pred['chem_groups'] = pd.qcut(df_for_pred['chemistry'], 3, labels=['Low', 'Medium', 'High']).astype('category').cat.codes
+    pred_prep = pred_prep.fillna(0)
+    pred_prep = pred_prep[['same_origin', 'same_country', 'played_in_same_country', 'height_y', 'weight_y', 'age_y', 'minutes_played_season_y', 'match appearances_y', 'zone_1_pl_y', 'zone_2_pl_y', 'zone_3_pl_y', 'zone_4_pl_y', 'zone_5_pl_y', 'zone_6_pl_y', 'chem_coef_y', 'height_x', 'weight_x', 'age_x', 'minutes_played_season_x', 'match appearances_x', 'zone_1_pl_x', 'zone_2_pl_x', 'zone_3_pl_x', 'zone_4_pl_x', 'zone_5_pl_x', 'zone_6_pl_x', 'chem_coef_x', 'same_pos', 'same_role', 'num_transfer_x', 'num_transfer_y','num_positions_x', 'num_positions_y', 'num_formations_x', 'num_formations_y',  'chemistry']]
+    feature_columns = pred_prep.columns
+    input_variables = pred_prep.columns[feature_columns != 'chemistry']
+    input = pred_prep[input_variables]
+    target_prepped = pred_prep['chemistry']
+    return input, target_prepped
+
+def prepare_set_cat(transfer, teams, roles, performance_stats, ability_set, players_filtered):
+    df_transfer_periods = handle_transfer_periods(transfer)
+    tf_final = handle_transfer_data(df_transfer_periods, teams)
+    players_and_cultures = find_players_and_countries(tf_final, df_transfer_periods, df_teams)
+    df_v3 = players_filtered.merge(players_and_cultures, on='playerId', how='left')
     #df_v3 = df_v3.merge(df_act_suc, on='playerId')
 
     df_v3['cultures'] = df_v3.apply(lambda row: check_nan(row['countries'], row['passportArea_name']) , axis = 1)
@@ -280,7 +388,18 @@ def prepare_set(transfer, teams, roles, performance_stats, ability_set):
     players_chemistry_t = players_chemistry_1.merge(df_v4, left_on=['p2'], right_on=['playerId'])
     players_chemistry_t = players_chemistry_t[(players_chemistry_t['ip_cluster_x'] != -1) & (players_chemistry_t['ip_cluster_y'] != -1)]
     set_1 = players_chemistry_t.drop_duplicates(subset=['p1' , 'p2', 'playerId_x', 'playerId_y'])
+    with_indicators = create_indicators_2(set_1)
+    prep = duplicate_and_order_data_v2(with_indicators)
+    prepped = pd.concat([prep, with_indicators])
+    prepped = produce_overall_cluster_v2(prepped)
+    pred_prep = prepped.drop(['p1', 'p2', 'teamId', 'seasonId', 'df_joi90', 'df_jdi90'], axis=1)
+    feature_columns = pred_prep.columns
+    input_variables = pred_prep.columns[feature_columns != 'chemistry']
+    input = pred_prep[input_variables]
+    target_prepped = pred_prep['chemistry']
+    return input, target_prepped
 
+'''
     with_indicators = create_indicators(set_1)
     prep = duplicate_and_order_data(with_indicators)
     prepped = pd.concat([prep, with_indicators])
@@ -307,9 +426,59 @@ def prepare_set(transfer, teams, roles, performance_stats, ability_set):
     input_prepped = StandardScaler().fit_transform(input)
     target_prepped = pred_prep['chemistry']
     return input_prepped, target_prepped
+'''
 
-input_train, target_train = prepare_set(df_transfer, df_teams, players_roles, df_performance_stats, training_set )
-input_test, target_test = prepare_set(df_transfer, df_teams, players_roles, df_performance_stats, (test_set).rename(columns = {'new_player': 'p1', 'existing_player': 'p2'}) )
+input_train, target_train = prepare_set(df_transfer, df_teams, players_roles, df_performance_stats, training_set, df_players_filtered, df_positions_and_formations)
+input_test, target_test = prepare_set(df_transfer, df_teams, players_roles, df_performance_stats, new_arrivals, df_players_filtered, df_positions_and_formations)
+
+print("sd")
+input_train_cat, target_train_cat = prepare_set_cat(df_transfer, df_teams, players_roles, df_performance_stats, training_set, df_players_filtered )
+input_test_cat, target_test_cat = prepare_set_cat(df_transfer, df_teams, players_roles, df_performance_stats, new_arrivals, df_players_filtered )
+
+input_train_cat = input_train
+input_test_cat = input_test
+target_train_cat = target_train
+target_test_cat = target_test
+input_train_cat['same_origin'] = input_train_cat['same_origin'].astype('category')
+input_train_cat['same_country'] = input_train_cat['same_country'].astype('category')
+input_train_cat['played_in_same_country'] = input_train_cat['played_in_same_country'].astype('category')
+input_train_cat['same_pos'] = input_train_cat['same_pos'].astype('category')
+input_train_cat['same_role'] = input_train_cat['same_role'].astype('category')
+
+input_test_cat['same_origin'] = input_test_cat['same_origin'].astype('category')
+input_test_cat['same_country'] = input_test_cat['same_country'].astype('category')
+input_test_cat['played_in_same_country'] = input_test_cat['played_in_same_country'].astype('category')
+input_test_cat['same_pos'] = input_test_cat['same_pos'].astype('category')
+input_test_cat['same_role'] = input_test_cat['same_role'].astype('category')
+
+
+cat_features = ['played_in_same_country', 'position_y', 'position_x', 'pos_group_y', 'pos_group_x', 'birthArea_name_y',
+                'birthArea_name_x', 'ip_cluster_y', 'ip_cluster_x', 'passportArea_name_y', 'passportArea_name_x']
+cat_features_v2 = ['same_origin', 'same_country', 'played_in_same_country', 'same_pos', 'same_role']
+
+best_param = 0
+best_r2 = 0
+
+for i in range(3, 12):
+    car_reg = CatBoostRegressor(iterations=264, depth=6, learning_rate=0.11000011, loss_function='RMSE',
+                                random_strength=0.1, bagging_temperature=1, border_count=507,
+                                subsample=0.44599999999999995, l2_leaf_reg=1,
+                                cat_features=cat_features_v2)
+    car_reg.fit(input_train, target_train, verbose=False)
+    y_pred_cat = car_reg.predict(input_test)
+    rmse_cat = np.sqrt(np.mean((target_test - y_pred_cat) ** 2))
+    r2_cat = r2_score(target_test_cat, y_pred_cat)
+    print(i)
+    print("Root Mean Squared Error:", rmse_cat)
+    print("R-squared value:", r2_cat)
+    if r2_cat > best_r2:
+            best_r2 = r2_cat
+            best_param = i
+
+print("Best learning rate:", best_param)
+print("Best R-squared score:", best_r2)
+
+
 
 #feature_columns = pred_train.columns
 #input_variables = pred_train.columns[feature_columns != 'chem_groups']
@@ -376,25 +545,57 @@ print("Dummy RMSE:", rmse, "Dummy r-squared:", r2_score(target_test, dummy_pred)
 print("Mean RMSE:",r2_baseline_mean, "mean r-squared:", (np.sqrt(mean_squared_error(target_test, y_pred_baseline_weighted))), sep=" ")
 print("Weigted guesses RMSE:", r2_baseline_weighted, "Weigted r-squared:", (mean_squared_error(target_test, y_pred_baseline_mean, squared=False)))
 
+for i in range(1000, 2005, 10):
+    num = i / 10000
+    #Regression model
+    xgb_reg = xgb.XGBRegressor(learning_rate=0.11000000000000001, reg_alpha=0.31999999999999995, reg_lambda=0.44599999999999995,  n_estimators = 100, max_depth=11, min_child_weight=14 , gamma=0 , subsample=0.44599999999999995 , colsample_bytree=0.3 )
+    xgb_reg.fit(input_train, target_train)
+    xgb_preds_test = xgb_reg.predict(input_test)
+    rmse = np.sqrt(np.mean((target_test - xgb_preds_test)**2))
+    r2 = r2_score(target_test, xgb_preds_test)
+    print(num)
+    print("Root Mean Squared Error:", rmse)
+    print("R-squared value:", r2)
+    print()
 
-#Regression model
-xgb_reg = xgb.XGBRegressor( n_estimators=100, learning_rate=0.1, max_depth=3)
-xgb_reg.fit(input_train, target_train)
-xgb_preds_test = xgb_reg.predict(input_test)
-xgb_preds_train = xgb_reg.predict(input_train)
-rmse = np.sqrt(np.mean((target_test - xgb_preds_test)**2))
-r2 = r2_score(target_test, xgb_preds_test)
-print("Root Mean Squared Error:", rmse)
-print("R-squared value:", r2)
+results = []
 
-# Perform cross-validation
-scores = cross_val_score(xgb_reg, input_train, target_train, cv=5)
+for i in np.linspace(0.1, 1, 100):
+    num = 0.05 + i * 0.0045
+    xgb_reg = xgb.XGBRegressor(learning_rate=0.11000000000000001, reg_alpha=0.31999999999999995, reg_lambda=0.44599999999999995,  n_estimators = 100, max_depth=11, min_child_weight=14 , gamma=0 , subsample=0.44599999999999995 , colsample_bytree= 0.44599999999999995 )
+    xgb_reg.fit(input_train, target_train)
+    xgb_preds_test = xgb_reg.predict(input_test)
+    rmse = np.sqrt(np.mean((target_test - xgb_preds_test)**2))
+    r2 = r2_score(target_test, xgb_preds_test)
+    results.append((i, rmse, r2))
 
-# Print the cross-validation scores
-print("Cross-validation scores:", scores)
+best_learning_rate = max(results, key=lambda x: x[2])[0]
+best_r2 = max(results, key=lambda x: x[2])[2]
+print("Best learning rate:", best_learning_rate)
+print("Best R-squared value:", best_r2)
+
+    # Perform cross-validation
+    #scores = cross_val_score(xgb_reg, input_train, target_train, cv=5)
+
+    # Print the cross-validation scores
+    #print("Cross-validation scores:", scores)
 
 
 show_feature_importances(xgb_reg, input_train )
+for i in range(3,200):
+    lgb_reg = lgb.LGBMRegressor(
+        learning_rate=0.11000000000000001, reg_alpha=0.31999999999999995, reg_lambda=0.44599999999999995, n_estimators=100, max_depth=i,
+                                num_leaves= i, feature_fraction =1, min_data_in_leaf = i,
+                                )
+    lgb_reg.fit(input_train, target_train)
+    xgb_preds_test = lgb_reg.predict(input_test)
+    xgb_preds_train = lgb_reg.predict(input_train)
+    rmse = np.sqrt(np.mean((target_test - xgb_preds_test) ** 2))
+    r2 = r2_score(target_test, xgb_preds_test)
+    print(i)
+    print("Root Mean Squared Error:", rmse)
+    print("R-squared value:", r2)
+    show_feature_importances(lgb_reg, input_train)
 
 #archieve with testing of code to tryout different models and hypertuning
 '''

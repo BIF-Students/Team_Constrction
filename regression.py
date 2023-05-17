@@ -5,14 +5,16 @@ from numpy import interp
 from sklearn import svm
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.metrics import classification_report, confusion_matrix, cohen_kappa_score, accuracy_score, f1_score, mean_squared_error, r2_score, roc_curve, auc
+from sklearn.model_selection import train_test_split, cross_val_score, cross_validate
+from sklearn.metrics import classification_report, confusion_matrix, cohen_kappa_score, accuracy_score, f1_score, \
+    mean_squared_error, r2_score, roc_curve, auc, make_scorer
 from sklearn.model_selection import RandomizedSearchCV
 import xgboost as xgb
 import plotly.express as px
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.preprocessing import StandardScaler
 from helpers.helperFunctions import *
+from helpers.student_bif_code import load_db_to_pd
 from helpers.visualizations import *
 import random
 import statistics
@@ -30,6 +32,10 @@ import umap
 from sklearn.multiclass import OneVsRestClassifier
 
 from sklearn.metrics import log_loss
+
+df_players = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/df_players.csv")
+df_players = load_db_to_pd(sql_query = "SELECT * FROM [Scouting_Raw].[dbo].[Wyscout_Players]", db_name='Scouting_Raw')
+
 def show_target_distribution(df, label):
     # create a figure and axis
     fig, ax = plt.subplots()
@@ -77,7 +83,31 @@ def produce_random_number(values, weights, length):
     return pd.DataFrame(predictions)
 
 
-def evaluate_model_original(target_pred_test, target_preds_train, target_test, target_train, modelType):
+def evaluate_model_original(input_train, target_train, input_test, target_test, model):
+    scoring = {'f1': 'f1_weighted', 'loss': 'neg_log_loss', 'accuracy': 'accuracy',
+               'cohen_kappa': make_scorer(cohen_kappa_score)}
+    scores = cross_validate(model, input_train, target_train, cv=5, scoring=scoring)  # Perform 5-fold cross-validation
+
+    avg_f1_score = np.mean(scores['test_f1'])
+    avg_loss_score = -np.mean(scores['test_loss'])
+    avg_accuracy_score = np.mean(scores['test_accuracy'])
+    avg_cohen_kappa_score = np.mean(scores['test_cohen_kappa'])
+
+    print('Average F1 Score: {:.2f}'.format(avg_f1_score))
+    print('Average Loss Score: {:.2f}'.format(avg_loss_score))
+    print('Average Accuracy Score: {:.2f}'.format(avg_accuracy_score))
+    print('Average Cohen Kappa Score: {:.2f}'.format(avg_cohen_kappa_score))
+
+    model.fit(input_train, target_train)
+    preds_test = model.predict(input_test)
+
+    test_accuracy = accuracy_score(target_test, preds_test)
+    print('Test Accuracy Score: {:.4f}'.format(test_accuracy))
+
+
+
+
+'''def evaluate_model_original(target_pred_test, target_preds_train, target_test, target_train, modelType):
     f1 = f1_score(target_test, target_pred_test, average='weighted')
     cohen_kappa = cohen_kappa_score(target_test, target_pred_test)
     print('Model accuracy score train ' + modelType + ': {0:0.4f}'.format(accuracy_score(target_train, target_preds_train)))
@@ -85,7 +115,8 @@ def evaluate_model_original(target_pred_test, target_preds_train, target_test, t
     print('F1 Score: ', "%.2f" % (f1 * 100))
     print('Cohen Kappa: ', "%.2f" % cohen_kappa)
     # print(classification_report(target_test, tar))
-print("asd")
+'''
+
 def heatmap_probability_inspection(target_pred, target_test, title):
     matrix = confusion_matrix(target_test, target_pred)
     matrix = matrix.astype('float') / matrix.sum(axis=1)[:, np.newaxis]
@@ -111,29 +142,35 @@ def show_feature_importances(model, input_train, input_test, target_test):
     fig.show()
     pyo.plot(fig)
 
-data = event_data = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/brondbyProjekter/data/players_clusters.csv",
+data  = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/brondbyProjekter/data/players_clusters.csv",
                                 sep=",",
                                 encoding='unicode_escape')
 event_data = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/brondbyProjekter/data/events_clean.csv",
                                 sep=",",
                                 encoding='unicode_escape')
 
+df_data_with_clusters = data.merge(event_data, on = ['playerId', 'seasonId'])
+#df_data_with_clusters = df_data_with_clusters[df_data_with_clusters['187483']]
 
-df_data_with_clusters = data.merge(event_data, on = 'playerId')
+#for_prediction =df_data_with_clusters[(df_data_with_clusters['playerId'].isin(bif_players)) ]
+
+#for_prediction = for_prediction[(for_prediction['seasonId'] == 187483 )]
+
 df =df_data_with_clusters.iloc[:, 3:50]
-df = df.drop(['seasonId_y','x','y'], axis=1)
+df = df.drop(['x','y'], axis=1)
 df = df[df['ip_cluster'] !=-1 ]
+
+
 show_target_distribution(df, 'ip_cluster')
 
 feature_columns = df.columns
 input_variables = df.columns[feature_columns != 'ip_cluster']
-
 input = df[input_variables]
 target = df['ip_cluster']
 
 input_scaled = StandardScaler().fit_transform(input)
 
-input_train, input_test, target_train, target_test = train_test_split(input_scaled, target, test_size=0.33, random_state=42)
+input_train, input_test, target_train, target_test = train_test_split(input, target, test_size=0.33, random_state=42)
 
 # Calculate class weights
 class_weights = target_train.value_counts(normalize=True)
@@ -178,15 +215,15 @@ print(f"F1 score: {f1_score_val}")
 
 rdf_model = RandomForestClassifier(criterion ='gini', n_estimators=100, min_samples_split=2, min_samples_leaf=7, max_features='sqrt',max_depth=5)
 rdf_model.fit(input_train, target_train)
-rdf_preds_test = rdf_model.predict(input_test)
-rdf_preds_train = rdf_model.predict(input_train)
-evaluate_model_original(rdf_preds_test, rdf_preds_train, target_test, target_train, 'rdf model')
+evaluate_model_original(input_train, target_train, input_test, target_test, rdf_model)
+for i in range(2,5):
+    num = i/10
+    xgb_model = xgb.XGBClassifier(learning_rate=0.004555, reg_alpha=1, reg_lambda=1, objective= 'multi:softprob',  n_estimators = 500, max_depth=5, min_child_weight=2 , gamma=0 , subsample=0.2 , colsample_bytree=0.5 )
+    xgb_model.fit(input_train, target_train)
+    #xgb_preds_test = xgb_model.predict(input_test)
+    #xgb_preds_train = xgb_model.predict(input_train)
+    evaluate_model_original(input_train, target_train, input_test, target_test, xgb_model)
 
-xgb_model = xgb.XGBClassifier(learning_rate=0.04555, reg_alpha=1, reg_lambda=1, objective= 'multi:softprob',  n_estimators = 95, max_depth=4, min_child_weight=6 , gamma=0 , subsample=0.3 , colsample_bytree=0.6 )
-xgb_model.fit(input_train, target_train)
-xgb_preds_test = xgb_model.predict(input_test)
-xgb_preds_train = xgb_model.predict(input_train)
-evaluate_model_original(xgb_preds_test, xgb_preds_train, target_test, target_train, 'xgb model')
 
 lgb_model = lgb.LGBMClassifier(learning_rate=0.045001 , n_estimators=110, objective='multiclass',
                                max_depth=3, num_leaves= 100, feature_fraction = 0.7, min_data_in_leaf = 100,
@@ -194,10 +231,27 @@ lgb_model = lgb.LGBMClassifier(learning_rate=0.045001 , n_estimators=110, object
 lgb_model.fit(input_train, target_train)
 lgb_preds_test = lgb_model.predict(input_test)
 lgb_preds_train = lgb_model.predict(input_train)
-evaluate_model_original(lgb_preds_test, lgb_preds_train, target_test, target_train, 'lgb model')
+evaluate_model_original(input_train, target_train, input_test, target_test, lgb_model)
 
+
+ovr_lgb = OneVsRestClassifier(LGBMClassifier(learning_rate=0.045001 , n_estimators=110,
+                               max_depth=3, num_leaves= 100, feature_fraction = 0.7, min_data_in_leaf = 100,
+                               min_child_samples=1 , reg_alpha=1 , reg_lambda=10) )
+ovr_lgb.fit(input_train, target_train)
+ovr_lgb_preds_test = ovr_lgb.predict(input_test)
+ovr_lgb_preds_train = ovr_lgb.predict(input_train)
+evaluate_model_original(input_train, target_train, input_test, target_test, ovr_lgb)
+
+ovr_xgb = OneVsRestClassifier(xgb.XGBClassifier(learning_rate=0.045001 , n_estimators=110,
+                               max_depth=3, num_leaves= 100, feature_fraction = 0.7, min_data_in_leaf = 100,
+                               min_child_samples=1 , reg_alpha=1 , reg_lambda=10 ))
+ovr_xgb.fit(input_train, target_train)
+ovr_xgb_preds_test = ovr_xgb.predict(input_test)
+ovr_xgb_preds_train = ovr_xgb.predict(input_train)
+evaluate_model_original(ovr_xgb_preds_test, ovr_xgb_preds_train, target_test, target_train, 'ovr xgb model')
 
 #fa analysis-----------------------------------------
+'''
 fa = FactorAnalyzer(n_factors=35, method='ml', rotation='varimax')
 # Fit the factor analyzer to the standardized data
 fa.fit(input_scaled)
@@ -211,28 +265,71 @@ input_train_fa, input_test_fa, target_train_fa, target_test_fa = train_test_spli
 lgb_model_fa = lgb.LGBMClassifier(learning_rate=0.04320707070707071 , n_estimators=116, objective='multiclass',
                                max_depth=7, num_leaves= 10, feature_fraction =1, min_data_in_leaf = 100,
                                 reg_alpha=0.7 , reg_lambda=9.89999999999999)
-lgb_model_fa.fit(input_train_fa, target_train_fa)
-lgb_preds_test = lgb_model_fa.predict(input_test_fa)
-lgb_preds_train = lgb_model_fa.predict(input_train_fa)
-evaluate_model_original(lgb_preds_test, lgb_preds_train, target_test_fa, target_train_fa, 'lgb model' )
-lgb_preds_test = lgb_model_fa.predict(input_test_fa)
-lgb_proba_test = lgb_model_fa.predict_proba(input_test_fa)
-logloss_lgb = log_loss(target_test_fa, lgb_proba_test, labels=lgb_model_fa.classes_)
-scores_lgb = cross_val_score(lgb_model_fa, input_train_fa, target_train_fa, cv=5)
+lgb_model_fa.fit(input_train, target_train)
+lgb_preds_test = lgb_model_fa.predict(input_test)
+lgb_preds_train = lgb_model_fa.predict(input_train)
+evaluate_model_original(lgb_preds_test, lgb_preds_train, target_test, target_train, 'lgb model' )
+lgb_preds_test = lgb_model_fa.predict(input_test)
+lgb_proba_test = lgb_model_fa.predict_proba(input_test)
+logloss_lgb = log_loss(target_test, lgb_proba_test, labels=lgb_model_fa.classes_)
+scores_lgb = cross_val_score(lgb_model, input_train, target_train, cv=5)
 print('lgb: ', scores_lgb)
 print( 'log_loss lgb:', logloss_lgb)
 
 xgb_model_fa = xgb.XGBClassifier(learning_rate=0.04320707070707071, reg_alpha=1, reg_lambda=1, objective= 'multi:softprob',  n_estimators = 98, max_depth=7, min_child_weight=6 , gamma=0 , subsample=0.3 , colsample_bytree=0.6 )
-xgb_model_fa.fit(input_train_fa, target_train_fa)
-xgb_preds_test = xgb_model_fa.predict(input_test_fa)
-xgb_preds_train = xgb_model_fa.predict(input_train_fa)
-evaluate_model_original(xgb_preds_test, xgb_preds_train, target_test_fa, target_train_fa, 'xgb model')
-xgb_preds_test = xgb_model_fa.predict(input_test_fa)
-xgb_proba_test = xgb_model_fa.predict_proba(input_test_fa)
-logloss_xgb = log_loss(target_test_fa, xgb_proba_test, labels=xgb_model_fa.classes_)
-scores_xgb = cross_val_score(xgb_model_fa, input_train_fa, target_train_fa, cv=5)
+xgb_model_fa.fit(input_train, target_train)
+xgb_preds_test = xgb_model.predict(input_test)
+xgb_preds_train = xgb_model.predict(input_train)
+evaluate_model_original(xgb_preds_test, xgb_preds_train, target_test, target_train, 'xgb model')
+xgb_preds_test = xgb_model_fa.predict(input_test)
+xgb_proba_test = xgb_model_fa.predict_proba(input_test)
+logloss_xgb = log_loss(target_test, xgb_proba_test, labels=xgb_model_fa.classes_)
+scores_xgb = cross_val_score(xgb_model_fa, input_train, target_train, cv=5)
 print('xgb: ', scores_xgb)
 print('log_loss xgb: ', logloss_xgb)
+
+
+'''
+
+p1 = for_prediction.iloc[[2]]
+p2 = for_prediction.iloc[[8]]
+
+df_bif_2 = p2.iloc[:, 3:50]
+df_bif_2 = df_bif_2.drop(['seasonId_y', 'x', 'y'], axis=1)
+feature_columns_bif_v = df_bif_2.columns
+input_variables_bif_v = feature_columns_bif_v[feature_columns_bif_v != 'ip_cluster']
+input_bif_v2 = p2[input_variables_bif_v]
+xgb_preds_bif_v2 = xgb_model_fa.predict_proba(input_bif_v2)
+top3_indices = np.argsort(xgb_preds_bif_v2, axis=1)[:,::-1][:,:3]
+
+
+results = []
+for i in range(len(for_prediction)):
+    print(p1.columns)
+    p1 = for_prediction.iloc[[i]]
+    id = p1['playerId'].values[0]
+    pos_group = p1['pos_group'].values[0]
+    ip_cluster = p1['ip_cluster'].values[0]
+    df_bif_2 = p1.iloc[:, 3:50]
+    df_bif_2 = df_bif_2.drop(['x', 'y'], axis=1)
+    feature_columns_bif_v = df_bif_2.columns
+    input_variables_bif_v = feature_columns_bif_v[feature_columns_bif_v != 'ip_cluster']
+    input_bif_v2 = p1[input_variables_bif_v]
+    xgb_preds_bif_v3 = ovr_lgb.predict_proba(input_bif_v2)
+    top3_indices = np.argsort(xgb_preds_bif_v3, axis=1)[:, ::-1][:, :3]
+    top3_clusters = top3_indices[0]
+    top3_probs = xgb_preds_bif_v3[0][top3_clusters]
+    result = (id, pos_group, ip_cluster, top3_clusters[0], top3_probs[0], top3_clusters[1], top3_probs[1], top3_clusters[2], top3_probs[2])
+    results.append(result)
+
+results_df = pd.DataFrame(results, columns=['playerId', 'pos_group', 'ip_cluster', 'top_cluster1', 'top_prob1', 'top_cluster2', 'top_prob2', 'top_cluster3', 'top_prob3'])
+results_df = results_df.merge(df_players[['playerId', 'shortName']], on = 'playerId')
+results_df = results_df.loc[:, ['playerId', 'shortName', 'pos_group', 'ip_cluster', 'top_cluster1', 'top_cluster2', 'top_cluster3', 'top_prob1', 'top_prob2', 'top_prob3']]
+
+earlier_results = pd.read_csv('C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/clusters_and_chem_AVG.csv', sep=(';'))
+
+gg = results_df.merge(earlier_results[['playerId', 'chemistry']], how='left')
+
 
 rdf_model_fa = RandomForestClassifier(criterion ='gini', n_estimators=100, min_samples_split=2, min_samples_leaf=7, max_features='sqrt',max_depth=10)
 rdf_model_fa.fit(input_train_fa, target_train_fa)
@@ -249,14 +346,14 @@ print('rdf loss: ', logloss_rdf)
 ovr_lgb = OneVsRestClassifier(LGBMClassifier(learning_rate=0.04320707070707071, max_bin=256, n_estimators=200,
                                max_depth=7, num_leaves=10, feature_fraction=0.7, min_data_in_leaf=90,
                                reg_alpha=0.7, reg_lambda=9.89999999999999))
-ovr_lgb.fit(input_train_fa, target_train_fa)
-ovr_lgb_preds_test = ovr_lgb.predict(input_test_fa)
-ovr_lgb_preds_train = ovr_lgb.predict(input_train_fa)
-evaluate_model_original(ovr_lgb_preds_test, ovr_lgb_preds_train, target_test_fa, target_train_fa, 'ovr_lgb model')
-ovr_lgb_preds_test = ovr_lgb.predict(input_test_fa)
-ovr_lgb_proba_test = ovr_lgb.predict_proba(input_test_fa)
-logloss_ovr_lgb = log_loss(target_test_fa, ovr_lgb_proba_test, labels=ovr_lgb.classes_)
-scores_ovr_lgb = cross_val_score(ovr_lgb, input_train_fa, target_train_fa, cv=5)
+ovr_lgb.fit(input_train, target_train)
+ovr_lgb_preds_test = ovr_lgb.predict(input_test)
+ovr_lgb_preds_train = ovr_lgb.predict(input_train)
+evaluate_model_original(ovr_lgb_preds_test, ovr_lgb_preds_train, target_test, target_train, 'ovr_lgb model')
+ovr_lgb_preds_test = ovr_lgb.predict(input_test)
+ovr_lgb_proba_test = ovr_lgb.predict_proba(input_test)
+logloss_ovr_lgb = log_loss(target_test, ovr_lgb_proba_test, labels=ovr_lgb.classes_)
+scores_ovr_lgb = cross_val_score(ovr_lgb, input_train, target_train, cv=5)
 print('ovr_lgb loss: ', logloss_ovr_lgb)
 
 def plot_multiclass_roc(model, X_test, y_test, n_classes):
@@ -333,12 +430,8 @@ for i in range(1,40):
 
 
 heatmap_probability_inspection(rdf_preds_test, target_test, 'rdf model')
-heatmap_probability_inspection(xgb_preds_test, target_test, 'rdf model')
 heatmap_probability_inspection(lgb_preds_test, target_test, 'lgb model')
 
-display_results_classification_report(rdf_preds_test, target_test)
-display_results_classification_report(xgb_preds_test, target_test)
-display_results_classification_report(lgb_preds_test, target_test)
 
 show_feature_importances(rdf_model, input_train, input_test, target_test)
 show_feature_importances(xgb_model, input_train, input_test, target_test)
@@ -426,22 +519,13 @@ params_lgb = optimize_for_lgb(input_train, target_train)
 
 #Baseline models
 # Calculate class frequencies
-class_frequencies = target_train_fa.value_counts(normalize=True).to_dict()
+class_frequencies = target_train.value_counts(normalize=True).to_dict()
 
 # Create the baseline model using the most frequent class as the strategy
 dummy = DummyClassifier(strategy='constant', constant=max(class_frequencies, key=class_frequencies.get))
 
 # Fit the model on the training data
-dummy.fit(input_train_fa, target_train_fa)
-
-# Make predictions on the test data
-dummy_preds = dummy.predict(input_test_fa)
-
-# Calculate the evaluation metrics
-f1 = f1_score(target_test_fa, dummy_preds, average='weighted')
-accuracy = accuracy_score(target_test_fa, dummy_preds)
-kappa = cohen_kappa_score(target_test_fa, dummy_preds)
-logloss = log_loss(target_test_fa, dummy.predict_proba(input_test_fa))
+dummy.fit(input_train, target_train)
 
 # Print the results
 print('F1 score: ', f1)
@@ -456,26 +540,13 @@ class_weights = {c: len(target_train) / (len(np.where(target_train == c)[0]) * l
 dummy = DummyClassifier(strategy='constant', constant=max(class_weights, key=class_weights.get))
 
 # Fit the dummy classifier on the training set
-dummy.fit(input_train_fa, target_train_fa)
+dummy.fit(input_train, target_train)
+evaluate_model_original(input_train, target_train, input_test, target_test, dummy)
 
-# Make predictions on the test set
-target_pred = dummy.predict(input_test_fa)
-
-# Compute evaluation metrics
-f1 = f1_score(target_test_fa, target_pred, average='weighted')
-accuracy = accuracy_score(target_test_fa, target_pred)
-kappa = cohen_kappa_score(target_test_fa, target_pred)
-logloss = log_loss(target_test_fa, dummy.predict_proba(input_test_fa), labels=dummy.classes_)
-
-# Print evaluation metrics
-print(f'Baseline model using weighted guesses based on class distribution')
-print(f'F1 score: {f1:.3f}')
-print(f'Accuracy score: {accuracy:.3f}')
-print(f'Cohen Kappa score: {kappa:.3f}')
-print(f'Log loss: {logloss:.3f}')
 
 #display_target_counts(data)
-
+results_df.to_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/brondby_clusters.csv", decimal=',', sep=(';'), index=False)
+gg.to_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/clusters_and_chem_AVG.csv", decimal=',', sep=(';'), index=False)
 
 
 '''

@@ -80,6 +80,8 @@ def get_timestamps(seasonId):
     return table_df
 
 
+
+
 def get_sd_table(competitionIds):
     competitionIds_str = "("+ competitionIds +")"
     df = load_db_to_pd(sql_query="SELECT * FROM [Development].[dbo].[sd_tableF] as t "

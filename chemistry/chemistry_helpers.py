@@ -805,7 +805,7 @@ def get_chemistry(df_factor_values, df_joi90_jdi90, df_players_teams):
     dfm_id = df_factor_values[['p1', 'p2', 'teamId', 'seasonId']]  # Extract columns that should not be scaled
     mask_m = ~df_factor_values.columns.isin(['p1', 'p2', 'teamId', 'seasonId'])  # Extract column names for scaling
     df_scale_m = df_factor_values.loc[:, mask_m]
-    scale1 = MinMaxScaler(feature_range=(0.8, 1.2 ))
+    scale1 = MinMaxScaler(feature_range=(0.9, 1.1 ))
     df_scale_m[df_scale_m.columns] = scale1.fit_transform(df_scale_m[df_scale_m.columns])  # Perform min/max scaling
     df_factors_scaled = pd.concat([dfm_id.reset_index(drop=True), df_scale_m.reset_index(drop=True)], axis=1)
 
@@ -933,6 +933,28 @@ def get_league_vaep(df, match_duration):
 def get_adaptability(df):
     print('tester')
 
+def compute_adaptability_per_pair(chemistries):
+    list_with_data = []
+    for i, row in chemistries.iterrows():
+        p1 = row['p1']
+        p2 = row['p2']
+        adaptability_frame_p1 = chemistries[(chemistries['p1'] == p1) & (chemistries['p2'] != p2) | (chemistries['p2'] == p1) & (p2 != chemistries['p1'])]
+        adaptability_frame_p2 = chemistries[(chemistries['p1'] == p2) & (chemistries['p2'] != p1) | (chemistries['p2'] == p2) & (p1 != chemistries['p1'])]
+        p1_ability = adaptability_frame_p1['chemistry'].mean()
+        p2_ability = adaptability_frame_p2['chemistry'].mean()
+        tid = row['teamId']
+        sid = row['seasonId']
+        list_with_data.append([p1, p2, tid, sid, p1_ability, p2_ability, row['chemistry']])
+
+
+    # Convert the list of lists to a dataframe with specified column names
+    df_result = pd.DataFrame(list_with_data, columns=['p1', 'p2', 'teamId', 'seasonId',  'chem_coef_x', 'chem_coef_y', 'chemistry'])
+    return df_result
+
+
+
+
+
 def get_new_arrivals(df_transfers, df_chem):
     df_transfers = df_transfers[df_transfers['startDate'] != '0000-00-00']
     df_transfers['date'] = df_transfers.apply(lambda row: (datetime.strptime(row['startDate'], '%Y-%m-%d').date()).year, axis = 1)
@@ -941,7 +963,7 @@ def get_new_arrivals(df_transfers, df_chem):
     df_arrivals_2 = df_transfers.merge(df_chem, left_on='playerId', right_on='p2' ).rename(columns = {'playerId': 'arrival'})
     df_arrivals = pd.concat([df_arrivals_1, df_arrivals_2])
 
-    return df_arrivals
+    return df_arrivals[['p1', 'p2', 'teamId', 'seasonId', 'chem_coef_x', 'chem_coef_y', 'chemistry']]
 
 def get_chem_profficiency(arrivals, chemistries):
     test_lists = []
@@ -958,8 +980,12 @@ def get_chem_profficiency(arrivals, chemistries):
             test_lists.append(new_row)
     for e_id in unique_training_ids:
         df_a_2 = training_set[(training_set['p1'] == e_id) | (training_set['p2'] == e_id)]
-        e_id_chem_ability = df_a_2['chemistry'].mean()
-        training_lists.append([e_id, e_id_chem_ability])
+        for i2, row2 in df_a_2.iterrows():
+            p1 = row2['p1']
+            p2 = row2['p2']
+            adaptability_frame = df_a_2[(df_a_2['p1'] == p1 & df_a_2['p2'] != p2) | (df_a_2['p2'] != p1 & p2 != df_a_2['p1'])]
+            e_id_chem_ability = df_a_2['chemistry'].mean()
+            training_lists.append([e_id, e_id_chem_ability])
 
     test_set = pd.DataFrame(test_lists, columns=['new_player', 'chem_coef', 'chemistry','seasonId','teamId','df_joi90', 'df_jdi90', 'existing_player'])
     ability_set = pd.DataFrame(training_lists, columns=['player', 'chem_coef'])
@@ -969,6 +995,15 @@ def get_chem_profficiency(arrivals, chemistries):
     return training_set_final_2, test_set_abilities
 
 
+
+def count_teams(transfer, players):
+    from_team = transfer[['playerId', 'fromTeamId']].rename(columns={'fromTeamId': 'num_transfer'})
+    to_team = transfer[['playerId', 'toTeamId']].rename(columns={'toTeamId': 'num_transfer'})
+    concatted = pd.concat([from_team, to_team])
+    players_and_transfer = concatted.groupby('playerId')['num_transfer'].nunique().reset_index()
+    players_and_transfer_2 = (players.merge(players_and_transfer, on='playerId', how='left'))[['playerId', 'num_transfer']]
+    players_and_transfer_2 = players_and_transfer_2.fillna(1)
+    return players_and_transfer_2
 
 
 
