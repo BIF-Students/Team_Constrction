@@ -678,6 +678,7 @@ league_df_it = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skr
 league_df_ger = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/league_df_ger.csv")
 
 
+#sdf
 df_dk, df_process_21_22_dk = generate_chemistry(df_keepers, df_squad, league_df_dk, df_pos, df_matches_all, def_suc_tot)
 df_dk_bif = df_dk[df_dk['teamId'] == 7453]
 df_overview_bif = get_overview_frame(df_dk_bif, df_players_teams)

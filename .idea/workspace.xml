@@ -4,19 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="performance v1">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catboost_info/catboost_training.json" beforeDir="false" afterPath="$PROJECT_DIR$/catboost_info/catboost_training.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catboost_info/learn/events.out.tfevents" beforeDir="false" afterPath="$PROJECT_DIR$/catboost_info/learn/events.out.tfevents" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catboost_info/learn_error.tsv" beforeDir="false" afterPath="$PROJECT_DIR$/catboost_info/learn_error.tsv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catboost_info/time_left.tsv" beforeDir="false" afterPath="$PROJECT_DIR$/catboost_info/time_left.tsv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/chemistry_v2.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry_v2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/prediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/prediction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/sql_statements.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/sql_statements.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/regression.py" beforeDir="false" afterPath="$PROJECT_DIR$/regression.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp-plot.html" beforeDir="false" afterPath="$PROJECT_DIR$/temp-plot.html" afterDir="false" />
-    </list>
+    <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="performance v1" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -293,7 +281,7 @@
       <workItem from="1683646867880" duration="23183000" />
       <workItem from="1683718391200" duration="15170000" />
       <workItem from="1683754037597" duration="41169000" />
-      <workItem from="1684092369165" duration="44057000" />
+      <workItem from="1684092369165" duration="44733000" />
     </task>
     <task id="LOCAL-00001" summary="første prepross af SQL udtræk">
       <created>1676646533461</created>
