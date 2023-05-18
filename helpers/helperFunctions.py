@@ -9,6 +9,7 @@ from sklearn import metrics
 import matplotlib.cm as cm
 from datetime import datetime
 from helpers.student_bif_code import *
+from matplotlib.colors import LinearSegmentedColormap
 
 
 # Filter to determine where an  occured
@@ -266,9 +267,9 @@ def opt_clus(dr):
         dbi_score.append(best_dbi)
 
     fig, ax = plt.subplots(figsize=(12, 8), nrows=1)
-    ax.plot(n_range, sil_score, '-o', color='orange', label='SIL')
-    ax.plot(n_range, chi_score, '-o', color='blue', label='CHI')
-    ax.plot(n_range, dbi_score, '-o', color='green', label='DBI')
+    ax.plot(n_range, sil_score, '-o', color='gold', label='SIL')
+    ax.plot(n_range, chi_score, '-o', color='darkblue', label='CHI')
+    ax.plot(n_range, dbi_score, '-o', color='darkorange', label='DBI')
     ax.set(xlabel='Number of Clusters', ylabel='Score')
     ax.set_xticks(n_range)
     ax.legend(fontsize='x-large')
@@ -415,36 +416,41 @@ def cluster_to_dataframe(weight_dicts, cluster_name):
 
 
 def plot_sorted_bar_chart(df):
-    df.columns = [col.replace('_vaep', '') for col in df.columns]
+    df.columns = [col.replace('_tendency', '') for col in df.columns]
     series = df.T.squeeze()
     sorted_series = series.sort_values(ascending=False)
 
-    ax = sorted_series.plot(kind='bar', figsize=(12, 6), color=cm.viridis_r(sorted_series / float(max(sorted_series))))
+    ax = sorted_series.plot(kind='bar', figsize=(12, 6), color=cm.plasma_r(sorted_series / float(max(sorted_series))))
     ax.set_xlabel('Features')
     ax.set_ylabel('Weights')
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
-    plt.title('Feature Weight Pareto', fontsize=14, fontweight='bold')
+    plt.title('Pareto Feature Weight', fontsize=14, fontweight='bold')
     plt.grid(color='lightgray', alpha=0.25, zorder=1)
     plt.tight_layout()
+    plt.xticks(rotation=45, ha='right')
+    plt.savefig('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/perf/W.png')
     plt.show()
 
 def plot_sorted_bar_chart_p(df, player):
     player_df = df[df['shortName'] == player]
+    player_df.columns = [col.replace('Weighted Score', 'Score') for col in player_df.columns]
+    player_df = player_df.loc[:, player_df.notna().any()]
     player_df = player_df.loc[:, ~player_df.columns.str.contains('Trend')]
     player_df = player_df.loc[:, ~player_df.columns.str.contains('ip_cluster')]
     weights = player_df.iloc[0, 5:]  # Get the weights for the player
     weights_sorted = weights.sort_values(ascending=False)  # Sort the weights in descending order
     weights_normalized = pd.to_numeric(weights_sorted) / float(max(weights_sorted))
-    ax = weights_sorted.plot(kind='bar', figsize=(12, 6), color=cm.viridis_r(weights_normalized))
-    ax.set_xlabel('Features')
-    ax.set_ylabel('Score')
+    ax = weights_sorted.plot(kind='bar', figsize=(12, 8), color=cm.plasma_r(weights_normalized))
+    ax.set_xlabel('Features', weight='bold')
+    ax.set_ylabel('Score', weight='bold')
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
     plt.title('Cluster Score Pareto for {}'.format(player), fontsize=14, fontweight='bold')
     plt.grid(color='lightgray', alpha=0.25, zorder=1)
     plt.tight_layout()
-    plt.savefig('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/perf/DR_perf1.png')
+    plt.xticks(rotation=45, ha='right')
+    plt.savefig('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/perf/SH_perf1.png')
     plt.show()
 
 
@@ -461,6 +467,8 @@ def calculate_weighted_scores(data, weight_dicts):
 
 
 def calculate_weighted_scores2(data, weight_dicts):
+    data.columns = [col.replace('_vaep', '_tendency') for col in data.columns]
+
     penalization = {
         'Cluster -1': {'CB': 0, 'FB': 0, 'MC': 0, 'AM': 0, 'W': 0, 'ST': 0},
         'Cluster 0': {'CB': 0, 'FB': 0.1, 'MC': 0.3, 'AM': 0.5, 'W': 0.5, 'ST': 0.5},
@@ -486,6 +494,7 @@ def calculate_weighted_scores2(data, weight_dicts):
     score_data = pd.DataFrame()  # create a new dataframe to store the scores
     for name, weights in weight_dicts.items():
         scores = []
+        print(type(weights))
         for index, row in data.iterrows():
             weighted_score = sum((row[feature] * weight * (1 - penalization[name][row['pos_group']])) for feature, weight in weights.items())
             scores.append(weighted_score)
@@ -510,7 +519,36 @@ def perf(df, df2, mode, cluster=None, age=None):
         custom_scaler = MinMaxScaler(feature_range=(1, 100))
         stats[stats.columns] = custom_scaler.fit_transform(stats[stats.columns])
     if mode == "percentiles":
-        stats = round(stats.rank(pct = True)*100, 0)
+        CB = df[df['ip_cluster'].isin([0,1,2])]
+        CB_ids = CB.iloc[:, : 6]
+        CB_stats = CB.filter(like='Weighted Score').filter(items=['Cluster 0 Weighted Score', 'Cluster 1 Weighted Score', 'Cluster 2 Weighted Score'])
+        CB_stats = round(CB_stats.rank(pct=True) * 100, 0)
+        CB_stats = pd.concat([CB_ids.reset_index(drop=True), CB_stats.reset_index(drop=True)], axis=1)
+        AM = df[df['ip_cluster'].isin([3,4,5])]
+        AM_ids = AM.iloc[:, : 6]
+        AM_stats = AM.filter(like='Weighted Score').filter(items=['Cluster 3 Weighted Score', 'Cluster 4 Weighted Score', 'Cluster 5 Weighted Score'])
+        AM_stats = round(AM_stats.rank(pct=True) * 100, 0)
+        AM_stats = pd.concat([AM_ids.reset_index(drop=True), AM_stats.reset_index(drop=True)], axis=1)
+        ST = df[df['ip_cluster'].isin([6,7,8])]
+        ST_ids = ST.iloc[:, : 6]
+        ST_stats = ST.filter(like='Weighted Score').filter(items=['Cluster 6 Weighted Score', 'Cluster 7 Weighted Score', 'Cluster 8 Weighted Score'])
+        ST_stats = round(ST_stats.rank(pct=True) * 100, 0)
+        ST_stats = pd.concat([ST_ids.reset_index(drop=True), ST_stats.reset_index(drop=True)], axis=1)
+        FB = df[df['ip_cluster'].isin([9,10,11])]
+        FB_ids = FB.iloc[:, : 6]
+        FB_stats = FB.filter(like='Weighted Score').filter(items=['Cluster 9 Weighted Score', 'Cluster 10 Weighted Score', 'Cluster 11 Weighted Score'])
+        FB_stats = round(FB_stats.rank(pct=True) * 100, 0)
+        FB_stats = pd.concat([FB_ids.reset_index(drop=True), FB_stats.reset_index(drop=True)], axis=1)
+        W = df[df['ip_cluster'].isin([12,13,14])]
+        W_ids = W.iloc[:, : 6]
+        W_stats = W.filter(like='Weighted Score').filter(items=['Cluster 12 Weighted Score', 'Cluster 13 Weighted Score', 'Cluster 14 Weighted Score'])
+        W_stats = round(W_stats.rank(pct=True) * 100, 0)
+        W_stats = pd.concat([W_ids.reset_index(drop=True), W_stats.reset_index(drop=True)], axis=1)
+        CM = df[df['ip_cluster'].isin([15,16,17])]
+        CM_ids = CM.iloc[:, : 6]
+        CM_stats = CM.filter(like='Weighted Score').filter(items=['Cluster 15 Weighted Score', 'Cluster 16 Weighted Score', 'Cluster 17 Weighted Score'])
+        CM_stats = round(CM_stats.rank(pct=True) * 100, 0)
+        CM_stats = pd.concat([CM_ids.reset_index(drop=True), CM_stats.reset_index(drop=True)], axis=1)
     if mode == "cluster":
         clus = pd.concat([df_ids.reset_index(drop=True), stats.reset_index(drop=True)], axis=1)
         clus = clus[clus['ip_cluster'] == cluster]
@@ -520,15 +558,49 @@ def perf(df, df2, mode, cluster=None, age=None):
         clus = pd.concat([clus_ids.reset_index(drop=True), clus.reset_index(drop=True)], axis=1)
         return clus
     if mode == "age":
-        bracket = pd.concat([df_ids.reset_index(drop=True), stats.reset_index(drop=True)], axis=1)
-        bracket = bracket[bracket['ageBracket'] == age]
-        bracket_ids = bracket.iloc[:, : 6]
-        bracket = round(bracket[bracket.filter(like='Weighted Score').columns].rank(pct = True)*100, 0)
-        bracket = pd.concat([bracket_ids.reset_index(drop=True), bracket.reset_index(drop=True)], axis=1)
-        return bracket
+        df = df[df['ageBracket'] == age]
+        CB = df[df['ip_cluster'].isin([0,1,2])]
+        CB_ids = CB.iloc[:, : 6]
+        CB_stats = CB.filter(like='Weighted Score').filter(items=['Cluster 0 Weighted Score', 'Cluster 1 Weighted Score', 'Cluster 2 Weighted Score'])
+        CB_stats = round(CB_stats.rank(pct=True) * 100, 0)
+        CB_stats = pd.concat([CB_ids.reset_index(drop=True), CB_stats.reset_index(drop=True)], axis=1)
+        AM = df[df['ip_cluster'].isin([3,4,5])]
+        AM_ids = AM.iloc[:, : 6]
+        AM_stats = AM.filter(like='Weighted Score').filter(items=['Cluster 3 Weighted Score', 'Cluster 4 Weighted Score', 'Cluster 5 Weighted Score'])
+        AM_stats = round(AM_stats.rank(pct=True) * 100, 0)
+        AM_stats = pd.concat([AM_ids.reset_index(drop=True), AM_stats.reset_index(drop=True)], axis=1)
+        ST = df[df['ip_cluster'].isin([6,7,8])]
+        ST_ids = ST.iloc[:, : 6]
+        ST_stats = ST.filter(like='Weighted Score').filter(items=['Cluster 6 Weighted Score', 'Cluster 7 Weighted Score', 'Cluster 8 Weighted Score'])
+        ST_stats = round(ST_stats.rank(pct=True) * 100, 0)
+        ST_stats = pd.concat([ST_ids.reset_index(drop=True), ST_stats.reset_index(drop=True)], axis=1)
+        FB = df[df['ip_cluster'].isin([9,10,11])]
+        FB_ids = FB.iloc[:, : 6]
+        FB_stats = FB.filter(like='Weighted Score').filter(items=['Cluster 9 Weighted Score', 'Cluster 10 Weighted Score', 'Cluster 11 Weighted Score'])
+        FB_stats = round(FB_stats.rank(pct=True) * 100, 0)
+        FB_stats = pd.concat([FB_ids.reset_index(drop=True), FB_stats.reset_index(drop=True)], axis=1)
+        W = df[df['ip_cluster'].isin([12,13,14])]
+        W_ids = W.iloc[:, : 6]
+        W_stats = W.filter(like='Weighted Score').filter(items=['Cluster 12 Weighted Score', 'Cluster 13 Weighted Score', 'Cluster 14 Weighted Score'])
+        W_stats = round(W_stats.rank(pct=True) * 100, 0)
+        W_stats = pd.concat([W_ids.reset_index(drop=True), W_stats.reset_index(drop=True)], axis=1)
+        CM = df[df['ip_cluster'].isin([15,16,17])]
+        CM_ids = CM.iloc[:, : 6]
+        CM_stats = CM.filter(like='Weighted Score').filter(items=['Cluster 15 Weighted Score', 'Cluster 16 Weighted Score', 'Cluster 17 Weighted Score'])
+        CM_stats = round(CM_stats.rank(pct=True) * 100, 0)
+        CM_stats = pd.concat([CM_ids.reset_index(drop=True), CM_stats.reset_index(drop=True)], axis=1)
+        dfp = pd.concat([CB_stats, AM_stats, ST_stats, FB_stats,W_stats, CM_stats], axis=0, ignore_index=True)
+        dfp = dfp.sort_values('playerId')
+        dfp = dfp.reset_index(drop=True)
+        return dfp
 
     dfp = pd.concat([df_ids.reset_index(drop=True), stats.reset_index(drop=True)], axis=1)
     dfp = pd.concat([dfp.reset_index(drop=True), trend.reset_index(drop=True)], axis=1)
+
+    if mode == "percentiles":
+        dfp = pd.concat([CB_stats, AM_stats, ST_stats, FB_stats,W_stats, CM_stats], axis=0, ignore_index=True)
+        dfp = dfp.sort_values('playerId')
+        dfp = dfp.reset_index(drop=True)
 
     return dfp
 
@@ -602,4 +674,6 @@ def perf_trend(df):
     return df
 
 
-
+def get_weighted_score(row, cluster_label):
+    score_column = f"Cluster {cluster_label} Weighted Score"
+    return row[score_column]

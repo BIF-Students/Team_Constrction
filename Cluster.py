@@ -64,7 +64,7 @@ y = dr[:, 1]
 
 # when n=2
 colors = plt.cm.viridis(np.linspace(0, 1, clusters)).tolist()
-plt.scatter(x, y, c=[colors[l] if l != -1 else 'lightgray' for l in cluster_assignments], cmap='viridis')
+plt.scatter(x, y, c=[colors[l] if l != -1 else 'lightgray' for l in cluster_assignments], cmap='CMRmap')
 plt.gca().spines['top'].set_visible(False)
 plt.gca().spines['right'].set_visible(False)
 plt.title('Cluster Distribution', fontsize=14, fontweight='bold')
@@ -86,6 +86,25 @@ fig.show()'''
 df2 = pd.concat([df.reset_index(drop=True),gmm_to_df(cluster_assignments, "ip").reset_index(drop=True)], axis=1)
 df2 = pd.concat([df_id.reset_index(drop=True),df2.reset_index(drop=True)], axis=1)
 df2.groupby('ip_cluster')['pos_group'].value_counts()
+
+
+# visualization for report
+'''df2 = pd.concat([df2.reset_index(drop=True),pd.DataFrame(dr, columns = ['x','y']).reset_index(drop=True)], axis=1)
+palette = sns.color_palette("CMRmap", 6) + ['lightgrey']
+hue_order = list(range(6)) + [-1]
+
+sns.scatterplot(data=df2[df2['ip_cluster'] != -1], x='x', y='y', hue='ip_cluster', palette=palette, hue_order=hue_order)
+sns.scatterplot(data=df2[df2['ip_cluster'] == -1], x='x', y='y', color='lightgrey', size=1)
+plt.gca().spines['top'].set_visible(False)
+plt.gca().spines['right'].set_visible(False)
+plt.title('Cluster Distribution', fontsize=14, fontweight='bold')
+plt.xlabel('umap_x')
+plt.ylabel('umap_y')
+plt.grid(color='lightgray', alpha=0.25, zorder=1)
+plt.legend('', frameon=False)
+# plt.legend(loc="upper right", bbox_to_anchor=(1.12, 1))
+plt.savefig('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/clustersIMG2.png')
+plt.show()'''
 
 # -----------------------------------------------------------------------------------
 
