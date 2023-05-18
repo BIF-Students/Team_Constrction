@@ -9,7 +9,7 @@ from sklearn import metrics
 import matplotlib.cm as cm
 from datetime import datetime
 from helpers.student_bif_code import *
-from matplotlib.colors import LinearSegmentedColormap
+import seaborn as sns
 
 
 # Filter to determine where an  occured
@@ -451,6 +451,34 @@ def plot_sorted_bar_chart_p(df, player):
     plt.tight_layout()
     plt.xticks(rotation=45, ha='right')
     plt.savefig('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/perf/SH_perf1.png')
+    plt.show()
+
+
+def create_boxplot(df):
+    columns_to_keep = ['Cluster 0 Weighted Score', 'Cluster 1 Weighted Score', 'Cluster 2 Weighted Score', 'Cluster 3 Weighted Score', 'Cluster 4 Weighted Score', 'Cluster 5 Weighted Score', 'Cluster 6 Weighted Score', 'Cluster 7 Weighted Score', 'Cluster 8 Weighted Score', 'Cluster 9 Weighted Score', 'Cluster 10 Weighted Score', 'Cluster 11 Weighted Score', 'Cluster 12 Weighted Score', 'Cluster 13 Weighted Score', 'Cluster 14 Weighted Score', 'Cluster 15 Weighted Score', 'Cluster 16 Weighted Score', 'Cluster 17 Weighted Score']
+    df_filtered = df[columns_to_keep]
+    df_filtered.columns = [col.replace('Weighted Score', 'Score') for col in df_filtered.columns]
+
+    plt.figure(figsize=(12, 8))
+    sns.stripplot(data=df_filtered.iloc[:, 1:], jitter=True, alpha=0.7, size=0.8, color='black')
+    flierprops = dict(markeredgecolor='darkslateblue', markersize=3, linestyle='none', marker='+')
+    ax = sns.boxplot(data=df_filtered.iloc[:, 1:], palette=sns.color_palette('plasma_r', 18), flierprops=flierprops)
+
+    for i, box in enumerate(ax.artists):
+        scores = [whisker.get_ydata()[0] for whisker in ax.lines[i * 2 + 1: i * 2 + 3]]
+        top_scores = sorted(scores, reverse=True)[:3]
+        top_indices = [scores.index(score) for score in top_scores]
+        for j, index in enumerate(top_indices):
+            plt.text(i, scores[index], df_filtered.iloc[index, i + 1], horizontalalignment='center', verticalalignment='bottom')
+
+    plt.xlabel('Clusters')
+    plt.ylabel('Weighted Score')
+    plt.title('Performance Statistics Boxplot per Cluster')
+    plt.gca().spines['top'].set_visible(False)
+    plt.gca().spines['right'].set_visible(False)
+    plt.grid(color='lightgray', alpha=0.25, zorder=1)
+    plt.tight_layout()
+    plt.xticks(rotation=45, ha='right')
     plt.show()
 
 

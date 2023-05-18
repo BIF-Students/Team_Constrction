@@ -22,6 +22,16 @@ df_input2 = df_vaep.drop(['ip_cluster', 'playerId', 'seasonId', 'pos_group'], ax
 weight_dictsX = get_weight_dicts(df_input, clusters)
 weight_dicts = get_weight_dicts2(df_input, clusters)
 
+df_elo = load_db_to_pd(sql_query = "SELECT * FROM League_Factor", db_name='Scouting')
+df_ssn = load_db_to_pd(sql_query = "SELECT * FROM Wyscout_Seasons", db_name='Scouting')
+df_comp = load_db_to_pd(sql_query = "SELECT * FROM Wyscout_Competitions", db_name='Scouting')
+df_elo = pd.merge(df_elo, df_ssn, on='seasonId', how='left')
+df_elo = pd.merge(df_elo, df_comp, on='competitionId', how='left')
+df_elo = df_elo[['name_y', 'leagueFactor', 'date']]
+df_elo['date'] = pd.to_datetime(df_elo['date'])
+df_elo = df_elo[df_elo['date'].dt.year == 2021]
+df_elo.to_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/ELO.csv', index=False)
+
 # testing
 cluster_name = 'Cluster 6'
 cluster_df = cluster_to_dataframe(weight_dicts, cluster_name)
@@ -31,8 +41,9 @@ plot_sorted_bar_chart(cluster_df)
 dfp = calculate_weighted_scores2(df_vaep, weight_dicts)
 players = load_db_to_pd(sql_query = "SELECT * FROM Wyscout_Players", db_name='Scouting')
 players = players[['playerId', 'shortName', 'birthDate']]
-dfp = dfp[dfp['seasonId'].isin([187483, 187141, 187142])] # when measuring against the Superliga players
-test = perf(dfp, players, mode='percentiles', cluster=None, age=None) # use for presentation
+# dfp = dfp[dfp['seasonId'].isin([187483, 187141, 187142])] # when measuring against the Superliga players
+test = perf(dfp, players, mode='scaled', cluster=None, age=None) # use for presentation
+create_boxplot(test)
 plot_sorted_bar_chart_p(test, "S. Hedlund")
 
 # to be merged with transfer values from transfermarkt at a later point
