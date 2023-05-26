@@ -1,8 +1,0 @@
-QUERY 1:
-SELECT * FROM sd_tableF WHERE competitionId IN (168, 310, 364, 750, 852, 426, 669);
-
-QUERY 2:
-SELECT * FROM sd_tableF WHERE competitionId IN (323, 524, 692, 830, 729, 448);
-
-QUERY 3:
-SELECT * FROM sd_tableF WHERE competitionId IN (335, 412, 635, 808, 795, 465);

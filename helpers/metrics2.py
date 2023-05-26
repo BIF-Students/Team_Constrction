@@ -1,4 +1,6 @@
-# DEF ATTRIBUTES --------------------------------------------------------
+# This file creates 6 lists representing feature groupings for visualization purposes in Cluster_viz.py
+
+# DEFENDING ATTRIBUTES -------------------------------------------------------------------------------------------------
 defending = [
     "aerial_duel_tendency",
     "counterpressing_recovery_tendency",
@@ -10,7 +12,7 @@ defending = [
     "ip_cluster"
 ]
 
-# PASSING ESTABLISHED PLAY ATTRIBUTES --------------------------------------------------------
+# PASSING (ESTABLISHED PLAY) ATTRIBUTES --------------------------------------------------------------------------------
 passingE = [
     "short_or_medium_pass_tendency",
     "back_pass_tendency",
@@ -23,7 +25,7 @@ passingE = [
     "ip_cluster"
 ]
 
-# PASSING ATTACKING PLAY ATTRIBUTES --------------------------------------------------------
+# PASSING (ATTACKING PLAY) ATTRIBUTES ----------------------------------------------------------------------------------
 passingA = [
     "xA_tendency",
     "assist_tendency",
@@ -33,18 +35,13 @@ passingA = [
     "smart_pass_tendency",
     "linkup_play_tendency",
     "through_pass_tendency",
-    "ip_cluster"
-]
-
-# PASSING ATTACKING PLAY ATTRIBUTES --------------------------------------------------------
-crossing = [
     "deep_completed_cross_tendency",
     "ws_cross_tendency",
     "hs_cross_tendency",
     "ip_cluster"
 ]
 
-# TAKE-ON ATTRIBUTES ------------------------------
+# TAKE-ON ATTRIBUTES ---------------------------------------------------------------------------------------------------
 takeon = [
     "dribble_tendency",
     "offensive_duel_tendency",
@@ -55,7 +52,7 @@ takeon = [
     "ip_cluster"
     ]
 
-# FINISHING ATTRIBUTES ------------------------------
+# FINISHING ATTRIBUTES -------------------------------------------------------------------------------------------------
 finishing = [
     "xG_tendency",
     "goal_tendency",
@@ -65,7 +62,7 @@ finishing = [
     "ip_cluster"
     ]
 
-# ATTACKING ATTRIBUTES ------------------------------
+# ATTACKING ATTRIBUTES -------------------------------------------------------------------------------------------------
 zones = [
     "Zone 1 Actions_tendency",
     "Zone 2 Actions_tendency",
@@ -75,5 +72,3 @@ zones = [
     "Zone 6 Actions_tendency",
     "ip_cluster"
 ]
-
-# --------------------------------------------------------

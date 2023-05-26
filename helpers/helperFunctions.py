@@ -1,3 +1,5 @@
+# This file contains all helper functions used for tactical player roles and role performance except for the cluster vizualizations
+
 import pandas as pd
 import numpy as np
 from sklearn.mixture import GaussianMixture
@@ -12,7 +14,7 @@ from helpers.student_bif_code import *
 import seaborn as sns
 
 
-# Filter to determine where an  occured
+# Divide the pitch into 26 zones and assign zone values to each event
 def findArea(row):
     s = ""
     #  id = row['id']
@@ -75,6 +77,8 @@ def findArea(row):
         s = 0
     return s
 
+
+# Divide the pitch into 6 zones and assign zone values to each event
 def zone(row):
     s = ""
     #  id = row['id']
@@ -104,21 +108,28 @@ def zone(row):
     return s
 
 
+# Infuse shot events with spatial data to show shots in the penalty area
 def pen_shots(x, y):
     return np.where(x > 83,
                     np.where(x < 101,
                              np.where(y > 18,
                                       np.where(y < 82, 1.00000, 0.0000), 0.00000), 0.00000), 0.00000)
 
+
+# Infuse shot events with spatial data to show shots outside the penalty area
 def non_pen_shots(x, y):
     return np.where(x > 83,
                     np.where(x < 101,
                              np.where(y > 18,
                                       np.where(y < 82, 0.00000, 1.0000), 1.00000), 1.00000), 1.00000)
 
+
+# Infuse defensive duels with spatial data to show duels in the attacking third of the pitch
 def last_third_def(x):
     return np.where(x > 66, 1.00000, 0.00000)
 
+
+# Infuse crossing events with spatial data to show crosses from the widespace
 def isWhiteSpaceCross (eventType, row):
     x_start = row['x']
     y_start = row['y']
@@ -133,6 +144,7 @@ def isWhiteSpaceCross (eventType, row):
     else: return 0
 
 
+# Infuse crossing events with spatial data to show crosses from the halfspace
 def isHalfSpaceCross (eventType, row):
     x_start = row['x']
     y_start = row['y']
@@ -147,32 +159,38 @@ def isHalfSpaceCross (eventType, row):
     else: return 0
 
 
+# Function for Euclidean distance
 def ec(x1, x2, y1, y2):
     return np.sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2))
 
 
+# Infuse passing events with spatial data to create a progressive passes feature
 def pp(x1, x2):
     dist = x2 - x1
     return np.where(x1 > 50, np.where(dist > 10, 1.00000, 0.00000),
                     np.where(dist > 30, 1.00000, 0.00000))
 
 
+# Infuse passing events with spatial data to create a direction of passes related feature
 def direction(x1, x2):
     dist = x2 - x1
     return np.where(dist > 4, 'forward',
                     np.where(dist < -4, 'backward', 'horizontal'))
 
 
+# Infuse passing events with spatial data to create a non-forward passes feature
 def non_forward(x1, x2):
     dist = x2 - x1
     return np.where(dist > 3, 0.00000, 1.00000)
 
 
+# Infuse passing events with spatial data to create a switches feature
 def switch(y1, y2):
     dist = y2 - y1
     return np.where(dist > 35, 1.00000, 0.00000)
 
 
+# Return the mode of columns in a dataframe
 def gmode(df):
     temp = df.groupby(['playerId', 'seasonId']).obj.columns
     temp = temp.drop('playerId')
@@ -189,10 +207,13 @@ def gmode(df):
     return gtemp1
 
 
+# Helper method for the gmode function accounting for nan
 def gmodeHelp(x):
     m = pd.Series.mode(x)
     return m.values[0] if not m.empty else np.nan
 
+
+# Convert Wyscout positional labels to more generic, generalizable labels
 def pos_group(row):
     x = row['position']
     g = ['gk']
@@ -220,6 +241,7 @@ def pos_group(row):
         return "other"
 
 
+# Binary indicator for positions, indicating if positions are offensive-minded or defensive-minded
 def off_def(row):
     x = row['map_group']
     off = ['FW', 'LM', 'RM', 'LW', 'RW', 'AM', 'CM']
@@ -231,6 +253,8 @@ def off_def(row):
     else:
         return "other"
 
+
+# Function for finding and visualizing the optimal number of GMM clusters for the optimal label assignment threshold
 def opt_clus(dr):
     n_range = range(2, 21)
     threshold_step = 0.05
@@ -281,7 +305,7 @@ def opt_clus(dr):
     plt.show()
 
 
-
+# Convert GMM clustering output to dataframe for merging purposes
 def gmm_to_df(df, phase):
     if phase == 'ip':
         frame = pd.DataFrame(df.reshape(df.shape[0], 1), columns=["ip_cluster"])
@@ -299,6 +323,7 @@ def find_outliers_IQR(df):
    return outliers
 
 
+# Add player names to cluster X
 def names_clusters(data, cluster):
     df = data.iloc[:, np.r_[0, 5, 6:12]]
     players = pd.read_csv('C:/Users/mall/OneDrive - Implement/Documents/Andet/RP/Data/Wyscout_Players.csv', sep=";", encoding='unicode_escape')
@@ -308,6 +333,8 @@ def names_clusters(data, cluster):
     dfp = dfp.iloc[:, np.r_[4, 2, 1, 18, 17, 15, 16, 13, 14]]
     return dfp
 
+
+# Binary indicator for all events to indicate whether they are in-possession events or not
 def possession_action(row):
     x = row['typePrimary']
     possession = ['pass', 'free_kick', 'shot', 'throw_in', 'shot_against', 'touch', 'goal_kick', 'corner', 'acceleration', 'offside', 'penalty']
@@ -321,6 +348,7 @@ def possession_action(row):
     return 0
 
 
+# Binary indicator for all events to indicate whether they are out-of-possession events or not
 def non_possession_action(row):
     x = row['typePrimary']
     non_possession = ['interception', 'infraction', 'shot_against', 'clearance']
@@ -334,6 +362,7 @@ def non_possession_action(row):
     return 0
 
 
+# Function for converting convential counting statistics to opportunity space tendencies based on in/out-of-possession events and frequencies
 def opp_space(df, cols):
     possession = ["assist", "back_pass", "carry", "deep_completed_cross", "deep_completition", "dribble", "forward_pass", "foul_suffered", "goal", "head_shot", "key_pass", "lateral_pass", "linkup_play", "long_pass", "offensive_duel", "pass_into_penalty_area", "pass_to_final_third", "progressive_pass", "progressive_run", "second_assist", "short_or_medium_pass", "smart_pass", "third_assist", "through_pass", "touch_in_box", "under_pressure", "cross", "shots_PA", "shots_nonPA", "ws_cross", "hs_cross"]
     non_possession = ["aerial_duel", "conceded_goal", "counterpressing_recovery", "defensive_duel", "dribbled_past_attempt", "loose_ball_duel", "penalty_foul", "pressing_duel", "recovery", "sliding_tackle"]
@@ -352,11 +381,7 @@ def opp_space(df, cols):
     return df
 
 
-'''The weights are calculated using the method of variance explained by the projection (VEP), which is a technique for 
-measuring the importance of a feature for a particular cluster. The VEP weight for a feature is proportional to the 
-difference between the mean value of the feature in the target cluster and the mean value of the feature in all the 
-other clusters, weighted by the variance of the feature in the target cluster. The intuition behind this is that if a 
-feature has a high VEP weight, then it is a good predictor of the target cluster.'''
+# Method 1 for extracting feature weights from each cluster label, using median value distances
 def get_weight_dicts(X, clusters):
     weight_dicts = {}
     for cluster_label in np.unique(clusters):
@@ -382,6 +407,7 @@ def get_weight_dicts(X, clusters):
     return weight_dicts
 
 
+# Method 2 for extracting feature weights from each cluster label, using factor analysis scores
 def get_weight_dicts2(X, cluster_labels, num_factors=10):
     subsets = {}
     for label in set(cluster_labels):
@@ -409,12 +435,14 @@ def get_weight_dicts2(X, cluster_labels, num_factors=10):
     return feature_weights
 
 
+# Convert dictionary of cluster weights into a dataframe
 def cluster_to_dataframe(weight_dicts, cluster_name):
     cluster_weights = weight_dicts[cluster_name]
     df = pd.DataFrame.from_dict(cluster_weights, orient='index').T
     return df
 
 
+# Plot Pareto bar chart for feature weights
 def plot_sorted_bar_chart(df):
     df.columns = [col.replace('_tendency', '') for col in df.columns]
     series = df.T.squeeze()
@@ -432,6 +460,8 @@ def plot_sorted_bar_chart(df):
     plt.savefig('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/perf/W.png')
     plt.show()
 
+
+# Plot Pareto chart for player X's performance index scores
 def plot_sorted_bar_chart_p(df, player):
     player_df = df[df['shortName'] == player]
     player_df.columns = [col.replace('Weighted Score', 'Score') for col in player_df.columns]
@@ -454,34 +484,41 @@ def plot_sorted_bar_chart_p(df, player):
     plt.show()
 
 
+# Create boxplot for each cluster's performance index score descriptors along with annotating top performers
 def create_boxplot(df):
-    columns_to_keep = ['Cluster 0 Weighted Score', 'Cluster 1 Weighted Score', 'Cluster 2 Weighted Score', 'Cluster 3 Weighted Score', 'Cluster 4 Weighted Score', 'Cluster 5 Weighted Score', 'Cluster 6 Weighted Score', 'Cluster 7 Weighted Score', 'Cluster 8 Weighted Score', 'Cluster 9 Weighted Score', 'Cluster 10 Weighted Score', 'Cluster 11 Weighted Score', 'Cluster 12 Weighted Score', 'Cluster 13 Weighted Score', 'Cluster 14 Weighted Score', 'Cluster 15 Weighted Score', 'Cluster 16 Weighted Score', 'Cluster 17 Weighted Score']
-    df_filtered = df[columns_to_keep]
-    df_filtered.columns = [col.replace('Weighted Score', 'Score') for col in df_filtered.columns]
+    df.columns = [col.replace('Weighted Score', 'Score') for col in df.columns]
+    weighted_scores_cols = [col for col in df.columns if col.startswith('Cluster') and col.endswith('Score')]
+    df_filtered = df[['shortName'] + weighted_scores_cols]
 
-    plt.figure(figsize=(12, 8))
-    sns.stripplot(data=df_filtered.iloc[:, 1:], jitter=True, alpha=0.7, size=0.8, color='black')
-    flierprops = dict(markeredgecolor='darkslateblue', markersize=3, linestyle='none', marker='+')
+    plt.figure(figsize=(16, 12))
+    sns.stripplot(data=df_filtered.iloc[:, 1:], jitter=True, alpha=0.7, size=1.2, color='black')
+    flierprops = dict(markeredgecolor='darkslateblue', markersize=7, linestyle='none', marker='+')
     ax = sns.boxplot(data=df_filtered.iloc[:, 1:], palette=sns.color_palette('plasma_r', 18), flierprops=flierprops)
 
-    for i, box in enumerate(ax.artists):
-        scores = [whisker.get_ydata()[0] for whisker in ax.lines[i * 2 + 1: i * 2 + 3]]
-        top_scores = sorted(scores, reverse=True)[:3]
-        top_indices = [scores.index(score) for score in top_scores]
-        for j, index in enumerate(top_indices):
-            plt.text(i, scores[index], df_filtered.iloc[index, i + 1], horizontalalignment='center', verticalalignment='bottom')
+    top_3_indices = df_filtered.iloc[:, 1:].apply(lambda x: [x.nlargest(1).index[0], x.nlargest(4).index[3]], axis=0)
 
-    plt.xlabel('Clusters')
-    plt.ylabel('Weighted Score')
-    plt.title('Performance Statistics Boxplot per Cluster')
+    for i, col in enumerate(weighted_scores_cols):
+        for index in top_3_indices[col]:
+            short_name = df_filtered.loc[index, 'shortName']
+            plt.annotate(short_name,
+                         xy=(i, df_filtered.loc[index, col]),
+                         xytext=(i + 0.15, df_filtered.loc[index, col]),
+                         ha='center', va='bottom', color='black', size=10, rotation=45)
+
+    plt.xlabel('Clusters', weight='bold', fontsize=14)
+    plt.ylabel('Weighted Score', weight='bold', fontsize=14)
     plt.gca().spines['top'].set_visible(False)
     plt.gca().spines['right'].set_visible(False)
     plt.grid(color='lightgray', alpha=0.25, zorder=1)
     plt.tight_layout()
-    plt.xticks(rotation=45, ha='right')
+    plt.subplots_adjust(bottom=0.12)
+    plt.xticks(rotation=45, ha='right', fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.savefig('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/perf/boxplot.png')
     plt.show()
 
 
+# Apply feature weights to VAEP scores to create the composite performance index
 def calculate_weighted_scores(data, weight_dicts):
     data.columns = [col.replace('_vaep', '_tendency') for col in data.columns]
     score_data = pd.DataFrame()  # create a new dataframe to store the scores
@@ -494,6 +531,7 @@ def calculate_weighted_scores(data, weight_dicts):
     return pd.concat([data, score_data], axis=1)
 
 
+# Apply feature weights to VAEP scores to create the composite performance index. with position penalization (domain knowledge-based)
 def calculate_weighted_scores2(data, weight_dicts):
     data.columns = [col.replace('_vaep', '_tendency') for col in data.columns]
 
@@ -530,6 +568,7 @@ def calculate_weighted_scores2(data, weight_dicts):
     return pd.concat([data, score_data], axis=1)
 
 
+# Present the role performance index scores in different views (scaled 1 to 100, percentiles vs. cluster group, percentiles vs. assigned cluster, or percentiles vs. age group)
 def perf(df, df2, mode, cluster=None, age=None):
     df = pd.merge(df2, df, on='playerId')
     df['birthDate'] = pd.to_datetime(df['birthDate']).dt.year
@@ -633,6 +672,7 @@ def perf(df, df2, mode, cluster=None, age=None):
     return dfp
 
 
+# Simple function for presenting role performance index scores scaled 1 to 100
 def perf2(df, df2):
     df.drop(['Cluster -1 Weighted Score'], axis=1)
     df = df.drop(columns=df.columns[df.columns.get_loc('aerial_duel_tendency'):df.columns.get_loc('Zone 6 Actions_tendency') + 1])
@@ -647,6 +687,7 @@ def perf2(df, df2):
     return dfp
 
 
+# Assign player ages to 5 age brackets
 def calculate_age_bracket(birth_year):
     today = datetime.today()
     age = today.year - birth_year
@@ -665,6 +706,7 @@ def calculate_age_bracket(birth_year):
         "NA"
 
 
+# Indicate whether player X's performance increases, decreased, or was stable from the 2020/21 season to 2021/22, where applicable
 def perf_trend(df):
     # df = pd.merge(df2, df, on='playerId')
     # df = df.drop(['Cluster -1 Weighted Score'], axis=1)
@@ -702,6 +744,7 @@ def perf_trend(df):
     return df
 
 
+# Get the weighted score for a specific cluster label from a row in a dataframe
 def get_weighted_score(row, cluster_label):
     score_column = f"Cluster {cluster_label} Weighted Score"
     return row[score_column]

@@ -5,9 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="performance v1">
+      <change afterPath="$PROJECT_DIR$/Cluster_viz.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cluster.py" beforeDir="false" afterPath="$PROJECT_DIR$/Cluster.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Performance.py" beforeDir="false" afterPath="$PROJECT_DIR$/Performance.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SQL_pross.py" beforeDir="false" afterPath="$PROJECT_DIR$/SQL_pross.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/helpers/helperFunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/helperFunctions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helpers/metrics.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/helpers/metrics2.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/metrics2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helpers/student_bif_code.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/student_bif_code.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helpers/visualizations.py" beforeDir="false" afterPath="$PROJECT_DIR$/helpers/cluster_visualizations.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/regression.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sql_pre_pros" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sql_script.txt" beforeDir="false" afterPath="$PROJECT_DIR$/SQL_script.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sql_script_season_ids" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,26 +47,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Team_Constrction",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "preferences.lookFeel",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Team_Constrction&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\mll\OneDrive - Brøndbyernes IF Fodbold\Dokumenter\TC\Team_Constrction" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\mll\OneDrive - Brøndbyernes IF Fodbold\Dokumenter\TC\Team_Constrction\" />
       <recent name="C:\Users\mll\OneDrive - Brøndbyernes IF Fodbold\Dokumenter\TC\Team_Constrction\archive" />
       <recent name="C:\Users\mll\OneDrive - Brøndbyernes IF Fodbold\Dokumenter\TC\Team_Constrction" />
     </key>
@@ -71,7 +84,8 @@
       <workItem from="1675856214182" duration="670000" />
       <workItem from="1675932219925" duration="79309000" />
       <workItem from="1678960506760" duration="22224000" />
-      <workItem from="1679045903240" duration="226210000" />
+      <workItem from="1679045903240" duration="226243000" />
+      <workItem from="1684417989703" duration="15995000" />
     </task>
     <task id="LOCAL-00001" summary="første prepross af SQL udtræk">
       <created>1676646533461</created>
@@ -220,7 +234,14 @@
       <option name="project" value="LOCAL" />
       <updated>1684401507494</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="performance v1">
+      <created>1684417944541</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1684417944541</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
