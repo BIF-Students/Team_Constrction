@@ -1,11 +1,8 @@
-import numpy as np
-import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
 import umap
-from helpers.helperFunctions import *
+from archive.helpers.helperFunctions import *
 from sklearn.mixture import GaussianMixture
-from helpers.student_bif_code import *
+from archive.helpers.student_bif_code import *
 from sklearn.decomposition import PCA
 
 # loading

@@ -1,10 +1,6 @@
-import numpy as np
-import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
 import umap
-from helpers.helperFunctions import *
-import plotly.express as px
+from archive.helpers.helperFunctions import *
 from sklearn.mixture import GaussianMixture
 from sklearn.feature_selection import VarianceThreshold
 

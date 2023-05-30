@@ -1,12 +1,8 @@
-import numpy as np
-import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
 import umap
-from helpers.helperFunctions import *
+from archive.helpers.helperFunctions import *
 from sklearn.mixture import GaussianMixture
-from helpers.student_bif_code import *
-from matplotlib.lines import Line2D
+from archive.helpers.student_bif_code import *
 
 # loading
 df = pd.read_csv('C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Data/events_clean.csv',

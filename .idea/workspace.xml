@@ -5,7 +5,47 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="processed">
+      <change afterPath="$PROJECT_DIR$/chemistry/pairwise_chemistry.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cluster.py" beforeDir="false" afterPath="$PROJECT_DIR$/Cluster.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SQL_pross.py" beforeDir="false" afterPath="$PROJECT_DIR$/SQL_pross.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/archive/OldCluster.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/OldCluster.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/archive/PCA.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/PCA.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/archive/dr_cluster.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/dr_cluster.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/archive/dr_cluster_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/dr_cluster_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/archive/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/archive/pre_pros.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/pre_pros.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/archive/pre_pros2.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/pre_pros2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catboost_info/catboost_training.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/catboost_info/learn/events.out.tfevents" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/catboost_info/learn_error.tsv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/catboost_info/time_left.tsv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/chemistry.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/chemistry_old.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/chemistry_v2.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/distance.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/distance.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/jdi.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/jdi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/joi.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/joi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/netoi.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/netoi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/prediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/prediction.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/responsibility_share.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/responsibility_share.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry/sql_statements.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/sql_statements.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry_v2/chemistry.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry_v2/chemistry_helpers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry_v2/distance.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry_v2/jdi.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry_v2/joi.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry_v2/netoi.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry_v2/responsibility_share.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry_v2/smallTest.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chemistry_v2/sql_statements.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/helpers/helperFunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/helpers/helperFunctions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helpers/metrics.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/helpers/metrics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helpers/metrics2.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/helpers/metrics2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helpers/student_bif_code.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/helpers/student_bif_code.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/helpers/visualizations.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/helpers/visualizations.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/regression.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/regression.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/temp-plot.html" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,28 +55,11 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="JavaScript File" />
         <option value="Python Script" />
       </list>
     </option>
   </component>
-  <component name="FlaskConsoleOptions" custom-start-script="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))">
-    <envs>
-      <env key="FLASK_APP" value="app" />
-    </envs>
-    <option name="myCustomStartScript" value="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))" />
-    <option name="myEnvs">
-      <map>
-        <entry key="FLASK_APP" value="app" />
-      </map>
-    </option>
-  </component>
   <component name="Git.Settings">
-    <option name="RECENT_BRANCH_BY_REPOSITORY">
-      <map>
-        <entry key="$PROJECT_DIR$" value="main" />
-      </map>
-    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MarkdownSettingsMigration">
@@ -56,28 +79,27 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/jhs/Powerplant/Powerplant&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/mll/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/TC/Team_Constrction&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\jhs\Teamconstruction\Team_Construction" />
       <recent name="C:\Users\mll\OneDrive - Brøndbyernes IF Fodbold\Dokumenter\TC\Team_Constrction" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\jhs\Teamconstruction\Team_Construction\chemistry" />
+      <recent name="C:\Users\jhs\Teamconstruction\Team_Construction\archive" />
       <recent name="C:\Users\mll\OneDrive - Brøndbyernes IF Fodbold\Dokumenter\TC\Team_Constrction\archive" />
       <recent name="C:\Users\mll\OneDrive - Brøndbyernes IF Fodbold\Dokumenter\TC\Team_Constrction" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.chemistry_v2">
-    <configuration name="chemistry_helpers (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.pairwise_chemistry">
+    <configuration name="pairwise_chemistry" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Team_Construction" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -90,7 +112,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/chemistry/chemistry_helpers.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\jhs\Teamconstruction\Team_Construction\chemistry\pairwise_chemistry.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -99,85 +121,9 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="chemistry_helpers" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="C:\Users\jhs\Anaconda3\python.exe" />
-      <option name="SDK_NAME" value="C:\Users\jhs\Anaconda3" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/helpers" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="C:\Users\jhs\Teamconstruction\Team_Construction\chemistry\chemistry_helpers.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="chemistry_v2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Team_Construction" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/chemistry" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/chemistry/chemistry_v2.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="prediction" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Team_Construction" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/chemistry" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/chemistry/prediction.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <list>
-      <item itemvalue="Python.teamconstruction" />
-      <item itemvalue="Python.chemistry_helpers" />
-      <item itemvalue="Python.prediction" />
-      <item itemvalue="Python.chemistry_v2" />
-      <item itemvalue="Python.chemistry_helpers (1)" />
-    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.chemistry_v2" />
-        <item itemvalue="Python.prediction" />
-        <item itemvalue="Python.chemistry_helpers (1)" />
+        <item itemvalue="Python.pairwise_chemistry" />
       </list>
     </recent_temporary>
   </component>
@@ -191,99 +137,20 @@
       <updated>1675853639913</updated>
       <workItem from="1675853641147" duration="201000" />
       <workItem from="1675856214182" duration="670000" />
-      <workItem from="1675932219925" duration="78846000" />
-      <workItem from="1678896219023" duration="89000" />
-      <workItem from="1678896404621" duration="1279000" />
-      <workItem from="1678910061715" duration="5713000" />
-      <workItem from="1678962577234" duration="2638000" />
-      <workItem from="1678966361680" duration="19293000" />
-      <workItem from="1678993049449" duration="7263000" />
-      <workItem from="1679040576068" duration="2447000" />
-      <workItem from="1679045572187" duration="6470000" />
-      <workItem from="1679055435826" duration="1695000" />
-      <workItem from="1679066060919" duration="82000" />
-      <workItem from="1679154330424" duration="406000" />
-      <workItem from="1679154764514" duration="6951000" />
-      <workItem from="1679220170258" duration="10758000" />
-      <workItem from="1679235180646" duration="8348000" />
-      <workItem from="1679243611740" duration="1858000" />
-      <workItem from="1679334322374" duration="686000" />
-      <workItem from="1679335025948" duration="9733000" />
-      <workItem from="1679474692078" duration="10820000" />
-      <workItem from="1679489455486" duration="14739000" />
-      <workItem from="1679510029755" duration="8389000" />
-      <workItem from="1679651202878" duration="13343000" />
-      <workItem from="1679816798574" duration="1512000" />
-      <workItem from="1679835952103" duration="5942000" />
-      <workItem from="1679843536986" duration="13587000" />
-      <workItem from="1679943274474" duration="6241000" />
-      <workItem from="1679989474848" duration="1805000" />
-      <workItem from="1679991330165" duration="7276000" />
-      <workItem from="1680003287267" duration="12883000" />
-      <workItem from="1680075443799" duration="29476000" />
-      <workItem from="1680113604561" duration="5971000" />
-      <workItem from="1680194628424" duration="10773000" />
-      <workItem from="1680248350702" duration="5314000" />
-      <workItem from="1680255734601" duration="9069000" />
-      <workItem from="1680269172699" duration="60000" />
-      <workItem from="1680269351434" duration="6989000" />
-      <workItem from="1680277289537" duration="212000" />
-      <workItem from="1680423752818" duration="7077000" />
-      <workItem from="1680453295774" duration="8593000" />
-      <workItem from="1680535082698" duration="4313000" />
-      <workItem from="1680546406489" duration="8088000" />
-      <workItem from="1680622571339" duration="12342000" />
-      <workItem from="1680678412741" duration="10098000" />
-      <workItem from="1680689173696" duration="16011000" />
-      <workItem from="1680717616525" duration="663000" />
-      <workItem from="1680721261359" duration="645000" />
-      <workItem from="1680769225753" duration="3628000" />
-      <workItem from="1680809589957" duration="233000" />
-      <workItem from="1680858785535" duration="2185000" />
-      <workItem from="1680879904391" duration="668000" />
-      <workItem from="1680891333044" duration="5155000" />
-      <workItem from="1680936017980" duration="6630000" />
-      <workItem from="1680950046258" duration="620000" />
-      <workItem from="1680971114871" duration="1224000" />
-      <workItem from="1680974082999" duration="2938000" />
-      <workItem from="1681023769268" duration="12327000" />
-      <workItem from="1681104901329" duration="5607000" />
-      <workItem from="1681196579811" duration="647000" />
-      <workItem from="1681229546797" duration="22310000" />
-      <workItem from="1681312973558" duration="18577000" />
-      <workItem from="1681388868881" duration="24112000" />
-      <workItem from="1681464327588" duration="2949000" />
-      <workItem from="1681468032030" duration="3000" />
-      <workItem from="1681468120041" duration="11595000" />
-      <workItem from="1681483554784" duration="32714000" />
-      <workItem from="1681761221732" duration="20285000" />
-      <workItem from="1681979349736" duration="34910000" />
-      <workItem from="1682085154504" duration="6046000" />
-      <workItem from="1682157672006" duration="18914000" />
-      <workItem from="1682249946112" duration="28587000" />
-      <workItem from="1682324269073" duration="3512000" />
-      <workItem from="1682327835380" duration="18638000" />
-      <workItem from="1682498016794" duration="37271000" />
-      <workItem from="1682618854964" duration="13022000" />
-      <workItem from="1682701458754" duration="1333000" />
-      <workItem from="1682756971561" duration="5594000" />
-      <workItem from="1682763281001" duration="458000" />
-      <workItem from="1682763752550" duration="3610000" />
-      <workItem from="1682768578973" duration="26215000" />
-      <workItem from="1682839715081" duration="42648000" />
-      <workItem from="1682956244249" duration="6297000" />
-      <workItem from="1682962678235" duration="31763000" />
-      <workItem from="1683057082589" duration="3043000" />
-      <workItem from="1683060236285" duration="1147000" />
-      <workItem from="1683061440727" duration="8442000" />
-      <workItem from="1683102715441" duration="30165000" />
-      <workItem from="1683194570002" duration="16154000" />
-      <workItem from="1683459413161" duration="21343000" />
-      <workItem from="1683555842836" duration="8379000" />
-      <workItem from="1683646867880" duration="23183000" />
-      <workItem from="1683718391200" duration="15170000" />
-      <workItem from="1683754037597" duration="41169000" />
-      <workItem from="1684092369165" duration="45404000" />
+      <workItem from="1675932219925" duration="79309000" />
+      <workItem from="1678960506760" duration="22224000" />
+      <workItem from="1679045903240" duration="187027000" />
+      <workItem from="1684399776194" duration="1126000" />
+      <workItem from="1684401039801" duration="419000" />
+      <workItem from="1684401980691" duration="67530000" />
+      <workItem from="1684523629764" duration="61061000" />
+      <workItem from="1684866133925" duration="10701000" />
+      <workItem from="1685125493242" duration="33673000" />
+      <workItem from="1685466249686" duration="6888000" />
+      <workItem from="1685473256469" duration="5577000" />
+      <workItem from="1685478911906" duration="344000" />
+      <workItem from="1685479269624" duration="154000" />
+      <workItem from="1685479436907" duration="2806000" />
     </task>
     <task id="LOCAL-00001" summary="første prepross af SQL udtræk">
       <created>1676646533461</created>
@@ -327,14 +194,91 @@
       <option name="project" value="LOCAL" />
       <updated>1678115826036</updated>
     </task>
-    <task id="LOCAL-00007" summary="processed">
-      <created>1684318566499</created>
+    <task id="LOCAL-00007" summary="soft clustering v2">
+      <created>1678208642143</created>
       <option name="number" value="00007" />
       <option name="presentableId" value="LOCAL-00007" />
       <option name="project" value="LOCAL" />
-      <updated>1684318566499</updated>
+      <updated>1678208642143</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="soft clustering v2">
+      <created>1678967286061</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1678967286061</updated>
+    </task>
+    <task id="LOCAL-00009" summary="soft clustering v0.9">
+      <created>1678988183704</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1678988183704</updated>
+    </task>
+    <task id="LOCAL-00010" summary="soft clustering v0.8">
+      <created>1679060210023</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1679060210023</updated>
+    </task>
+    <task id="LOCAL-00011" summary="soft clustering v0.9">
+      <created>1679065287449</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1679065287449</updated>
+    </task>
+    <task id="LOCAL-00012" summary="pre-proc done real data">
+      <created>1679327386215</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1679327386215</updated>
+    </task>
+    <task id="LOCAL-00013" summary="clusters done">
+      <created>1679491624801</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1679491624801</updated>
+    </task>
+    <task id="LOCAL-00014" summary="clusters done.">
+      <created>1679504191045</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1679504191045</updated>
+    </task>
+    <task id="LOCAL-00015" summary="clusters done. for real">
+      <created>1679669654419</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1679669654419</updated>
+    </task>
+    <task id="LOCAL-00016" summary="performance v0.1">
+      <created>1680277556252</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1680277556252</updated>
+    </task>
+    <task id="LOCAL-00017" summary="performance v0.2">
+      <created>1680981323145</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1680981323145</updated>
+    </task>
+    <task id="LOCAL-00018" summary="performance v1">
+      <created>1681486348719</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1681486348719</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -354,30 +298,21 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="første prepross af SQL udtræk" />
     <MESSAGE value="færdig pre-pros + soft clustering v1" />
-    <MESSAGE value="processed" />
-    <option name="LAST_COMMIT_MESSAGE" value="processed" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="NONE" type="python-line">
-          <url>file://$PROJECT_DIR$/chemistry/chemistry_v2.py</url>
-          <line>232</line>
-          <log-expression expression="= s_21_22&#10;    df_players_teams_c = df_players_teams[df_players_teams['teamId'].isin(df_joi90_and_jdi90['teamId'].unique())]&#10;&#10;    return ready_for_scaling, df_joi90_and_jdi90, df_players_teams_c" language="Python" />
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="NONE" type="python-line">
-          <url>file://$PROJECT_DIR$/chemistry/jdi.py</url>
-          <line>8</line>
-          <log-expression expression="['teamId'], axis=1)&#10;    mno = mno.merge(matches_noi_opp_m, on=['matchId', 'opposingTeam'])&#10;    df_jdi = df_player_share_dist.merge(mno, on=['matchId', 'teamId'])&#10;    df_jdi_v2 = jdi_compute(df_jdi, def_suc)&#10;    df_jdi_v2 = df_jdi_v2[['matchId', 'teamId', 'playerId1', 'playerId2', 'pairwise_involvement', 'jdi_zone_1', 'jdi_zone_2','jdi_zone_3', 'jdi_zone_4', 'jdi_zone_5', 'jdi_zone_6', 'jdi']]&#10;    df_jdi_v2['p1'] = np.where(df_jdi_v2.playerId1 &lt; df_jdi_v2.playerId2, df_jdi_v2.playerId1, df_jdi_v2.playerId2)&#10;    df_jdi_v2['p2'] = np.where(df_jdi_v2.playerId2 &gt; df_jdi_v2.playerId1, df_jdi_v2.playerId2, df_jdi_v2.playerId1)&#10;    return df_jdi_v2" language="Python" />
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="soft clustering v2" />
+    <MESSAGE value="soft clustering v0.8" />
+    <MESSAGE value="soft clustering v0.9" />
+    <MESSAGE value="pre-proc done real data" />
+    <MESSAGE value="clusters done" />
+    <MESSAGE value="clusters done." />
+    <MESSAGE value="clusters done. for real" />
+    <MESSAGE value="performance v0.1" />
+    <MESSAGE value="performance v0.2" />
+    <MESSAGE value="performance v1" />
+    <option name="LAST_COMMIT_MESSAGE" value="performance v1" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Team_Construction$chemistry_helpers__1_.coverage" NAME="chemistry_helpers (1) Coverage Results" MODIFIED="1680455673063" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/chemistry" />
-    <SUITE FILE_PATH="coverage/Team_Construction$chemistry_v2.coverage" NAME="chemistry_v2 Coverage Results" MODIFIED="1683648812894" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/chemistry" />
+    <SUITE FILE_PATH="coverage/Team_Construction$chemistry_v2.coverage" NAME="chemistry_v2 Coverage Results" MODIFIED="1684521702812" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/chemistry" />
     <SUITE FILE_PATH="coverage/Team_Construction$prediction.coverage" NAME="prediction Coverage Results" MODIFIED="1682271231620" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/chemistry" />
   </component>
 </project>

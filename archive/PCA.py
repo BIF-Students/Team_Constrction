@@ -1,10 +1,8 @@
-import matplotlib.pyplot as plt
-import pandas as pd
 import seaborn as sns
 import umap
 from sklearn.decomposition import PCA
 
-from helpers.helperFunctions import *
+from archive.helpers.helperFunctions import *
 
 # Load dataset
 raw = pd.read_csv("C:/ITU/ITU_Research_Project/clustered_data/events_CN_UMAP.csv", sep = ",", encoding='unicode_escape')

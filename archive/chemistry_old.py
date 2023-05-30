@@ -1,15 +1,12 @@
 # Import necessary modules
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
-from chemistry.distance import *
-from chemistry.jdi import *
-from chemistry.joi import *
-from chemistry.netoi import *
-from chemistry.responsibility_share import *
-from chemistry.smallTest import test_players_in_a_match
-from chemistry.sql_statements import *
-from helpers.student_bif_code import load_db_to_pd  # custom module
-from chemistry.chemistry_helpers import *
+from chemistry_old.distance import *
+from chemistry_old.jdi import *
+from chemistry_old.joi import *
+from chemistry_old.netoi import *
+from chemistry_old.responsibility_share import *
+from chemistry_old.sql_statements import *
+from chemistry_old.chemistry_helpers import *
 
 print('hej')
 
@@ -175,7 +172,7 @@ def get_jdi_leagues(sd_table, df_matches_all, df_sqaud, df_keepers, df_pos):
         df_player_share = getResponsibilityShare((df_process_21_22.copy()))
         oi_list.append(df_net_oi)
         # Extract jdi
-        df_jdi = get_jdi(df_player_share, df_ec, df_net_oi, df_matches_all)
+        df_jdi, mo = get_jdi(df_player_share, df_ec, df_net_oi, df_matches_all)
         df_jdi['seasonId'] = s_21_22
         jdi_list.append(df_jdi)
         share_list.append(df_player_share)

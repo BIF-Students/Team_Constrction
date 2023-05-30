@@ -1,6 +1,5 @@
-import pandas as pd
-from helpers.student_bif_code import *
-from helpers.helperFunctions import *
+from archive.helpers.student_bif_code import *
+from archive.helpers.helperFunctions import *
 from sklearn.preprocessing import MinMaxScaler
 
 df = load_db_to_pd(sql_query = "SELECT * FROM sd_table", db_name='Development')

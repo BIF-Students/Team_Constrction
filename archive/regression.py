@@ -23,6 +23,7 @@ import lightgbm as lgb
 import matplotlib.pyplot as plt
 import plotly.offline as pyo
 from sklearn.dummy import DummyClassifier
+from sklearn.metrics import confusion_matrix
 import sys
 sys.path.append('C:/Users/jhs/factor_analyzer/factor_analyzer-main')
 sys.path.append('C:/Users/jhs/umap/\pynndescent')
@@ -30,12 +31,47 @@ sys.path.append('C:/Users/jhs/\pynndescent/umap-master')
 from factor_analyzer import FactorAnalyzer
 import umap
 from sklearn.multiclass import OneVsRestClassifier
+import time
 
 from sklearn.metrics import log_loss
 
 df_players = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/df_players.csv")
 df_players = load_db_to_pd(sql_query = "SELECT * FROM [Scouting_Raw].[dbo].[Wyscout_Players]", db_name='Scouting_Raw')
 
+
+def plot_confusion_matrix(target_test, lgb_preds_test):
+    # Calculate the confusion matrix
+    conf_matrix = confusion_matrix(target_test, lgb_preds_test)
+
+    # Calculate the percentages
+    conf_matrix_percent = conf_matrix / conf_matrix.sum(axis=1)[:, np.newaxis] * 100
+
+    # Create the figure and axes
+    fig, ax = plt.subplots(figsize=(18, 8))
+
+    # Set the color theme to "plasma"
+    cmap = sns.color_palette("plasma")
+
+    # Plot the confusion matrix with percentages using Seaborn
+    sns.heatmap(conf_matrix_percent, fmt='.0f', annot =  True, cmap=cmap, cbar=False, ax=ax, annot_kws={"fontsize": 12})
+
+    # Set the tick positions to the middle of each square
+    ax.set_xticks([i + 0.5 for i in range(18)], minor=False)
+    ax.set_yticks([i + 0.5 for i in range(18)], minor=False)
+
+    # Set the tick labels
+    ax.set_xticklabels(range(18), rotation=45, ha='right', fontsize=10)
+    ax.set_yticklabels(range(18), rotation=0, fontsize=10)
+
+    # Set the axis labels and title
+    ax.set_xlabel('Predicted Roles', fontsize=12)
+    ax.set_ylabel('True Roles', fontsize=12)
+    ax.set_title('Confusion Matrix (Percentage)', fontsize=14)
+    plt.savefig('C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/img/heat_1.png')
+
+    # Show the plot
+    plt.tight_layout()
+    plt.show()
 def show_target_distribution(df, label):
     # create a figure and axis
     fig, ax = plt.subplots()
@@ -142,6 +178,7 @@ def show_feature_importances(model, input_train, input_test, target_test):
     fig.show()
     pyo.plot(fig)
 
+print("asd")
 data  = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/brondbyProjekter/data/players_clusters.csv",
                                 sep=",",
                                 encoding='unicode_escape')
@@ -224,23 +261,40 @@ for i in range(2,5):
     #xgb_preds_train = xgb_model.predict(input_train)
     evaluate_model_original(input_train, target_train, input_test, target_test, xgb_model)
 
-
 lgb_model = lgb.LGBMClassifier(learning_rate=0.045001 , n_estimators=110, objective='multiclass',
                                max_depth=3, num_leaves= 100, feature_fraction = 0.7, min_data_in_leaf = 100,
-                               min_child_samples=1 , reg_alpha=1 , reg_lambda=10 )
+                               min_child_samples=1 , reg_alpha=1 , reg_lambda=1 )
+start_time = time.time()
 lgb_model.fit(input_train, target_train)
+end_time = time.time()
+execution_time = end_time - start_time
+
+print("Execution Time:", execution_time, "seconds")
+
 lgb_preds_test = lgb_model.predict(input_test)
 lgb_preds_train = lgb_model.predict(input_train)
 evaluate_model_original(input_train, target_train, input_test, target_test, lgb_model)
 
 
+#plot_confusion_matrix(target_test, lgb_preds_test)
+
+
 ovr_lgb = OneVsRestClassifier(LGBMClassifier(learning_rate=0.045001 , n_estimators=110,
                                max_depth=3, num_leaves= 100, feature_fraction = 0.7, min_data_in_leaf = 100,
                                min_child_samples=1 , reg_alpha=1 , reg_lambda=10) )
+start_time2 = time.time()
 ovr_lgb.fit(input_train, target_train)
+end_time2 = time.time()
+execution_time2 = end_time2 - start_time2
+
+print("Execution Time:", execution_time2, "seconds")
+1.1086628437042236 - 0.8797259330749512
 ovr_lgb_preds_test = ovr_lgb.predict(input_test)
 ovr_lgb_preds_train = ovr_lgb.predict(input_train)
 evaluate_model_original(input_train, target_train, input_test, target_test, ovr_lgb)
+end_time = time.time()
+execution_time = end_time - start_time
+print("Execution Time:", execution_time, "seconds")
 
 ovr_xgb = OneVsRestClassifier(xgb.XGBClassifier(learning_rate=0.045001 , n_estimators=110,
                                max_depth=3, num_leaves= 100, feature_fraction = 0.7, min_data_in_leaf = 100,
@@ -549,89 +603,3 @@ results_df.to_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/b
 gg.to_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/clusters_and_chem_AVG.csv", decimal=',', sep=(';'), index=False)
 
 
-'''
-# Load dataset
-DEF = pd.read_csv('C:/ITU/ITU_Research_Project/clustered_data/DEF.csv', sep=",", encoding='unicode_escape')
-MID = pd.read_csv('C:/ITU/ITU_Research_Project/clustered_data/MID.csv', sep=",", encoding='unicode_escape')
-WIDE = pd.read_csv('C:/ITU/ITU_Research_Project/clustered_data/WIDE.csv', sep=",", encoding='unicode_escape')
-ATT = pd.read_csv('C:/ITU/ITU_Research_Project/clustered_data/ATT.csv', sep=",", encoding='unicode_escape')
-raw = pd.read_csv("C:/ITU/ITU_Research_Project/preprocessed/events_CN.csv", sep = ",", encoding='unicode_escape')
-#Merge clusters with features
-DEF_v2 = pd.merge(DEF, raw, on=['playerId','seasonId', 'map_group', 'pos_group'])
-MID_v2 = pd.merge(MID, raw, on=['playerId','seasonId', 'map_group', 'pos_group'])
-WIDE_v2 = pd.merge(WIDE, raw, on=['playerId','seasonId', 'map_group', 'pos_group'])
-ATT_v2 = pd.merge(ATT, raw, on=['playerId','seasonId', 'map_group', 'pos_group'])
-#removal of redundant columns
-DEF_v3 = DEF_v2.drop(['playerId', 'seasonId', 'map_group', 'pos_group', 'teamId'], axis=1)
-MID_v3 = MID_v2.drop(['playerId', 'seasonId', 'map_group', 'pos_group', 'teamId'], axis=1)
-ATT_v3 = ATT_v2.drop(['playerId', 'seasonId', 'map_group', 'pos_group', 'teamId'], axis=1)
-WIDE_v3 = WIDE_v2.drop(['playerId', 'seasonId', 'map_group', 'pos_group', 'teamId'], axis=1)
-# Extract input and target values for each pos_gropu
-feature_columns = DEF_v3.columns
-input_variables = DEF_v3.columns[feature_columns != 'cluster']
-# Def
-def_input = DEF_v3[input_variables]
-def_target = DEF_v3['cluster']
-# mid
-mid_input = MID_v3[input_variables]
-mid_target = MID_v3['cluster']
-# wing
-wide_input = WIDE_v3[input_variables]
-wide_target = WIDE_v3['cluster']
-# att
-att_input = ATT_v3[input_variables]
-att_target = ATT_v3['cluster']
-# Split of datasets for each position
-def_input_train, def_input_test, def_target_train, def_target_test = train_test_split(def_input, def_target,
-                                                                     test_size=0.33, random_state=42)
-mid_input_train, mid_input_test, mid_target_train, mid_target_test = train_test_split(mid_input, mid_target,
-                                                                     test_size=0.33, random_state=42)
-wide_input_train, wide_input_test, wide_target_train, wide_target_test = train_test_split(wide_input, wide_target,
-                                                                         test_size=0.33, random_state=42)
-att_input_train, att_input_test, att_target_train, att_target_test = train_test_split(att_input, att_target,
-
-        #MID
-perform_regression(model, mid_input_train, mid_input_test, mid_target_train, mid_target_test, "MID")
-#WIDE
-perform_regression(model, wide_input_train, wide_input_test, wide_target_train, wide_target_test, "WIDE")
-#ATT
-perform_regression(model, att_input_train, att_input_test, att_target_train, att_target_test, "ATT")
-                                                             test_size=0.33, random_state=42)
-                                                             
-                                                             
-
-reg_alpha = 0.1
-while reg_alpha <= 10:
-    # Increase reg_alpha with a small step
-    reg_alpha += 0.1
-    print(reg_alpha)
-    lgb_model_fa = lgb.LGBMClassifier(learning_rate=0.04320707070707071, n_estimators=116, objective='multiclass',
-                                      max_depth=7, num_leaves=10, feature_fraction=1, min_data_in_leaf=100,
-                                      reg_alpha=0.7, reg_lambda=reg_alpha)
-    lgb_model_fa.fit(input_train_fa, target_train_fa)
-    lgb_preds_test = lgb_model_fa.predict(input_test_fa)
-    lgb_preds_train = lgb_model_fa.predict(input_train_fa)
-    evaluate_model_t(lgb_preds_test, lgb_preds_train, target_test_fa, target_train_fa, 'lgb model', reg_alpha)
-
-
-for i in range(80, 110):
-    lgb_model_fa = lgb.LGBMClassifier(learning_rate=0.04320707070707071 , n_estimators=101, objective='multiclass',
-                               max_depth=7, num_leaves= 10, feature_fraction =1, min_data_in_leaf = 100,
-                                reg_alpha=0.7 , reg_lambda=9.89999999999999, max_bin = 256)
-    lgb_model_fa.fit(input_train_fa, target_train_fa)
-    lgb_preds_test = lgb_model_fa.predict(input_test_fa)
-    lgb_preds_train = lgb_model_fa.predict(input_train_fa)
-    evaluate_model_original(lgb_preds_test, lgb_preds_train, target_test_fa, target_train_fa, 'lgb model')
-#--------------------------------------------------------------------------------------------------------
-# OneVsRest model
-ovr_model = OneVsRestClassifier(LGBMClassifier(learning_rate=0.04320707070707071, max_depth=6, num_leaves=10, feature_fraction=0.7,
-                   min_data_in_leaf=62,
-                   reg_alpha=3, reg_lambda=9.89999999999999, n_estimators=400))
-
-lgb_model_fa.fit(input_train_fa, target_train_fa)
-lgb_preds_test = lgb_model_fa.predict(input_test_fa)
-lgb_preds_train = lgb_model_fa.predict(input_train_fa)
-evaluate_model_original(lgb_preds_test, lgb_preds_train, target_test_fa, target_train_fa, 'lgb model')
-
-#---------------------------------------------
-'''

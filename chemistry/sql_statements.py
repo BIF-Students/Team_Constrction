@@ -1,6 +1,4 @@
-import pandas as pd
-
-from helpers.student_bif_code import load_db_to_pd
+from archive.helpers.student_bif_code import load_db_to_pd
 
 '''
 For now, we know prior to the statement that we only have data for the seasons:
@@ -8,7 +6,7 @@ s1: 2020/2021
 s2: 2021/2022
 
 For this reason, we only need the competition Id
-The methods will have to be adjsuted if we want to scope into specific seasons
+The methods will have to be adjust if we want to scope into specific seasons
 '''
 
 

@@ -1,7 +1,5 @@
-import numpy as np
-import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-from helpers.helperFunctions import *
+from archive.helpers.helperFunctions import *
 
 # load event file
 df = pd.read_csv('C:/Users/mall/OneDrive - Implement/Documents/Andet/RP/Data/Wyscout_Events - Copy.csv',
