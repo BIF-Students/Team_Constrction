@@ -4,49 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="processed">
-      <change afterPath="$PROJECT_DIR$/chemistry/pairwise_chemistry.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cluster.py" beforeDir="false" afterPath="$PROJECT_DIR$/Cluster.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SQL_pross.py" beforeDir="false" afterPath="$PROJECT_DIR$/SQL_pross.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/archive/OldCluster.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/OldCluster.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/archive/PCA.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/PCA.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/archive/dr_cluster.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/dr_cluster.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/archive/dr_cluster_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/dr_cluster_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/archive/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/archive/pre_pros.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/pre_pros.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/archive/pre_pros2.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/pre_pros2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catboost_info/catboost_training.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/catboost_info/learn/events.out.tfevents" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/catboost_info/learn_error.tsv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/catboost_info/time_left.tsv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/chemistry.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/chemistry_old.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/chemistry_helpers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/chemistry_v2.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/distance.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/distance.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/jdi.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/jdi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/joi.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/joi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/netoi.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/netoi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/prediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/prediction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/responsibility_share.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/responsibility_share.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry/sql_statements.py" beforeDir="false" afterPath="$PROJECT_DIR$/chemistry/sql_statements.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry_v2/chemistry.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry_v2/chemistry_helpers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry_v2/distance.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry_v2/jdi.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry_v2/joi.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry_v2/netoi.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry_v2/responsibility_share.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry_v2/smallTest.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/chemistry_v2/sql_statements.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/helpers/helperFunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/helpers/helperFunctions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helpers/metrics.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/helpers/metrics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helpers/metrics2.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/helpers/metrics2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helpers/student_bif_code.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/helpers/student_bif_code.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/helpers/visualizations.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/helpers/visualizations.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/regression.py" beforeDir="false" afterPath="$PROJECT_DIR$/archive/regression.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/temp-plot.html" beforeDir="false" />
-    </list>
+    <list default="true" id="a1f780ce-a592-44ab-9318-2d8a78444ee8" name="Changes" comment="processed" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -150,7 +108,7 @@
       <workItem from="1685473256469" duration="5577000" />
       <workItem from="1685478911906" duration="344000" />
       <workItem from="1685479269624" duration="154000" />
-      <workItem from="1685479436907" duration="2806000" />
+      <workItem from="1685479436907" duration="3308000" />
     </task>
     <task id="LOCAL-00001" summary="første prepross af SQL udtræk">
       <created>1676646533461</created>

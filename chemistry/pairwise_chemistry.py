@@ -3,7 +3,6 @@ import pandas as pd
 import seaborn as sns
 from scipy.stats import spearmanr
 from chemistry.chemistry_helpers import *
-from chemistry.sql_statements import *
 
 
 
