@@ -13,9 +13,11 @@ import xgboost as xgb
 import plotly.express as px
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.preprocessing import StandardScaler
-from helpers.helperFunctions import *
-from helpers.student_bif_code import load_db_to_pd
-from helpers.visualizations import *
+from xgboost import XGBClassifier
+
+from archive.helpers.helperFunctions import *
+from archive.helpers.student_bif_code import load_db_to_pd
+from archive.helpers.visualizations import *
 import random
 import statistics
 import seaborn as sns
@@ -24,18 +26,12 @@ import matplotlib.pyplot as plt
 import plotly.offline as pyo
 from sklearn.dummy import DummyClassifier
 from sklearn.metrics import confusion_matrix
-import sys
-sys.path.append('C:/Users/jhs/factor_analyzer/factor_analyzer-main')
-sys.path.append('C:/Users/jhs/umap/\pynndescent')
-sys.path.append('C:/Users/jhs/\pynndescent/umap-master')
-from factor_analyzer import FactorAnalyzer
-import umap
 from sklearn.multiclass import OneVsRestClassifier
 import time
 
 from sklearn.metrics import log_loss
 
-df_players = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/df_players.csv")
+df_players = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/data_files/df_players.csv")
 df_players = load_db_to_pd(sql_query = "SELECT * FROM [Scouting_Raw].[dbo].[Wyscout_Players]", db_name='Scouting_Raw')
 
 
@@ -178,7 +174,6 @@ def show_feature_importances(model, input_train, input_test, target_test):
     fig.show()
     pyo.plot(fig)
 
-print("asd")
 data  = pd.read_csv("C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Dokumenter/brondbyProjekter/data/players_clusters.csv",
                                 sep=",",
                                 encoding='unicode_escape')
@@ -239,27 +234,12 @@ print(f"F1 score: {f1_score_val}")
 
 
 
-# Shows roc curve for each class and labels the class and teh auc score
-
-
-# Players to try and predict
-# 38021 De buyne
-# 3359 Messi
-# 217031 PArtey
-
 
 # Create models
 
 rdf_model = RandomForestClassifier(criterion ='gini', n_estimators=100, min_samples_split=2, min_samples_leaf=7, max_features='sqrt',max_depth=5)
 rdf_model.fit(input_train, target_train)
 evaluate_model_original(input_train, target_train, input_test, target_test, rdf_model)
-for i in range(2,5):
-    num = i/10
-    xgb_model = xgb.XGBClassifier(learning_rate=0.004555, reg_alpha=1, reg_lambda=1, objective= 'multi:softprob',  n_estimators = 500, max_depth=5, min_child_weight=2 , gamma=0 , subsample=0.2 , colsample_bytree=0.5 )
-    xgb_model.fit(input_train, target_train)
-    #xgb_preds_test = xgb_model.predict(input_test)
-    #xgb_preds_train = xgb_model.predict(input_train)
-    evaluate_model_original(input_train, target_train, input_test, target_test, xgb_model)
 
 lgb_model = lgb.LGBMClassifier(learning_rate=0.045001 , n_estimators=110, objective='multiclass',
                                max_depth=3, num_leaves= 100, feature_fraction = 0.7, min_data_in_leaf = 100,
@@ -288,7 +268,6 @@ end_time2 = time.time()
 execution_time2 = end_time2 - start_time2
 
 print("Execution Time:", execution_time2, "seconds")
-1.1086628437042236 - 0.8797259330749512
 ovr_lgb_preds_test = ovr_lgb.predict(input_test)
 ovr_lgb_preds_train = ovr_lgb.predict(input_train)
 evaluate_model_original(input_train, target_train, input_test, target_test, ovr_lgb)
@@ -296,119 +275,14 @@ end_time = time.time()
 execution_time = end_time - start_time
 print("Execution Time:", execution_time, "seconds")
 
-ovr_xgb = OneVsRestClassifier(xgb.XGBClassifier(learning_rate=0.045001 , n_estimators=110,
+xgb_model = XGBClassifier(learning_rate=0.045001 , n_estimators=110, objective='multiclass',
                                max_depth=3, num_leaves= 100, feature_fraction = 0.7, min_data_in_leaf = 100,
-                               min_child_samples=1 , reg_alpha=1 , reg_lambda=10 ))
-ovr_xgb.fit(input_train, target_train)
-ovr_xgb_preds_test = ovr_xgb.predict(input_test)
-ovr_xgb_preds_train = ovr_xgb.predict(input_train)
-evaluate_model_original(ovr_xgb_preds_test, ovr_xgb_preds_train, target_test, target_train, 'ovr xgb model')
-
-#fa analysis-----------------------------------------
-'''
-fa = FactorAnalyzer(n_factors=35, method='ml', rotation='varimax')
-# Fit the factor analyzer to the standardized data
-fa.fit(input_scaled)
-
-# Get the factor scores for the standardized data
-X_factors = fa.transform(input_scaled)
-loadings = fa.loadings_
-X = input_scaled.dot(loadings)
-input_train_fa, input_test_fa, target_train_fa, target_test_fa = train_test_split(X, target, test_size=0.2, random_state=42)
-
-lgb_model_fa = lgb.LGBMClassifier(learning_rate=0.04320707070707071 , n_estimators=116, objective='multiclass',
-                               max_depth=7, num_leaves= 10, feature_fraction =1, min_data_in_leaf = 100,
-                                reg_alpha=0.7 , reg_lambda=9.89999999999999)
-lgb_model_fa.fit(input_train, target_train)
-lgb_preds_test = lgb_model_fa.predict(input_test)
-lgb_preds_train = lgb_model_fa.predict(input_train)
-evaluate_model_original(lgb_preds_test, lgb_preds_train, target_test, target_train, 'lgb model' )
-lgb_preds_test = lgb_model_fa.predict(input_test)
-lgb_proba_test = lgb_model_fa.predict_proba(input_test)
-logloss_lgb = log_loss(target_test, lgb_proba_test, labels=lgb_model_fa.classes_)
-scores_lgb = cross_val_score(lgb_model, input_train, target_train, cv=5)
-print('lgb: ', scores_lgb)
-print( 'log_loss lgb:', logloss_lgb)
-
-xgb_model_fa = xgb.XGBClassifier(learning_rate=0.04320707070707071, reg_alpha=1, reg_lambda=1, objective= 'multi:softprob',  n_estimators = 98, max_depth=7, min_child_weight=6 , gamma=0 , subsample=0.3 , colsample_bytree=0.6 )
-xgb_model_fa.fit(input_train, target_train)
+                               min_child_samples=1 , reg_alpha=1 , reg_lambda=10 )
+xgb_model.fit(input_train, target_train)
 xgb_preds_test = xgb_model.predict(input_test)
 xgb_preds_train = xgb_model.predict(input_train)
-evaluate_model_original(xgb_preds_test, xgb_preds_train, target_test, target_train, 'xgb model')
-xgb_preds_test = xgb_model_fa.predict(input_test)
-xgb_proba_test = xgb_model_fa.predict_proba(input_test)
-logloss_xgb = log_loss(target_test, xgb_proba_test, labels=xgb_model_fa.classes_)
-scores_xgb = cross_val_score(xgb_model_fa, input_train, target_train, cv=5)
-print('xgb: ', scores_xgb)
-print('log_loss xgb: ', logloss_xgb)
+evaluate_model_original(input_train, target_train, input_test, target_test, xgb_model)
 
-
-'''
-
-p1 = for_prediction.iloc[[2]]
-p2 = for_prediction.iloc[[8]]
-
-df_bif_2 = p2.iloc[:, 3:50]
-df_bif_2 = df_bif_2.drop(['seasonId_y', 'x', 'y'], axis=1)
-feature_columns_bif_v = df_bif_2.columns
-input_variables_bif_v = feature_columns_bif_v[feature_columns_bif_v != 'ip_cluster']
-input_bif_v2 = p2[input_variables_bif_v]
-xgb_preds_bif_v2 = xgb_model_fa.predict_proba(input_bif_v2)
-top3_indices = np.argsort(xgb_preds_bif_v2, axis=1)[:,::-1][:,:3]
-
-
-results = []
-for i in range(len(for_prediction)):
-    print(p1.columns)
-    p1 = for_prediction.iloc[[i]]
-    id = p1['playerId'].values[0]
-    pos_group = p1['pos_group'].values[0]
-    ip_cluster = p1['ip_cluster'].values[0]
-    df_bif_2 = p1.iloc[:, 3:50]
-    df_bif_2 = df_bif_2.drop(['x', 'y'], axis=1)
-    feature_columns_bif_v = df_bif_2.columns
-    input_variables_bif_v = feature_columns_bif_v[feature_columns_bif_v != 'ip_cluster']
-    input_bif_v2 = p1[input_variables_bif_v]
-    xgb_preds_bif_v3 = ovr_lgb.predict_proba(input_bif_v2)
-    top3_indices = np.argsort(xgb_preds_bif_v3, axis=1)[:, ::-1][:, :3]
-    top3_clusters = top3_indices[0]
-    top3_probs = xgb_preds_bif_v3[0][top3_clusters]
-    result = (id, pos_group, ip_cluster, top3_clusters[0], top3_probs[0], top3_clusters[1], top3_probs[1], top3_clusters[2], top3_probs[2])
-    results.append(result)
-
-results_df = pd.DataFrame(results, columns=['playerId', 'pos_group', 'ip_cluster', 'top_cluster1', 'top_prob1', 'top_cluster2', 'top_prob2', 'top_cluster3', 'top_prob3'])
-results_df = results_df.merge(df_players[['playerId', 'shortName']], on = 'playerId')
-results_df = results_df.loc[:, ['playerId', 'shortName', 'pos_group', 'ip_cluster', 'top_cluster1', 'top_cluster2', 'top_cluster3', 'top_prob1', 'top_prob2', 'top_prob3']]
-
-earlier_results = pd.read_csv('C:/Users/jhs/OneDrive - Brøndbyernes IF Fodbold/Skrivebord/clusters_and_chem_AVG.csv', sep=(';'))
-
-gg = results_df.merge(earlier_results[['playerId', 'chemistry']], how='left')
-
-
-rdf_model_fa = RandomForestClassifier(criterion ='gini', n_estimators=100, min_samples_split=2, min_samples_leaf=7, max_features='sqrt',max_depth=10)
-rdf_model_fa.fit(input_train_fa, target_train_fa)
-rdf_preds_test = rdf_model_fa.predict(input_test_fa)
-rdf_preds_train = rdf_model_fa.predict(input_train_fa)
-evaluate_model_original(rdf_preds_test, rdf_preds_train, target_test_fa, target_train_fa, 'rdf model')
-rdf_preds_test = rdf_model_fa.predict(input_test_fa)
-rdf_proba_test = rdf_model_fa.predict_proba(input_test_fa)
-logloss_rdf = log_loss(target_test_fa, rdf_proba_test, labels=rdf_model_fa.classes_)
-scores_rdf = cross_val_score(rdf_model_fa, input_train_fa, target_train_fa, cv=5)
-print('rdf: ', scores_rdf)
-print('rdf loss: ', logloss_rdf)
-
-ovr_lgb = OneVsRestClassifier(LGBMClassifier(learning_rate=0.04320707070707071, max_bin=256, n_estimators=200,
-                               max_depth=7, num_leaves=10, feature_fraction=0.7, min_data_in_leaf=90,
-                               reg_alpha=0.7, reg_lambda=9.89999999999999))
-ovr_lgb.fit(input_train, target_train)
-ovr_lgb_preds_test = ovr_lgb.predict(input_test)
-ovr_lgb_preds_train = ovr_lgb.predict(input_train)
-evaluate_model_original(ovr_lgb_preds_test, ovr_lgb_preds_train, target_test, target_train, 'ovr_lgb model')
-ovr_lgb_preds_test = ovr_lgb.predict(input_test)
-ovr_lgb_proba_test = ovr_lgb.predict_proba(input_test)
-logloss_ovr_lgb = log_loss(target_test, ovr_lgb_proba_test, labels=ovr_lgb.classes_)
-scores_ovr_lgb = cross_val_score(ovr_lgb, input_train, target_train, cv=5)
-print('ovr_lgb loss: ', logloss_ovr_lgb)
 
 def plot_multiclass_roc(model, X_test, y_test, n_classes):
     # Compute ROC curve and ROC area for each class
